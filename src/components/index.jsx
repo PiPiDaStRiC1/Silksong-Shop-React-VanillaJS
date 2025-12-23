@@ -1,0 +1,1 @@
+export {Footer, Header, Main} from './layouts/index.jsx';

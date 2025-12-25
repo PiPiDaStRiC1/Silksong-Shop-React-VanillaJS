@@ -9,7 +9,7 @@ export const Hero = () => {
                 <img 
                     src={mainBackground} 
                     alt="Main background" 
-                    className="w-full h-full object-cover animate-[zoomIn_20s_ease-in-out_infinite_alternate]" 
+                    className="w-full h-full object-cover" 
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
             </div>

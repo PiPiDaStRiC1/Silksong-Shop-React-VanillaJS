@@ -7,9 +7,9 @@ export const Reviews = () => {
   const { reviews, isLoading, error } = useData();
 
   const [totalQuantity, totalRate] = useMemo(() => {
+        const quantity = reviews.reduce((acc, reviewUser) => acc + reviewUser.reviews.length, 0);
         if (!reviews.length) return [0, 0];
-        const quantity = reviews.length;
-        const rate = reviews.reduce((acc, review) => acc + review.starCount, 0) / quantity;
+        const rate = reviews.reduce((acc, reviewUser) => acc + reviewUser.reviews.reduce((acc, review) => acc + review.starCount, 0), 0) / quantity;
         return [quantity, rate.toFixed(1)];
     }, [reviews])
 
@@ -94,7 +94,7 @@ export const Reviews = () => {
           <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm text-gray-400">Showing</span>
-              <span className="text-white">{reviews.length} reviews</span>
+              <span className="text-white">{totalQuantity} reviews</span>
             </div>
             <select className="bg-black text-white border border-neutral-700 rounded-lg px-3 py-2 text-sm">
               <option>Sort by: Helpful</option>
@@ -113,18 +113,29 @@ export const Reviews = () => {
                         <p>Failed to load reviews</p>
                     </div> : (
                         <>
-                        <div className="grid grid-cols-1 gap-4">
-                            {reviews.map((review) => (
-                            <ReviewsCardFull key={review.id} {...review} />
-                            ))}
-                        </div>
+                          {/* TWO CYCLES */}
+                          <div className="grid grid-cols-1 gap-4 max-h-[42rem] overflow-y-auto scrollbar-reviews custom-scroll">
+                              {reviews.map(reviewUser => reviewUser.reviews.map(review => (
+                                <ReviewsCardFull 
+                                  key={review.id} 
+                                  userInfo={{
+                                              id: reviewUser.id, 
+                                              name: reviewUser.name, 
+                                              avatar: reviewUser.avatar,
+                                              verified: reviewUser.verified
+                                            }} 
+                                  reviewInfo={{...review}} 
+                                />
+                              )))}
+                          </div>
 
-                        <div className="flex justify-center items-center gap-2 mt-6">
-                            <button className="px-3 py-2 rounded-lg border border-neutral-700 text-white hover:bg-white hover:text-black transition">Prev</button>
-                            <button className="px-3 py-2 rounded-lg border border-neutral-700 bg-white text-black">1</button>
-                            <button className="px-3 py-2 rounded-lg border border-neutral-700 text-white hover:bg-white hover:text-black transition">2</button>
-                            <button className="px-3 py-2 rounded-lg border border-neutral-700 text-white hover:bg-white hover:text-black transition">Next</button>
-                        </div>
+                          {/* Buttons on mobile */}
+                          {/* <div className="flex justify-center items-center gap-2 mt-6">
+                              <button className="px-3 py-2 rounded-lg border border-neutral-700 text-white hover:bg-white hover:text-black transition">Prev</button>
+                              <button className="px-3 py-2 rounded-lg border border-neutral-700 bg-white text-black">1</button>
+                              <button className="px-3 py-2 rounded-lg border border-neutral-700 text-white hover:bg-white hover:text-black transition">2</button>
+                              <button className="px-3 py-2 rounded-lg border border-neutral-700 text-white hover:bg-white hover:text-black transition">Next</button>
+                          </div> */}
                         </>
                     )}
             </div>

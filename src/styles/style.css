@@ -22,7 +22,7 @@
   scrollbar-color: white #111;
 }
 
-/* Hero animations */
+
 @keyframes fadeInUp {
   from {
     opacity: 0;

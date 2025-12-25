@@ -5,3 +5,4 @@ export {CatalogItemDetails} from './CatalogItemDetails';
 export {Reviews} from './Reviews';
 export {FAQ} from './FAQ';
 export {Delivery} from './Delivery';
+export {UserProfileDetails} from './UserProfileDetails';

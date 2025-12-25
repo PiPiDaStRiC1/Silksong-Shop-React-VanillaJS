@@ -5,9 +5,11 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   plugins: [
     react({
-      babel: {
-        plugins: [['babel-plugin-react-compiler']],
-      },
+      // CAN AUTO ADD useMemo/useCallback/React.memo THERE IT NEEDS
+      // BETTER USE IN BIG PROJECTS ONLY
+      // babel: {
+      //   plugins: [['babel-plugin-react-compiler']],
+      // },
     }),
     tailwindcss(),
   ],

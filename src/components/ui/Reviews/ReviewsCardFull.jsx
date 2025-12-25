@@ -2,7 +2,9 @@ import { BadgeCheck, ThumbsUp, ThumbsDown, Share2, ShoppingBag } from 'lucide-re
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 
-export const ReviewsCardFull = ({ name, review, src, starCount, date, verified, id, helpfulCount = 0 }) => {
+export const ReviewsCardFull = ({ userInfo, reviewInfo }) => {
+  const { id, name, avatar, verified } = userInfo;
+  const { starCount, helpfulCount, content: review, date } = reviewInfo;
   const [helpful, setHelpful] = useState(null); 
   const [localHelpfulCount, setLocalHelpfulCount] = useState(helpfulCount);
 
@@ -22,7 +24,7 @@ export const ReviewsCardFull = ({ name, review, src, starCount, date, verified, 
       <div className='flex items-start gap-4'>
         <Link to={`/profile/${id}`} className="flex-shrink-0 group">
           <img 
-            src={src} 
+            src={avatar} 
             alt={name} 
             className='w-16 h-16 rounded-full object-cover ring-2 ring-neutral-800 transition-all group-hover:ring-white/50' 
           />

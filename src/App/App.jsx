@@ -1,6 +1,6 @@
 import '../styles/style.css';
 import {Footer, Header, Main} from '@/components/layouts/index';
-import {Home, About, Catalog, Reviews, CatalogItemDetails, Delivery, FAQ} from '@/pages/index';
+import {Home, About, Catalog, Reviews, CatalogItemDetails, Delivery, FAQ, UserProfileDetails} from '@/pages/index';
 import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import {ScrollToTop} from '@/libs/utils/ScroollToTop'
 import {DataProvider} from '../contexts/DataProvider'
@@ -17,6 +17,7 @@ const App = () => {
               <Route index path='/' element={<Home />} />
               <Route path='/catalog' element={<Catalog />} />
               <Route path='/catalog/:category/:id' element={<CatalogItemDetails />} />
+              <Route path='/profile/:userId' element={<UserProfileDetails />} />
               <Route path='/reviews' element={<Reviews />} />
               <Route path='/delivery' element={<Delivery />} />
               <Route path='/faq' element={<FAQ />} />

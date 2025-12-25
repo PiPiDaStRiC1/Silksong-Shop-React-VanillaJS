@@ -4,9 +4,14 @@ import { useMemo } from 'react';
 
 export const DataProvider = ({children}) => {
     const {reviews, products, error, isLoading} = useRequests();
-
+    
     const value = useMemo(() => {
-        return {reviews, products, error, isLoading};
+        return {
+            reviews, 
+            products, 
+            error, 
+            isLoading
+        };
     }, [reviews, products, error, isLoading])
 
     return (

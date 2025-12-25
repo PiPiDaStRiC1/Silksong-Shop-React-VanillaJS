@@ -13,7 +13,6 @@ export const useRequests = () => {
 
         Promise.all([getProducts(), getReviews()])
             .then(([productsData, reviewsData]) => {
-                setIsLoading(true);
                 if (!cancelled) {
                     setProducts(productsData);
                     setReviews(reviewsData);

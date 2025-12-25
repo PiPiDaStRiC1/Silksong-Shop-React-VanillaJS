@@ -1,13 +1,15 @@
 import { BadgeCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-export const ReviewsCard = ({review, name, src, starCount, date, verified}) => {
+export const ReviewsCard = ({name, avatar, reviews, date, verified}) => {
+    const { starCount, content } = reviews[0];
+    
     return (
         <Link to="/reviews" className='block'>
             <div className='flex flex-col gap-3 bg-neutral-900 border border-neutral-800 p-5 rounded-xl hover:border-neutral-400 transition duration-300 shadow-md'>
                 <div className='flex items-start gap-3'>
                     <img 
-                        src={src} 
+                        src={avatar} 
                         alt={name} 
                         className='w-12 h-12 rounded-full object-cover flex-shrink-0 ring-2 ring-neutral-800' 
                     />
@@ -33,7 +35,7 @@ export const ReviewsCard = ({review, name, src, starCount, date, verified}) => {
                         </div>
                     </div>
                 </div>
-                <p className='text-gray-300 leading-relaxed'>{review}</p>
+                <p className='text-gray-300 leading-relaxed'>{content}</p>
             </div>
         </Link>
     )

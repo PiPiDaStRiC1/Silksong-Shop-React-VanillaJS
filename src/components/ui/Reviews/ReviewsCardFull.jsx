@@ -71,7 +71,7 @@ export const ReviewsCardFull = ({ userInfo, reviewInfo }) => {
         <div className='flex items-center gap-2'>
           <button 
             onClick={() => handleHelpful('up')}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-lg border transition-all text-sm ${
+            className={`cursor-pointer flex items-center gap-1 px-3 py-1.5 rounded-lg border transition-all text-sm ${
               helpful === 'up' 
                 ? 'border-green-500 bg-green-500/10 text-green-400' 
                 : 'border-neutral-700 text-gray-400 hover:border-white hover:text-white'
@@ -82,7 +82,7 @@ export const ReviewsCardFull = ({ userInfo, reviewInfo }) => {
           </button>
           <button 
             onClick={() => handleHelpful('down')}
-            className={`p-1.5 rounded-lg border transition-all ${
+            className={`cursor-pointer p-1.5 rounded-lg border transition-all ${
               helpful === 'down' 
                 ? 'border-red-500 bg-red-500/10 text-red-400' 
                 : 'border-neutral-700 text-gray-400 hover:border-white hover:text-white'
@@ -90,7 +90,7 @@ export const ReviewsCardFull = ({ userInfo, reviewInfo }) => {
           >
             <ThumbsDown className='w-4 h-4' />
           </button>
-          <button className='p-1.5 rounded-lg border border-neutral-700 text-gray-400 hover:border-white hover:text-white transition-all'>
+          <button className='cursor-pointer p-1.5 rounded-lg border border-neutral-700 text-gray-400 hover:border-white hover:text-white transition-all'>
             <Share2 className='w-4 h-4' />
           </button>
         </div>

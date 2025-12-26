@@ -1,17 +1,85 @@
 import { Link } from 'react-router-dom';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {ReviewsCardFull} from '@/components/ui/index'
 import { useData } from '../hooks/useData';
+import {parseAgoToDays} from '@/libs/utils/parseDate';
 
 export const Reviews = () => {
   const { reviews, isLoading, error } = useData();
+  const [selectedRating, setSelectedRating] = useState('5');
+  const [toggleVerified, setToggleVerified] = useState(true);
+  const [toggleUnverified, setToggleUnverified] = useState(false);
+  const [selectedTimePeriod, setSelectedTimePeriod] = useState('allTime');
+  const [selectedSortOption, setSelectedSortOption] = useState('helpful');
+
 
   const [totalQuantity, totalRate] = useMemo(() => {
-        const quantity = reviews.reduce((acc, reviewUser) => acc + reviewUser.reviews.length, 0);
-        if (!reviews.length) return [0, 0];
-        const rate = reviews.reduce((acc, reviewUser) => acc + reviewUser.reviews.reduce((acc, review) => acc + review.starCount, 0), 0) / quantity;
-        return [quantity, rate.toFixed(1)];
-    }, [reviews])
+    const quantity = reviews.reduce((acc, reviewUser) => acc + reviewUser.reviews.length, 0);
+    if (!reviews.length) return [0, 0];
+    const rate = reviews.reduce((acc, reviewUser) => acc + reviewUser.reviews.reduce((acc, review) => acc + review.starCount, 0), 0) / quantity;
+    return [quantity, rate.toFixed(1)];
+  }, [reviews]);
+
+  const filteredReviewUsers = useMemo(() => {
+    let sorted = null;
+    if (toggleVerified && toggleUnverified) {
+      sorted = [...reviews];
+    } else if (toggleVerified) {
+      sorted = [...reviews].filter(reviewUser => reviewUser.verified);
+    } else if (toggleUnverified) {
+      sorted = [...reviews].filter(reviewUser => !reviewUser.verified);
+    } else {
+      sorted = [];
+    }
+
+    return sorted;
+  }, [reviews, toggleVerified, toggleUnverified]);
+
+
+  const sortedReviews = useMemo(() => {
+    const sorted = filteredReviewUsers.flatMap(reviewUser => {
+      let filteredReviews = reviewUser.reviews;
+
+      if (selectedTimePeriod === '30days') {
+        filteredReviews = filteredReviews.filter(
+          review => parseAgoToDays(review.date) <= 30 
+        );
+      } else if (selectedTimePeriod === '90days') {
+        filteredReviews = filteredReviews.filter(
+          review => parseAgoToDays(review.date) <= 90
+        );
+      }
+
+      if (selectedRating === 'other') {
+        filteredReviews = filteredReviews.filter(review => review.starCount < 3);
+      } else {
+        filteredReviews = filteredReviews.filter(review => String(review.starCount) === selectedRating);
+      }
+
+      return filteredReviews.map(review => (
+        {
+          review, 
+          userId: reviewUser.id, 
+          userName: reviewUser.name, 
+          userAvatar: reviewUser.avatar, 
+          userVerified: reviewUser.verified
+        }
+      ));
+
+    });
+
+    switch (selectedSortOption) {
+      case 'helpful':
+        return sorted.sort((a, b) => b.review.helpfulCount - a.review.helpfulCount);                         
+      case 'mostRecent':
+        return sorted.sort((a, b) => parseAgoToDays(a.review.date) - parseAgoToDays(b.review.date));
+      case 'mostOld':
+        return sorted.sort((a, b) => parseAgoToDays(b.review.date) - parseAgoToDays(a.review.date));
+      default:
+        return sorted;
+    }
+
+  }, [selectedRating, filteredReviewUsers, selectedTimePeriod, selectedSortOption]);
 
   return (
     <section className="w-full text-white">
@@ -36,26 +104,34 @@ export const Reviews = () => {
             <h4 className="text-lg font-semibold">Rating</h4>
             <ul className="mt-3 flex flex-col gap-2 text-gray-300 text-sm">
               <li>
-                <button className="w-full text-left hover:text-white flex items-center gap-2">
-                  <input type="checkbox" />
+                <button 
+                  className={`w-full ${selectedRating === '5' ? 'text-white' : ''} cursor-pointer text-left hover:text-white flex items-center gap-2`}
+                  onClick={() => setSelectedRating('5')}
+                >
                   <span>★★★★★ (5 stars)</span>
                 </button>
               </li>
               <li>
-                <button className="w-full text-left hover:text-white flex items-center gap-2">
-                  <input type="checkbox" />
+                <button 
+                  className={`w-full ${selectedRating === '4' ? 'text-white' : ''} cursor-pointer text-left hover:text-white flex items-center gap-2`}
+                  onClick={() => setSelectedRating('4')}
+                >
                   <span>★★★★☆ (4 stars)</span>
                 </button>
               </li>
               <li>
-                <button className="w-full text-left hover:text-white flex items-center gap-2">
-                  <input type="checkbox" />
+                <button 
+                  className={`w-full ${selectedRating === '3' ? 'text-white' : ''} cursor-pointer text-left hover:text-white flex items-center gap-2`}
+                  onClick={() => setSelectedRating('3')}
+                >
                   <span>★★★☆☆ (3 stars)</span>
                 </button>
               </li>
               <li>
-                <button className="w-full text-left hover:text-white flex items-center gap-2">
-                  <input type="checkbox" />
+                <button 
+                  className={`w-full ${selectedRating === 'other' ? 'text-white' : ''} cursor-pointer text-left hover:text-white flex items-center gap-2`}
+                  onClick={() => setSelectedRating('other')}
+                >
                   <span>Below 3 stars</span>
                 </button>
               </li>
@@ -66,14 +142,22 @@ export const Reviews = () => {
             <h4 className="text-lg font-semibold">Verification</h4>
             <ul className="mt-2 flex flex-col gap-2 text-gray-300 text-sm">
               <li>
-                <button className="w-full text-left hover:text-white flex items-center gap-2">
-                  <input type="checkbox" defaultChecked />
+                <button className="w-full cursor-pointer text-left hover:text-white flex items-center gap-2">
+                  <input 
+                    type="checkbox" 
+                    checked={toggleVerified}
+                    onChange={() => setToggleVerified(v => !v)}
+                  />
                   <span>Verified buyers</span>
                 </button>
               </li>
               <li>
-                <button className="w-full text-left hover:text-white flex items-center gap-2">
-                  <input type="checkbox" />
+                <button className="w-full cursor-pointer text-left hover:text-white flex items-center gap-2">
+                  <input 
+                    type="checkbox" 
+                    checked={toggleUnverified}
+                    onChange={() => setToggleUnverified(v => !v)}
+                  />
                   <span>Unverifed buyers</span>
                 </button>
               </li>
@@ -83,9 +167,30 @@ export const Reviews = () => {
           <div>
             <h4 className="text-lg font-semibold">Time Period</h4>
             <ul className="mt-2 flex flex-col gap-2 text-gray-300 text-sm">
-              <li><button className="w-full text-left hover:text-white">All time</button></li>
-              <li><button className="w-full text-left hover:text-white">Last 30 days</button></li>
-              <li><button className="w-full text-left hover:text-white">Last 90 days</button></li>
+              <li>
+                <button 
+                  className={`w-full cursor-pointer text-left hover:text-white ${selectedTimePeriod === 'allTime' ? 'text-white' : ''}`}
+                  onClick={() => setSelectedTimePeriod('allTime')}
+                >
+                  All time
+                </button>
+              </li>
+              <li>
+                <button 
+                  className={`w-full cursor-pointer text-left hover:text-white ${selectedTimePeriod === '30days' ? 'text-white' : ''}`}
+                  onClick={() => setSelectedTimePeriod('30days')}
+                >
+                  Last 30 days
+                </button>
+              </li>
+              <li>
+                <button 
+                  className={`w-full cursor-pointer text-left hover:text-white ${selectedTimePeriod === '90days' ? 'text-white' : ''}`}
+                  onClick={() => setSelectedTimePeriod('90days')}
+                >
+                  Last 90 days
+                </button>
+              </li>
             </ul>
           </div>
         </aside>
@@ -94,13 +199,16 @@ export const Reviews = () => {
           <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm text-gray-400">Showing</span>
-              <span className="text-white">{totalQuantity} reviews</span>
+              <span className="text-white">{sortedReviews.length} reviews</span>
             </div>
-            <select className="bg-black text-white border border-neutral-700 rounded-lg px-3 py-2 text-sm">
-              <option>Sort by: Helpful</option>
-              <option>Sort by: Most Recent</option>
-              <option>Sort by: Highest Rating</option>
-              <option>Sort by: Lowest Rating</option>
+            <select 
+              className="bg-black text-white border border-neutral-700 rounded-lg px-3 py-2 text-sm"
+              value={selectedSortOption}
+              onChange={(e) => setSelectedSortOption(e.target.value)}
+            >
+              <option value="helpful">Sort by: Helpful</option>
+              <option value="mostRecent">Sort by: Most Recent</option>
+              <option value="mostOld">Sort by: Most Old</option>
             </select>
           </div>
 
@@ -114,19 +222,24 @@ export const Reviews = () => {
                     </div> : (
                         <>
                           {/* TWO CYCLES */}
-                          <div className="grid grid-cols-1 gap-4 max-h-[42rem] overflow-y-auto scrollbar-reviews custom-scroll">
-                              {reviews.map(reviewUser => reviewUser.reviews.map(review => (
+                          <div className="grid grid-cols-1 gap-4 max-h-[42.5rem] overflow-y-auto scrollbar-reviews custom-scroll">
+                              {sortedReviews.map(({review, userId, userName, userAvatar, userVerified}) => (
                                 <ReviewsCardFull 
                                   key={review.id} 
                                   userInfo={{
-                                              id: reviewUser.id, 
-                                              name: reviewUser.name, 
-                                              avatar: reviewUser.avatar,
-                                              verified: reviewUser.verified
+                                              id: userId, 
+                                              name: userName, 
+                                              avatar: userAvatar,
+                                              verified: userVerified
                                             }} 
                                   reviewInfo={{...review}} 
-                                />
-                              )))}
+                                /> 
+                              ))}
+                              {filteredReviewUsers.length === 0 && (
+                                <div className="text-center py-12">
+                                  <p className='text-lg lg:text-xl text-gray-400'>No reviews match the selected filters.</p>
+                                </div>
+                              )}
                           </div>
 
                           {/* Buttons on mobile */}

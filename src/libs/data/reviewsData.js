@@ -192,7 +192,7 @@ export const reviewsData = [
     verified: true,
     joined: "Aug 2020",
     reviews: [
-      { id: 1, productId: 9, starCount: 5, helpfulCount: 9, content: "Print is color-accurate, blacks are deep, and paper is thick enough for flat lays.", date: "2 weeks ago" },
+      { id: 1, productId: 9, starCount: 4, helpfulCount: 9, content: "Print is color-accurate, blacks are deep, and paper is thick enough for flat lays.", date: "2 weeks ago" },
       { id: 2, productId: 2, starCount: 4, helpfulCount: 7, content: "Shine is subtle; minor micro-scratch on back, not visible in shots.", date: "1 month ago" },
       { id: 3, productId: 12, starCount: 5, helpfulCount: 10, content: "Came with a rigid mailer; emboss catches light beautifully on camera.", date: "2 months ago" },
     ],
@@ -213,7 +213,7 @@ export const reviewsData = [
     verified: false,
     joined: "Oct 2023",
     reviews: [
-      { id: 1, productId: 1, starCount: 4, helpfulCount: 6, content: "Held up in my bag all week. Minor edge shine developing, which I like.", date: "5 days ago" },
+      { id: 1, productId: 1, starCount: 2, helpfulCount: 6, content: "Held up in my bag all week. Minor edge shine developing, which I like.", date: "5 days ago" },
       { id: 2, productId: 7, starCount: 5, helpfulCount: 5, content: "Latch is solid, artwork hasn’t faded after pocket carry. Great everyday charm.", date: "3 weeks ago" },
       { id: 3, productId: 3, starCount: 4, helpfulCount: 4, content: "Good build, wish the clasp turned a bit smoother. Still worth the price.", date: "1 month ago" },
     ],
@@ -235,8 +235,8 @@ export const reviewsData = [
     joined: "Dec 2018",
     reviews: [
       { id: 1, productId: 6, starCount: 5, helpfulCount: 10, content: "Came ribbon-wrapped, zero rattling in transit. Perfect for gifting without reboxing.", date: "2 weeks ago" },
-      { id: 2, productId: 5, starCount: 5, helpfulCount: 9, content: "Engraving aligns perfectly, and the insert looks premium in a gift set.", date: "1 month ago" },
-      { id: 3, productId: 11, starCount: 5, helpfulCount: 7, content: "Magnetic closure feels luxe; no dust inside, even after shipping.", date: "2 months ago" },
+      { id: 2, productId: 5, starCount: 4, helpfulCount: 9, content: "Engraving aligns perfectly, and the insert looks premium in a gift set.", date: "1 month ago" },
+      { id: 3, productId: 11, starCount: 3, helpfulCount: 7, content: "Magnetic closure feels luxe; no dust inside, even after shipping.", date: "2 months ago" },
     ],
   },
   {
@@ -256,8 +256,8 @@ export const reviewsData = [
     joined: "Jan 2022",
     reviews: [
       { id: 1, productId: 8, starCount: 4, helpfulCount: 5, content: "Texture is nice and matte, scale matches the rest of my set. Slight seam on the base.", date: "3 weeks ago" },
-      { id: 2, productId: 10, starCount: 5, helpfulCount: 6, content: "Pin size fits the diorama board, enamel colors read well under soft light.", date: "1 month ago" },
-      { id: 3, productId: 2, starCount: 4, helpfulCount: 4, content: "Surface grain is subtle; would love a non-gloss option. Still solid for the price.", date: "2 months ago" },
+      { id: 2, productId: 10, starCount: 2, helpfulCount: 6, content: "Pin size fits the diorama board, enamel colors read well under soft light.", date: "4 months ago" },
+      { id: 3, productId: 2, starCount: 4, helpfulCount: 4, content: "Surface grain is subtle; would love a non-gloss option. Still solid for the price.", date: "10 months ago" },
     ],
   },
   {
@@ -276,9 +276,30 @@ export const reviewsData = [
     verified: true,
     joined: "Sep 2021",
     reviews: [
-      { id: 1, productId: 7, starCount: 5, helpfulCount: 8, content: "Featherlight, sits flush on a lanyard, and the clasp doesn’t pinch skin.", date: "1 week ago" },
-      { id: 2, productId: 9, starCount: 4, helpfulCount: 5, content: "Print is light enough to carry daily; slight curl at arrival but flattened overnight.", date: "1 month ago" },
+      { id: 1, productId: 7, starCount: 2, helpfulCount: 8, content: "Featherlight, sits flush on a lanyard, and the clasp doesn’t pinch skin.", date: "1 week ago" },
+      { id: 2, productId: 9, starCount: 3, helpfulCount: 5, content: "Print is light enough to carry daily; slight curl at arrival but flattened overnight.", date: "1 month ago" },
       { id: 3, productId: 1, starCount: 5, helpfulCount: 6, content: "Strap is soft, no rubbing after a full day. Stitching looks reinforced.", date: "2 months ago" },
     ],
   },
 ];
+
+// Assign unique random 4-digit ids to each review item to avoid collisions
+(() => {
+  const used = new Set();
+  const gen = () => {
+    let n;
+    do {
+      n = Math.floor(1000 + Math.random() * 9000);
+    } while (used.has(n));
+    used.add(n);
+    return n;
+  };
+
+  reviewsData.forEach(user => {
+    if (Array.isArray(user.reviews)) {
+      user.reviews.forEach(r => {
+        r.id = gen();
+      });
+    }
+  });
+})();

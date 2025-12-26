@@ -62,6 +62,8 @@ export const Catalog = () => {
                 return sorted.sort((a, b) => a.price - b.price);
             case 'priceHigh':
                 return sorted.sort((a, b) => b.price - a.price);
+            case 'latest':
+                return sorted.sort((a, b) => b.id - a.id);
             case 'popular':
             default:
                 return sorted;
@@ -203,6 +205,9 @@ export const Catalog = () => {
                             <option value="priceHigh">
                                 Sort by: Price (High)
                             </option>
+                            <option value="latest">
+                                Sort by: Latest
+                            </option>
                         </select>
                         <select 
                             className="bg-black text-white border border-neutral-700 rounded-lg px-3 py-2 text-sm"
@@ -242,7 +247,7 @@ export const Catalog = () => {
                                             sortedProducts.map((p) => (
                                                 <CatalogCard key={p.id} {...p} onClick={() => learnProductDetails(p)} />
                                             )) : 
-                                                <div className="text-center py-12 col-span-2 md:col-start-2 md:col-span-1 lg:col-span-2 lg:col-start-2">
+                                                <div className="text-center py-12 col-start-2 col-span-2">
                                                     <p className='text-lg lg:text-xl text-gray-400'>No suitable products found</p>
                                                 </div>}
                                     </div>

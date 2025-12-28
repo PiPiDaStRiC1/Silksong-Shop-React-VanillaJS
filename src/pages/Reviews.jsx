@@ -221,7 +221,6 @@ export const Reviews = () => {
                         <p>Failed to load reviews</p>
                     </div> : (
                         <>
-                          {/* TWO CYCLES */}
                           <div className="grid grid-cols-1 gap-4 max-h-[42.5rem] overflow-y-auto scrollbar-reviews custom-scroll">
                               {sortedReviews.map(({review, userId, userName, userAvatar, userVerified}) => (
                                 <ReviewsCardFull 

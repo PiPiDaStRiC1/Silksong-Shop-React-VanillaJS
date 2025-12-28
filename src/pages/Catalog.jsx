@@ -1,12 +1,14 @@
 import { Link, useNavigate } from 'react-router-dom';
 import {CatalogCard} from '@/components/ui/Catalog/CatalogCard';
 import { useMemo, useState } from 'react';
-import {useData} from '@/hooks/useData';
+import {useData, useCart} from '@/hooks/index';
 import value from '@/assets/images/value.png';
 import {debounce} from '@/libs/utils/debounce';
 
 export const Catalog = () => {
     const { products, error, isLoading } = useData();
+    const { addItem } = useCart();
+
     const [activeCategory, setActiveCategory] = useState('all');
     const [toggleSale, setToggleSale] = useState(false);
     const [toggleInStock, setToggleInStock] = useState(false);
@@ -243,13 +245,19 @@ export const Catalog = () => {
                             </div> : 
                                 <>
                                     <div className={`grid ${gridLayout} gap-4`}>
-                                        {sortedProducts.length ? 
-                                            sortedProducts.map((p) => (
-                                                <CatalogCard key={p.id} {...p} onClick={() => learnProductDetails(p)} />
-                                            )) : 
-                                                <div className="text-center py-12 col-start-2 col-span-2">
-                                                    <p className='text-lg lg:text-xl text-gray-400'>No suitable products found</p>
-                                                </div>}
+                                        {sortedProducts.map((p) => (
+                                            <CatalogCard 
+                                                key={p.id} 
+                                                {...p} 
+                                                onClick={() => learnProductDetails(p)} 
+                                                onAdd={() => addItem(p)}
+                                            />
+                                        ))}
+                                        {!sortedProducts.length && 
+                                            <div className="text-center py-12 col-start-2 col-span-2">
+                                                <p className='text-lg lg:text-xl text-gray-400'>No suitable products found</p>
+                                            </div>
+                                        }
                                     </div>
                                     <div className="flex justify-center items-center gap-2 mt-4">
                                         <button className="px-3 py-2 rounded-lg border border-neutral-700 text-white hover:bg-white hover:text-black transition">Prev</button>

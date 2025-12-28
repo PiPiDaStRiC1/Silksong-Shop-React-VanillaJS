@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import logoImage from '@/assets/images/logo/logoImage.png';
+import React from 'react';
 
-export const Footer = () => {
+export const Footer = React.memo(() => {
     return (
         <footer className="w-full p-7 h-auto bg-black text-white flex items-center justify-center">
             <article className="container flex flex-col items-center gap-5">
@@ -21,7 +22,6 @@ export const Footer = () => {
                     </ul>
                     <ul className='flex flex-col gap-2 text-gray-200 list-disc list-inside'>
                         <li><Link to="/catalog" className='hover:underline'>Catalog</Link></li>
-                        <li><Link to="/discounts" className='hover:underline'>Discounts</Link></li>
                         <li><Link to="/latest" className='hover:underline'>Latest</Link></li>
                         <li><Link to="/sale" className='hover:underline'>Sale</Link></li>
                     </ul>
@@ -35,4 +35,4 @@ export const Footer = () => {
             </article>
         </footer>
     );
-}
+});

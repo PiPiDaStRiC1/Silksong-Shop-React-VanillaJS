@@ -1,6 +1,6 @@
 import valueIcon from '@/assets/images/value.png';
 
-export const CatalogCard = ({ name, price, imgSrc, onClick, sale, quantity }) => (
+export const CatalogCard = ({ name, price, imgSrc, onClick, sale, stock, onAdd }) => (
   <div 
     className="group rounded-2xl border border-neutral-800 bg-neutral-900 p-4 hover:border-neutral-600 transition-colors cursor-pointer"
     onClick={onClick} 
@@ -20,20 +20,23 @@ export const CatalogCard = ({ name, price, imgSrc, onClick, sale, quantity }) =>
           {price}
           <img src={valueIcon} alt="value" className='w-[1rem] h-[1rem]'/>
         </span>
-        {quantity !== undefined && (
+        {stock !== undefined && (
           <span className={`text-xs ${
-            quantity === 0 ? 'text-red-400' : 
-            quantity <= 5 ? 'text-amber-400' : 
+            stock === 0 ? 'text-red-400' : 
+            stock <= 5 ? 'text-amber-400' : 
             'text-gray-500'
           }`}>
-            {quantity === 0 ? 'Out of stock' : quantity <= 5 ? `Only ${quantity} left!` : `${quantity} in stock`}
+            {stock === 0 ? 'Out of stock' : stock <= 5 ? `Only ${stock} left!` : `${stock} in stock`}
           </span>
         )}
       </div>
       <button 
         className="px-3 py-2 rounded-lg cursor-pointer border border-white text-white hover:bg-white hover:text-black transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-        onClick={(e) => e.stopPropagation()}
-        disabled={quantity === 0}
+        onClick={(e) => {
+          e.stopPropagation()
+          onAdd();
+        }}
+        disabled={stock === 0}
       >
         Add
       </button>

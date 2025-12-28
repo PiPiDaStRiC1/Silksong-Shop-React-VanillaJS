@@ -2,11 +2,12 @@ import { Link, useParams } from 'react-router-dom';
 import { useMemo, useState } from 'react';
 import valueIcon from '@/assets/images/value.png';
 import { ReviewsCardFull } from '@/components/ui/Reviews/ReviewsCardFull';
-import { useData } from '@/hooks/useData';
+import { useData, useCart } from '@/hooks/index';
 
 export const CatalogItemDetails = () => {
     const { category, id } = useParams();
     const { products, reviews, isLoading, error } = useData();
+    const { addItem } = useCart();
     const product = useMemo(() => products.find(p => String(p.id) === String(id)), [products, id]);
     const related = useMemo(() => products.filter(p => p.category === category && String(p.id) !== String(id)).slice(0, 4), [products, category, id]);
 
@@ -63,36 +64,50 @@ export const CatalogItemDetails = () => {
                         )}
                     </div>
 
-                    {product.quantity !== undefined && (
+                    {product.stock !== undefined && (
                         <div className={`flex items-center gap-2 text-sm ${
-                            product.quantity === 0 ? 'text-red-400' : 
-                            product.quantity <= 5 ? 'text-amber-400' : 
+                            product.stock === 0 ? 'text-red-400' : 
+                            product.stock <= 5 ? 'text-amber-400' : 
                             'text-gray-400'
                         }`}>
                             <span className="inline-flex items-center gap-1">
-                                {product.quantity === 0 ? '⚠️ Out of stock' : 
-                                 product.quantity <= 5 ? `⚠️ Low stock: only ${product.quantity} left` : 
-                                 `✓ Available: ${product.quantity} units`}
+                                {product.stock === 0 ? '⚠️ Out of stock' : 
+                                 product.stock <= 5 ? `⚠️ Low stock: only ${product.stock} left` : 
+                                 `✓ Available: ${product.stock} units`}
                             </span>
                         </div>
                     )}
 
                     <div className="flex items-center gap-2 text-xs">
                         <span className="px-2 py-1 rounded-full bg-neutral-800 border border-neutral-700">Limited</span>
-                        {product.quantity > 0 && <span className="px-2 py-1 rounded-full bg-emerald-900/30 border border-emerald-700 text-emerald-300">In stock</span>}
-                        {product.quantity === 0 && <span className="px-2 py-1 rounded-full bg-red-900/30 border border-red-700 text-red-300">Out of stock</span>}
+                        {product.stock > 0 && <span className="px-2 py-1 rounded-full bg-emerald-900/30 border border-emerald-700 text-emerald-300">In stock</span>}
+                        {product.stock === 0 && <span className="px-2 py-1 rounded-full bg-red-900/30 border border-red-700 text-red-300">Out of stock</span>}
                         <span className="px-2 py-1 rounded-full bg-neutral-800 border border-neutral-700">Category: {product.category}</span>
                     </div>
 
                     <div className="flex items-center gap-3">
                         <div className="flex items-center rounded-lg border border-neutral-700 overflow-hidden">
-                            <button onClick={() => setQty(q => Math.max(1, q - 1))} className="px-3 py-2 cursor-pointer hover:bg-neutral-800">-</button>
+                            <button 
+                                onClick={() => setQty(q => Math.max(1, q - 1))} 
+                                className="px-3 py-2 cursor-pointer hover:bg-neutral-800"
+                            >
+                                -
+                            </button>
                                 <span className="px-4 py-2">{qty}</span>
-                            <button onClick={() => setQty(q => q + 1)} className="px-3 py-2 cursor-pointer hover:bg-neutral-800">+</button>
+                            <button 
+                                onClick={() => setQty(q => Math.min(product.stock || 1, q + 1))} 
+                                className="px-3 py-2 cursor-pointer hover:bg-neutral-800"
+                            >
+                                +
+                            </button>
                         </div>
                         <button 
                             className="px-5 py-2 disabled:opacity-50 disabled:cursor-not-allowed rounded-[10px] border border-white text-white hover:bg-white hover:text-black transition-all cursor-pointer"
-                            disabled={product.quantity === 0}
+                            disabled={product.stock === 0}
+                            onClick={() => {
+                                addItem({...product, quantity: qty})
+                                setQty(1);
+                            }}
                         >
                             Add to Cart
                         </button>

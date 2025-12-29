@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 export const CartItem = ({ item, removeItem, incQty, decQty, onClose }) => {
     return (
         <div
-            key={item.id}
             className="flex gap-4 p-4 rounded-2xl border border-neutral-800 bg-neutral-900/60 hover:border-neutral-700 transition"
         >
             <Link 

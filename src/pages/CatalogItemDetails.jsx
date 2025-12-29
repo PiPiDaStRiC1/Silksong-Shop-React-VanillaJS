@@ -133,7 +133,7 @@ export const CatalogItemDetails = () => {
                             <div className="py-4 flex flex-col gap-4 max-h-[32rem] overflow-y-auto scrollbar-reviews custom-scroll">
                                 {isLoading && <p className="text-gray-400">Loading reviews...</p>}
                                 {error.length !== 0 && <p className="text-red-500">Failed to load reviews</p>}
-                                {!isLoading && reviews.length === 0 && <p className="text-gray-400">No reviews yet.</p>}
+                                {!isLoading && reviews && <p className="text-gray-400 text-center py-1">No reviews yet.</p>}
                                 {/* TWO CYCLES */}
                                 {!isLoading && reviews.map(reviewUser => reviewUser.reviews.map(r => (
                                     String(r.productId) === String(product.id) ?

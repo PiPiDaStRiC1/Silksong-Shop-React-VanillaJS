@@ -3,11 +3,12 @@ import logoText from '@/assets/images/logo/logoText.png'
 import {Search, User, ShoppingBasket} from 'lucide-react';
 import { useState } from 'react';
 import {Link, NavLink} from 'react-router-dom';
-import {CartModal} from '../ui/index';
+import {CartModal, AuthModal} from '../ui/index';
 import { useCart } from '@/hooks/index';
 
 export const Header = () => {
     const [showCart, setShowCart] = useState(false);
+    const [showAuthModal, setShowAuthModal] = useState(false);
     const {cart} = useCart();
     const cartItemCount = Object.values(cart).length;
 
@@ -40,6 +41,7 @@ export const Header = () => {
                         <li>
                             <button 
                                 className='cursor-pointer hover:text-gray-400'
+                                onClick={() => setShowAuthModal(true)}
                             >
                                 <User size='27'/>
                             </button>
@@ -61,6 +63,7 @@ export const Header = () => {
                 </nav>
             </header>
             {showCart && <CartModal onClose={() => setShowCart(false)} />}
+            {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
         </>
     )
 }

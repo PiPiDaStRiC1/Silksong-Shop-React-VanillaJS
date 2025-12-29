@@ -31,7 +31,7 @@ export const Footer = React.memo(() => {
                         <li><Link to="/payments" className='hover:underline'>Payments</Link></li>
                     </ul>
                 </div>
-                <p>Fan project. No commercial use. All rights belongs to Team Cherry.</p>
+                <p>Fan project. No commercial use. All rights belongs to <b><a href="https://www.teamcherry.com.au/" className='hover:underline' target="_blank" rel="noopener noreferrer">Team Cherry</a></b>.</p>
             </article>
         </footer>
     );

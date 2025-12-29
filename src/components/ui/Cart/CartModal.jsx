@@ -8,6 +8,7 @@ import {freeShoppingValue} from '@/libs/constants/freeShoppingValue';
 export const CartModal = ({onClose}) => {
   const { cart, removeItem, incQty, decQty, totalValue, cheapCartEl } = useCart();
   const cartElements = Object.values(cart);
+  const isShippingFree = freeShoppingValue <= totalValue;
 
   return (
     <> 
@@ -47,23 +48,23 @@ export const CartModal = ({onClose}) => {
           </div>
         ) : (
           <>
-            {freeShoppingValue - totalValue > 0 ? 
-                <div className="p-4 min-h-[4.5rem] rounded-2xl border border-neutral-800 bg-neutral-900/60">
-                  <p className="text-sm text-gray-300 mb-2">
-                    Add <span className="inline-flex items-center gap-1 text-white font-semibold">{freeShoppingValue - totalValue} <img src={valueIcon} alt="value" className="w-3 h-3" /></span> more for free shipping
-                  </p>
-                  <div className="w-full h-2 rounded-full bg-neutral-800 overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-300"
-                      style={{ width: `${(totalValue / freeShoppingValue) * 100}%` }}
-                    />
-                  </div>
-                </div>
-               : <div className="p-4 min-h-[4.5rem] flex justify-center items-center rounded-2xl border border-neutral-800 bg-neutral-900/60">
+            {isShippingFree ? 
+                <div className="p-4 min-h-[4.5rem] flex justify-center items-center rounded-2xl border border-neutral-800 bg-neutral-900/60">
                   <p className="text-md text-gray-300">
                     You have qualified for <span className="text-white font-semibold">free shipping!</span>
                   </p>
-                </div>
+                </div> :
+                  <div className="p-4 min-h-[4.5rem] rounded-2xl border border-neutral-800 bg-neutral-900/60">
+                    <p className="text-sm text-gray-300 mb-2">
+                      Add <span className="inline-flex items-center gap-1 text-white font-semibold">{freeShoppingValue - totalValue} <img src={valueIcon} alt="value" className="w-3 h-3" /></span> more for free shipping
+                    </p>
+                    <div className="w-full h-2 rounded-full bg-neutral-800 overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-300"
+                        style={{ width: `${(totalValue / freeShoppingValue) * 100}%` }}
+                      />
+                    </div>
+                  </div>
             }
 
             <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scroll">
@@ -90,10 +91,10 @@ export const CartModal = ({onClose}) => {
                     <img src={valueIcon} alt="value" className="w-3 h-3" />
                   </span>
                 </div>
-                <div className={`flex items-center justify-between ${freeShoppingValue - totalValue <= 0 ? 'text-white' : 'text-gray-400'}`}>
+                <div className={`flex items-center justify-between ${isShippingFree ? 'text-white' : 'text-gray-400'}`}>
                   <span>Shipping</span>
                   <span className="inline-flex items-center gap-1">
-                    {freeShoppingValue - totalValue <= 0 ? 'Free' : freeShoppingValue - totalValue}
+                    {isShippingFree ? 'Free' : freeShoppingValue - totalValue}
                     {<img src={valueIcon} alt="value" className="w-3 h-3" />}
                   </span>
                 </div>
@@ -101,7 +102,9 @@ export const CartModal = ({onClose}) => {
                 <div className="flex items-center justify-between text-lg font-semibold">
                   <span className="text-white">Total</span>
                   <span className="inline-flex items-center gap-1 text-white">
-                    {freeShoppingValue - totalValue <= 0 ? totalValue - cheapCartEl.price : totalValue}
+                    {isShippingFree && 
+                    (cartElements.length > 1 || cheapCartEl.quantity > 1) ? 
+                    totalValue - cheapCartEl.price : totalValue}
                     <img src={valueIcon} alt="value" className="w-4 h-4" />
                   </span>
                 </div>

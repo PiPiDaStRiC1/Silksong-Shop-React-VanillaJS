@@ -2,6 +2,7 @@ import '../styles/style.css';
 import {Footer, Header, Main} from '@/components/layouts/index';
 import {Home, About, Catalog, Reviews, CatalogItemDetails, Delivery, FAQ, UserProfileDetails} from '@/pages/index';
 import {BrowserRouter, Routes, Route} from 'react-router-dom';
+import {Toaster} from 'react-hot-toast';
 import {ScrollToTop} from '@/libs/utils/ScroollToTop';
 import {DataProvider} from '../contexts/DataProvider';
 import {CartProvider} from '../contexts/CartProvider';
@@ -14,6 +15,26 @@ const App = () => {
           <ScrollToTop behavior='smooth'/>
           <div className='flex flex-col justify-between'>
             <Header />
+            <Toaster 
+              toastOptions={{
+                style: {
+                  background: '#1c1c1c',
+                  color: '#fff',
+                  border: '1px solid #333',
+                  textAlign: 'center',
+                  position: 'relative',
+                  top: '5rem'
+                },
+                success: {
+                  duration: 2000,
+                  iconTheme: { primary: '#10b981', secondary: '#fff' }
+                },
+                error: {
+                  duration: 2500,
+                  iconTheme: { primary: '#ef4444', secondary: '#fff' }
+                }
+              }}
+            />
             <Routes>
               <Route element={<Main />}>
                 <Route index path='/' element={<Home />} />
@@ -35,6 +56,3 @@ const App = () => {
 }
 
 export default App;
-
-
-// можешь в отдельный файл накидать примерный план дизайна и содеражания страниц? Мне не нужна никакая бизнес-логика, связанныя с хуками и тд. Просто сделай дизайн, для всех страниц, которые считаешь нужнами. Повторюсь без бизнес логики и отдельной папкой с файлами, которые можно было подключить в App

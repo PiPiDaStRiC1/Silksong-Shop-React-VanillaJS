@@ -33,7 +33,6 @@ export const Catalog = () => {
     }, []);
 
     const filteredProducts = useMemo(() => {
-        // Initial case
         if (activeCategory === 'all' && 
             !toggleSale && 
             !toggleInStock &&
@@ -43,7 +42,7 @@ export const Catalog = () => {
         if (activeCategory === 'all') {
             return products.filter(p => 
                 (toggleSale ? p.sale : true) &&
-                (toggleInStock ? p.quantity > 0 : true) &&
+                (toggleInStock ? p.stock > 0 : true) &&
                 (p.price <= price) 
             );
         }
@@ -51,7 +50,7 @@ export const Catalog = () => {
         return products.filter(p => 
             p.category === activeCategory &&
             (toggleSale ? p.sale : true) &&
-            (toggleInStock ? p.quantity > 0 : true) &&
+            (toggleInStock ? p.stock > 0 : true) &&
             (p.price <= price)
         );
     }, [products, activeCategory, toggleSale, toggleInStock, price]);
@@ -154,7 +153,7 @@ export const Catalog = () => {
                     />
                 </div>
                 <p className="inline-flex justify-center items-center gap-2 text-sm text-gray-400 mt-1">
-                    Up to {price}
+                    Below {price}
                     <img src={value} alt="Value icon" className='w-[1rem] h-[1rem]'/>
                 </p>
             </div>

@@ -6,7 +6,7 @@ export const ReviewsCard = ({name, avatar, reviews, date, verified}) => {
     
     return (
         <Link to="/reviews" className='block'>
-            <div className='flex flex-col gap-3 bg-neutral-900 border border-neutral-800 p-5 rounded-xl hover:border-neutral-400 transition duration-300 shadow-md'>
+            <div className='flex flex-col gap-3 bg-neutral-900 border border-neutral-800 p-5 rounded-xl shadow-md transition hover:-translate-y-1 hover:border-white/50'>
                 <div className='flex items-start gap-3'>
                     <img 
                         src={avatar} 

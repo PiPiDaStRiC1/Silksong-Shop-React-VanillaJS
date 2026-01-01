@@ -19,7 +19,7 @@ export const ShippingAddress = ({ formData, dispatch, validation }) => {
             } });
             sessionStorage.setItem('isAutoFilledRef', 'true');
         }
-    }, [user, name, lastName]);
+    }, [user, name, lastName, dispatch]);
 
     useEffect(() => {
         sessionStorage.setItem('shippingAddress', JSON.stringify(formData));

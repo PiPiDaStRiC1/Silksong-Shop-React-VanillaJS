@@ -6,3 +6,5 @@ export {Reviews} from './Reviews';
 export {FAQ} from './FAQ';
 export {Delivery} from './Delivery';
 export {UserProfileDetails} from './UserProfileDetails';
+export {Profile} from './Profile'
+export {AuthModal} from './AuthModal'

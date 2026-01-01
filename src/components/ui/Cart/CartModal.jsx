@@ -10,7 +10,7 @@ export const CartModal = ({onClose}) => {
   const { cart, removeItem, selectedDeliveryTariff, incQty, decQty, totalValue } = useCart();
   const cartElements = Object.values(cart);
   const isShippingFree = freeShippingValue <= totalValue;
-  const deliveryCost = deliveryTariffs[selectedDeliveryTariff].price;
+  const deliveryCost = deliveryTariffs[selectedDeliveryTariff ?? 'Eco'].price;
 
   return (
     <> 

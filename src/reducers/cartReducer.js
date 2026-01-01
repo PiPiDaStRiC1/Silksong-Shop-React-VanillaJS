@@ -65,6 +65,12 @@ export const cartReducer = ({cart, selectedDeliveryTariff}, {type, payload = nul
                 selectedDeliveryTariff: payload
             }
         }
+        case actions.RESET_CART: {
+            return {
+                cart: {},
+                selectedDeliveryTariff: null
+            }
+        }
         default: {
             return {cart, selectedDeliveryTariff};
         }

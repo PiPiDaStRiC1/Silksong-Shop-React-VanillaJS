@@ -5,14 +5,17 @@ import { useState } from 'react';
 import {Link, NavLink} from 'react-router-dom';
 import {CartModal} from '../ui/index';
 import {AuthModal} from '@/pages/AuthModal'
-import { useCart } from '@/hooks/index';
+import { useCart, useUser } from '@/hooks/index';
+import { useNavigate } from 'react-router-dom';
 
 export const Header = () => {
     const [showCart, setShowCart] = useState(false);
     const [showAuthModal, setShowAuthModal] = useState(false);
     const {cart} = useCart();
+    const {user} = useUser();
+    const navigate = useNavigate();
     const cartItemCount = Object.values(cart).length;
-
+    
     return (
         <>
             <header className="w-full fixed flex justify-center items-center h-auto bg-black z-50">
@@ -42,7 +45,11 @@ export const Header = () => {
                         <li>
                             <button 
                                 className='cursor-pointer hover:text-gray-400'
-                                onClick={() => setShowAuthModal(true)}
+                                onClick={() => {
+                                    user ? 
+                                    navigate('/profile') :
+                                    setShowAuthModal(true)
+                                }}
                             >
                                 <User size='27'/>
                             </button>

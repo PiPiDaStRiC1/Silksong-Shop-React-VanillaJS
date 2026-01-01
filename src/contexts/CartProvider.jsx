@@ -60,6 +60,10 @@ export const CartProvider = ({children}) => {
         dispatch({type: actions.SELECT_DELIVERY_TARIFF, payload: tariff});
     }, []);
 
+    const resetCart = useCallback(() => {
+        dispatch({type: actions.RESET_CART});
+    }, []);
+
 
     const totalValue = useMemo(() => {
         return Object.values(cart).reduce((acc, item) => acc + item.price * item.quantity, 0);
@@ -80,8 +84,9 @@ export const CartProvider = ({children}) => {
         incQty,
         decQty,
         selectDeliveryTariff,
+        resetCart,
         totalValue,
-    }), [cart, selectedDeliveryTariff, addItem, removeItem, incQty, decQty, selectDeliveryTariff, totalValue]);
+    }), [cart, selectedDeliveryTariff, addItem, removeItem, incQty, decQty, selectDeliveryTariff, resetCart, totalValue]);
 
     return (
         <CartContext.Provider value={value}>

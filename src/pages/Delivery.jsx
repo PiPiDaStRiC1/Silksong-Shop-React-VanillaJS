@@ -30,10 +30,10 @@ export const Delivery = () => {
     const [currentStep, setCurrentStep] = useState(initStep);
     const [shippingData, shippingDispatch] = useReducer(shippingAddressReducer, initialShippingState, initShipping);
     const [paymentInfoData, paymentInfoDispatch] = useReducer(paymentInfoReducer, initialPaymentInfoState, initPaymentInfo);
-    const {cart, totalValue, selectedDeliveryTariff, removeItem, incQty, decQty, selectDeliveryTariff} = useCart();
+    const {cart, totalValue, selectedDeliveryTariff, removeItem, incQty, decQty, selectDeliveryTariff, resetCart} = useCart();
     const taxCost = parseFloat((totalValue * 0.05).toFixed(2));
     const isShippingFree = freeShippingValue <= totalValue;
-    const deliveryCost = deliveryTariffs[selectedDeliveryTariff].price;
+    const deliveryCost = deliveryTariffs[selectedDeliveryTariff ?? 'Eco'].price;
     
     const shippingValidation = {
         name: /^[A-ZА-ЯЁ][a-zа-яё]+$/.test(shippingData.name),
@@ -88,8 +88,9 @@ export const Delivery = () => {
         sessionStorage.removeItem('lastStep');
         sessionStorage.removeItem('isAutoFilledRef');
 
-        shippingDispatch({type: 'RESET_FORM'});
-        paymentInfoDispatch({type: 'RESET_FORM'});
+        shippingDispatch({type: RESET_SHIPPING});
+        paymentInfoDispatch({type: RESET_PAYMENT});
+        resetCart();
     }
 
     const orderCompleteHandler = async () => {
@@ -107,7 +108,7 @@ export const Delivery = () => {
             setCurrentStep(1);
             setTimeout(() => 
                 window.open('https://www.teamcherry.com.au/games', '_blank')
-            , 1500);
+            , 1200);
         } catch (error) {
             console.log(error.message);
         }

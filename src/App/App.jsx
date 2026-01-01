@@ -1,6 +1,6 @@
 import '../styles/style.css';
 import {Footer, Header, Main} from '@/components/layouts/index';
-import {Home, About, Catalog, Reviews, CatalogItemDetails, Delivery, FAQ, UserProfileDetails} from '@/pages/index';
+import {Home, About, Catalog, Reviews, CatalogItemDetails, Delivery, FAQ, UserProfileDetails, Profile} from '@/pages/index';
 import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import {Toaster} from 'react-hot-toast';
 import {ScrollToTop} from '@/libs/utils/ScroollToTop';
@@ -38,6 +38,7 @@ const App = () => {
               <Routes>
                 <Route element={<Main />}>
                   <Route index path='/' element={<Home />} />
+                  <Route path='/profile' element={<Profile />} />
                   <Route path='/catalog' element={<Catalog />} />
                   <Route path='/catalog/:category/:id' element={<CatalogItemDetails />} />
                   <Route path='/profile/:userId' element={<UserProfileDetails />} />

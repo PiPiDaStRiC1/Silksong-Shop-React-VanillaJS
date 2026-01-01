@@ -1,30 +1,20 @@
 import { X, Mail, Lock, User, Eye, EyeClosed } from 'lucide-react';
-import { useReducer, useState, useMemo } from 'react';
-import formActions from '@/libs/constants/formActionTypes'
-import { formReducer } from '@/reducers/formReducer';
-import {debounce} from '@/libs/utils/debounce';
+import { useState, useMemo, useReducer } from 'react';
+import {authFormReducer} from '@/reducers/authFormReducer';
+import formActions from '@/libs/constants/formActionTypes';
+import {useUser} from '@/hooks/useUser'
 
 const initialFormState = {
     email: '',
-    password: '',
     fullName: '',
+    password: '',
     confirmPassword: '',
-    validateForm: {
-        email: false,
-        password: false,
-        fullName: false,
-        confirmPassword: false
-    },
 }
 
 export const AuthModal = ({onClose}) => {
-    const [{
-            email, 
-            password, 
-            fullName, 
-            confirmPassword, 
-            validateForm
-        }, dispatch] = useReducer(formReducer, initialFormState)
+    const [{email, fullName, password, confirmPassword}, dispatch] = useReducer(authFormReducer, initialFormState);
+    const {login} = useUser();
+
     const [activeTab, setActiveTab] = useState('login');
     const [isAgreedPrivacy, setIsAgreedPrivacy] = useState(true);
     const [isRememberMe, setIsRememberMe] = useState(true);
@@ -33,19 +23,20 @@ export const AuthModal = ({onClose}) => {
         register: false,
         confirm: false,
     });
-    const loginFormSuccessConditions = validateForm.email && validateForm.password;
-    const registerFormSuccessConditions = validateForm.email && validateForm.password && validateForm.fullName && validateForm.confirmPassword && isAgreedPrivacy;
 
-    const debouncedValidate = useMemo(() => (
-        debounce((form) => {
-            dispatch({ type: formActions.VALIDATE_FORM, payload: form });
-        }, 300)
-    ), []);
+    const validation = useMemo(() => ({
+        email: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email),
+        fullName: /^[A-ZА-ЯЁ][a-zа-яё]+ [A-ZА-ЯЁ][a-zа-яё]+$/.test(fullName),
+        password: /^(?=(?:.*\d){3,})(?=.*[A-Za-zА-Яа-яЁё])[A-Za-zА-Яа-яЁё\d]{8,}$/.test(password),
+        confirmPassword: password === confirmPassword && confirmPassword.length > 0,
+    }), [email, fullName, password, confirmPassword]);
+
+    const loginFormSuccessConditions = validation.email && validation.password;
+    const registerFormSuccessConditions = validation.email && validation.password && validation.fullName && validation.confirmPassword && isAgreedPrivacy;
 
     return (
         <div 
             className="fixed inset-0 bg-gradient-to-br from-black via-transparent to-black backdrop-blur-md z-50 flex justify-center items-center animate-fadeIn"
-            onClick={onClose}
         >
             <div 
                 className="bg-neutral-900 border border-neutral-800 p-8 rounded-2xl w-full max-w-md relative shadow-2xl"
@@ -106,18 +97,17 @@ export const AuthModal = ({onClose}) => {
                                     autoComplete="off"
                                     placeholder="your@email.com"
                                     className={`w-full pl-10 pr-4 py-3 bg-neutral-800 border rounded-lg text-white placeholder-gray-500 focus:outline-none transition ${
-                                        validateForm.email || !email
+                                        validation.email || !email
                                             ? 'border-neutral-700 focus:border-white' 
                                             : 'border-red-500/50 focus:border-red-500'
                                     }`}
                                     value={email}
                                     onChange={(e) => {
-                                        dispatch({ type: formActions.SET_EMAIL, payload: e.target.value });
-                                        debouncedValidate({ email: e.target.value, password, fullName, confirmPassword });
+                                        dispatch({type: formActions.SET_EMAIL, payload: e.target.value});
                                     }}
                                 />
                             </div>
-                            {!validateForm.email && email && (
+                            {!validation.email && email && (
                                 <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1 animate-fadeIn">
                                     <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
                                     Invalid email format (e.g., your@email.com)
@@ -135,14 +125,13 @@ export const AuthModal = ({onClose}) => {
                                     autoComplete="new-password"
                                     placeholder="••••••••"
                                     className={`w-full pl-10 pr-4 py-3 bg-neutral-800 border rounded-lg text-white placeholder-gray-500 focus:outline-none transition ${
-                                        validateForm.password || !password
+                                        validation.password || !password
                                             ? 'border-neutral-700 focus:border-white' 
                                             : 'border-red-500/50 focus:border-red-500'
                                     }`}
                                     value={password}
                                     onChange={(e) => {
-                                        dispatch({ type: formActions.SET_PASSWORD, payload: e.target.value });
-                                        debouncedValidate({ email, password: e.target.value, fullName, confirmPassword });
+                                        dispatch({type: formActions.SET_PASSWORD, payload: e.target.value});
                                     }}
                                 />
                                 <button
@@ -153,7 +142,7 @@ export const AuthModal = ({onClose}) => {
                                     {showPassword.login ? <EyeClosed /> : <Eye />}
                                 </button>
                             </div>
-                            {!validateForm.password && password && (
+                            {!validation.password && password && (
                                 <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1 animate-fadeIn">
                                     <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
                                     Min. 8 characters with at least 3 numbers
@@ -180,8 +169,7 @@ export const AuthModal = ({onClose}) => {
                             type="submit"
                             disabled={!loginFormSuccessConditions}
                             className={`${loginFormSuccessConditions ? '' : 'opacity-50 cursor-not-allowed'} w-full py-3 bg-white text-black rounded-lg font-semibold hover:scale-[1.02] transition cursor-pointer`}
-                            onClick={() => dispatch({ type: formActions.VALIDATE_FORM, payload: { email, password, fullName, confirmPassword } })}
-                        >
+                        >   
                             Sign In
                         </button>
 
@@ -236,21 +224,20 @@ export const AuthModal = ({onClose}) => {
                                     autoComplete="off"
                                     placeholder="John Doe"
                                     className={`w-full pl-10 pr-4 py-3 bg-neutral-800 border rounded-lg text-white placeholder-gray-500 focus:outline-none transition ${
-                                        validateForm.fullName || !fullName
+                                        validation.fullName || !fullName
                                             ? 'border-neutral-700 focus:border-white' 
                                             : 'border-red-500/50 focus:border-red-500 animate-shake'
                                     }`}
                                     value={fullName}
                                     onChange={(e) => {
-                                        dispatch({ type: formActions.SET_FULL_NAME, payload: e.target.value });
-                                        debouncedValidate({ email, password, fullName: e.target.value, confirmPassword });
+                                        dispatch({type: formActions.SET_FULL_NAME, payload: e.target.value});
                                     }}
                                 />
                             </div>
-                            {!validateForm.fullName && fullName && (
+                            {!validation.fullName && fullName && (
                                 <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1 animate-fadeIn">
                                     <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
-                                    Only letters and spaces allowed
+                                    Only letters and spaces allowed. Words must begin with a capital letter.
                                 </p>
                             )}
                         </div>
@@ -265,18 +252,17 @@ export const AuthModal = ({onClose}) => {
                                     autoComplete="off"
                                     placeholder="your@email.com"
                                     className={`w-full pl-10 pr-4 py-3 bg-neutral-800 border rounded-lg text-white placeholder-gray-500 focus:outline-none transition ${
-                                        validateForm.email || !email 
+                                        validation.email || !email 
                                             ? 'border-neutral-700 focus:border-white' 
                                             : 'border-red-500/50 focus:border-red-500 animate-shake'
                                     }`}
                                     value={email}
                                     onChange={(e) => {
-                                        dispatch({ type: formActions.SET_EMAIL, payload: e.target.value });
-                                        debouncedValidate({ email: e.target.value, password, fullName, confirmPassword });
+                                        dispatch({type: formActions.SET_EMAIL, payload: e.target.value});
                                     }}
                                 />
                             </div>
-                            {!validateForm.email && email && (
+                            {!validation.email && email && (
                                 <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1 animate-fadeIn">
                                     <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
                                     Invalid email format (e.g., your@email.com)
@@ -294,14 +280,13 @@ export const AuthModal = ({onClose}) => {
                                     autoComplete="new-password"
                                     placeholder="••••••••"
                                     className={`w-full pl-10 pr-4 py-3 bg-neutral-800 border rounded-lg text-white placeholder-gray-500 focus:outline-none transition ${
-                                        validateForm.password || !password
+                                        validation.password || !password
                                             ? 'border-neutral-700 focus:border-white' 
                                             : 'border-red-500/50 focus:border-red-500 animate-shake'
                                     }`}
                                     value={password}
                                     onChange={(e) => {
-                                        dispatch({ type: formActions.SET_PASSWORD, payload: e.target.value });
-                                        debouncedValidate({ email, password: e.target.value, fullName, confirmPassword });
+                                        dispatch({type: formActions.SET_PASSWORD, payload: e.target.value});
                                     }}
                                 />
                                 <button
@@ -312,7 +297,7 @@ export const AuthModal = ({onClose}) => {
                                     {showPassword.register ? <EyeClosed /> : <Eye />}
                                 </button>
                             </div>
-                            {!validateForm.password && password && (
+                            {!validation.password && password && (
                                 <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1 animate-fadeIn">
                                     <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
                                     Min. 8 characters with at least 3 numbers
@@ -330,14 +315,13 @@ export const AuthModal = ({onClose}) => {
                                     autoComplete="new-password"
                                     placeholder="••••••••"
                                     className={`w-full pl-10 pr-4 py-3 bg-neutral-800 border rounded-lg text-white placeholder-gray-500 focus:outline-none transition ${
-                                        validateForm.confirmPassword || !confirmPassword
+                                        validation.confirmPassword || !confirmPassword
                                             ? 'border-neutral-700 focus:border-white' 
                                             : 'border-red-500/50 focus:border-red-500 animate-shake'
                                     }`}
                                     value={confirmPassword}
                                     onChange={(e) => {
-                                        dispatch({ type: formActions.SET_CONFIRM_PASSWORD, payload: e.target.value });
-                                        debouncedValidate({ email, password, fullName, confirmPassword: e.target.value });
+                                        dispatch({type: formActions.SET_CONFIRM_PASSWORD, payload: e.target.value});
                                     }}
                                 />
                                 <button
@@ -348,7 +332,7 @@ export const AuthModal = ({onClose}) => {
                                     {showPassword.confirm ? <EyeClosed /> : <Eye />}
                                 </button>
                             </div>
-                            {!validateForm.confirmPassword && confirmPassword && (
+                            {!validation.confirmPassword && confirmPassword && (
                                 <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1 animate-fadeIn">
                                     <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
                                     Passwords do not match
@@ -380,7 +364,11 @@ export const AuthModal = ({onClose}) => {
                             type="submit"
                             disabled={!registerFormSuccessConditions}
                             className={`${registerFormSuccessConditions ? '' : 'opacity-50 cursor-not-allowed'} w-full py-3 bg-white text-black rounded-lg font-semibold hover:scale-[1.02] transition cursor-pointer`}
-                            onClick={() => dispatch({type: formActions.VALIDATE_FORM, payload: {email, password, fullName, confirmPassword}})}
+                            onClick={() => {
+                                if (registerFormSuccessConditions) {
+                                    login({email, fullName});
+                                }
+                            }}
                         >
                             Create Account
                         </button>

@@ -1,11 +1,125 @@
 import { Link } from "react-router-dom";
-import { Truck, Clock, Globe, Shield, MapPin, PackageCheck } from "lucide-react";
+import { useState, useReducer, useEffect } from "react";
+import toast from 'react-hot-toast';
+import { MapPin, CreditCard, Package, CheckCircle2, ChevronRight } from "lucide-react";
+import {useCart} from '@/hooks/index';
+import value from '@/assets/images/value.png';
+import {freeShippingValue} from '@/libs/constants/freeShippingValue';
+import {deliveryTariffs} from '@/libs/constants/deliveryTariffs';
+import {ShippingAddress, DeliveryTariffs, PaymentInfo, ReviewConfirm, OrderCard, StepCircle} from '@/components/ui/index'
+import { shippingAddressReducer, initialShippingState, initShipping, RESET_FORM as RESET_SHIPPING } from '@/reducers/shippingAddressReducer';
+import { paymentInfoReducer, initialPaymentInfoState, initPaymentInfo, RESET_FORM as RESET_PAYMENT } from '@/reducers/paymentInfoReducer'
+
+const steps = [
+    { id: 1, title: "Shipping", icon: MapPin },
+    { id: 2, title: "Delivery", icon: Package },
+    { id: 3, title: "Payment", icon: CreditCard },
+    { id: 4, title: "Confirm", icon: CheckCircle2 }
+];
+
+const initStep = () => {
+    try {
+        return JSON.parse(sessionStorage.getItem('lastStep')) || 1;
+    } catch (error) {
+        console.log(error.message);
+        return 1;
+    }
+}
 
 export const Delivery = () => {
+    const [currentStep, setCurrentStep] = useState(initStep);
+    const [shippingData, shippingDispatch] = useReducer(shippingAddressReducer, initialShippingState, initShipping);
+    const [paymentInfoData, paymentInfoDispatch] = useReducer(paymentInfoReducer, initialPaymentInfoState, initPaymentInfo);
+    const {cart, totalValue, selectedDeliveryTariff, removeItem, incQty, decQty, selectDeliveryTariff} = useCart();
+    const taxCost = parseFloat((totalValue * 0.05).toFixed(2));
+    const isShippingFree = freeShippingValue <= totalValue;
+    const deliveryCost = deliveryTariffs[selectedDeliveryTariff].price;
+    
+    const shippingValidation = {
+        name: /^[A-ZА-ЯЁ][a-zа-яё]+$/.test(shippingData.name),
+        lastName: /^[A-ZА-ЯЁ][a-zа-яё]+$/.test(shippingData.lastName),
+        address: shippingData.address.length >= 10,
+        city: /^[A-ZА-ЯЁ][a-zа-яё]+(?:[\s-][A-ZА-ЯЁ][a-zа-яё]+)*$/.test(shippingData.city),
+        state: /^[A-ZА-ЯЁ][a-zа-яё]+(?:[\s-][A-ZА-ЯЁ][a-zа-яё]+)*$/.test(shippingData.state),
+        zip: /^\d{5}(-\d{4})?$/.test(shippingData.zip),
+        phone: /^\+[1-9]\d{10}$/.test(shippingData.phone),
+    }
+    const isShippingValid = Object.values(shippingValidation).every(value => value === true);   
+
+    const paymentValidation = {
+        cardNumber: /^\d{16}$/.test(paymentInfoData.cardNumber),
+        expiryDate: /^(0[1-9]|1[0-2])\/\d{2}$/.test(paymentInfoData.expiryDate),
+        cvv: /^\d{3}$/.test(paymentInfoData.cvv),
+        cardHolder: /^[A-ZА-ЯЁ][a-zа-яё]+ [A-ZА-ЯЁ][a-zа-яё]+$/.test(paymentInfoData.cardHolder),
+    }
+    const isPaymentValid = Object.values(paymentValidation).every(value => value === true);
+
+
+    const handleContinueButton = (newStep) => {
+        if (newStep <= currentStep) {
+            setCurrentStep(newStep);
+            return;
+        }
+
+        if (Object.values(cart).length === 0) {
+            toast.error('Your cart is empty. Please add items to proceed.');
+            return;
+        }
+
+        if (currentStep === 1 && !isShippingValid) {
+            const wrongFieldsCount = Object.values(shippingValidation).filter(value => value === false).length;
+            toast.error(`Please fill ${wrongFieldsCount > 1 ? `${wrongFieldsCount} shipping fields` : '1 shipping field'} correctly.`);
+            return;
+        }
+
+        if (currentStep === 3 && !isPaymentValid) {
+            const wrongFieldsCount = Object.values(paymentValidation).filter(value => value === false).length;
+            toast.error(`Please fill ${wrongFieldsCount > 1 ? `${wrongFieldsCount} payment fields` : '1 payment field'} correctly.`);
+            return;
+        }
+
+        toast.success('Success!');
+        setCurrentStep(newStep);
+    }
+
+    const clearDelDataFromStorage = () => {
+        sessionStorage.removeItem('shippingAddress');
+        sessionStorage.removeItem('paymentInfo');
+        sessionStorage.removeItem('lastStep');
+        sessionStorage.removeItem('isAutoFilledRef');
+
+        shippingDispatch({type: 'RESET_FORM'});
+        paymentInfoDispatch({type: 'RESET_FORM'});
+    }
+
+    const orderCompleteHandler = async () => {
+        try {
+            await toast.promise(
+                new Promise(resolve => setTimeout(() => resolve(true), 2000)),
+                {
+                    loading: 'Placing your order...',
+                    success: 'Order placed successfully!',
+                    error: 'Failed to place order. Please try again.'
+                }
+            )
+
+            clearDelDataFromStorage();
+            setCurrentStep(1);
+            setTimeout(() => 
+                window.open('https://www.teamcherry.com.au/games', '_blank')
+            , 1500);
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    useEffect(() => {
+        sessionStorage.setItem('lastStep', JSON.stringify(currentStep));
+    }, [currentStep]);
+
     return (
-        <section className="w-full text-white">
-            {/* Breadcrumbs */}
-            <div className='flex flex-col mt-[2rem]'>
+        <section className="container w-full text-white">
+            <div className="flex flex-col mt-[2rem]">
                 <nav className="container w-full px-6 text-lg text-gray-400">
                     <Link to="/" className="hover:text-gray-200">Home</Link>
                     <span className="mx-2">/</span>
@@ -13,112 +127,140 @@ export const Delivery = () => {
                 </nav>
 
                 <div className="container w-full px-6 py-8">
-                    <h1 className="text-4xl font-semibold mb-3">Delivery & Shipping</h1>
-                    <p className="text-gray-400 max-w-3xl">We ship worldwide with tracked parcels and secure packaging. Below you’ll find delivery options, timeframes and costs.</p>
+                    <div className="max-w-4xl mx-auto mb-12">
+                        <div className="flex items-center justify-between relative">
+                            <div className="absolute left-0 right-0 top-1/2 h-0.5 -translate-y-1/2 bg-gradient-to-r from-white/10 via-white/10 to-white/10" />
+                            
+                            <div 
+                                className="absolute left-0 top-1/2 h-0.5 -translate-y-1/2 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 transition-all duration-500"
+                                style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
+                            />
+
+                            {steps.map((step) => (
+                                <StepCircle 
+                                    key={step.id}
+                                    step={step} 
+                                    currentStep={currentStep}
+                                    setCurrentStep={handleContinueButton} 
+                                />
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="max-w-5xl mx-auto">
+                        <div className="grid gap-6 lg:grid-cols-[1fr_400px]">
+                            <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-900/80 via-purple-900/10 to-zinc-900/80 p-8 backdrop-blur">
+                                {currentStep === 1 && 
+                                    <ShippingAddress 
+                                        formData={shippingData}
+                                        dispatch={shippingDispatch}
+                                        validation={shippingValidation}
+                                    />
+                                }
+                                {currentStep === 2 && 
+                                    <DeliveryTariffs 
+                                        tariffs={deliveryTariffs}
+                                        selectedDeliveryTariff={selectedDeliveryTariff}
+                                        selectDeliveryTariff={selectDeliveryTariff}
+                                    />
+                                }
+                                {currentStep === 3 && 
+                                    <PaymentInfo 
+                                        formData={paymentInfoData}
+                                        dispatch={paymentInfoDispatch}
+                                        validation={paymentValidation}
+                                    />
+                                }
+                                {currentStep === 4 && 
+                                    <ReviewConfirm 
+                                        allDeliveryInfo={{shippingData, paymentInfoData, tariff: deliveryTariffs[selectedDeliveryTariff]}}
+                                    />
+                                }
+                                <div className="flex items-center justify-between mt-8 pt-6 border-t border-white/10">
+                                    <button 
+                                        onClick={() => handleContinueButton(Math.max(1, currentStep - 1))}
+                                        disabled={currentStep === 1}
+                                        className="px-6 cursor-pointer py-3 rounded-xl border border-white/10 bg-white/5 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
+                                    >
+                                        Back
+                                    </button>
+                                    {currentStep !== steps.length ? 
+                                        <button 
+                                            className={`px-6 inline-flex justify-center items-center gap-2 cursor-pointer py-3 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed
+                                                ${(currentStep === 1 && !isShippingValid) || 
+                                                    (currentStep === 3 && !isPaymentValid) ? 'opacity-50 not-allowed' : ''}
+                                            `}
+                                            onClick={() => handleContinueButton(Math.min(steps.length, currentStep + 1))}
+                                        >
+                                            Continue
+                                            <ChevronRight className="h-4 w-4" />
+                                        </button> :
+                                        <button 
+                                            className="px-6 inline-flex justify-center items-center gap-2 cursor-pointer py-3 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors"
+                                            onClick={orderCompleteHandler}
+                                        >
+                                            Place Order
+                                            <ChevronRight className="h-4 w-4" />
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+
+                            <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-900/60 via-purple-900/20 to-zinc-900/60 p-6 backdrop-blur h-fit sticky top-24">
+                                <h3 className="text-xl font-semibold mb-4">Order Summary</h3>
+                                
+                                <div className="max-h-[25rem] overflow-y-auto scrollbar-reviews custom-scroll">
+                                    {Object.values(cart).map((item) => (
+                                        <OrderCard 
+                                            key={item.id}
+                                            item={item} 
+                                            removeItem={removeItem} 
+                                            incQty={incQty} 
+                                            decQty={decQty} 
+                                        />
+                                    ))}
+                                    {Object.values(cart).length === 0 && (
+                                        <p className="text-gray-400 text-center py-8">Your cart is empty.</p>
+                                    )}
+                                </div>
+                                
+
+                                <div className="space-y-2 py-4 border-t border-b border-white/10">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-400">Subtotal</span>
+                                        <span className="inline-flex text-white justify-center items-center gap-1">
+                                            {totalValue}
+                                            {<img src={value} alt="Value Icon" className="w-4 h-4" />}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-400">Shipping</span>
+                                        <span className="inline-flex text-white justify-center items-center gap-1">
+                                            {isShippingFree ? 'Free' : `at least ${deliveryCost}`}
+                                            {<img src={value} alt="Value Icon" className="w-4 h-4" />}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-400">Tax</span>
+                                        <span className="inline-flex justify-center items-center gap-1 text-white">
+                                            {taxCost}
+                                            {<img src={value} alt="Value Icon" className="w-4 h-4" />}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-between items-center pt-4">
+                                    <span className="text-2xl font-semibold">Total</span>
+                                    <span className="text-2xl font-semibold inline-flex text-white justify-center items-center gap-1">
+                                        {Object.values(cart).length === 0 ? 0 : totalValue + taxCost + (isShippingFree ? 0 : deliveryCost)}
+                                        {<img src={value} alt="Value Icon" className="w-6 h-6" />}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            {/* USP Bar */}
-            <section className="container w-full px-6 mb-8">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4 flex items-center gap-3">
-                        <Truck className="w-5 h-5 text-gray-300" />
-                        <span className="text-sm text-gray-300">Free shipping on orders $50+</span>
-                    </div>
-                    <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4 flex items-center gap-3">
-                        <Shield className="w-5 h-5 text-gray-300" />
-                        <span className="text-sm text-gray-300">Secure, protective packaging</span>
-                    </div>
-                    <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4 flex items-center gap-3">
-                        <PackageCheck className="w-5 h-5 text-gray-300" />
-                        <span className="text-sm text-gray-300">Tracked parcels worldwide</span>
-                    </div>
-                </div>
-            </section>
-
-            {/* Options Cards */}
-            <section className="container w-full px-6 mb-10">
-                <h2 className="text-2xl mb-4">Delivery Options</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <article className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6 flex flex-col gap-3">
-                        <div className="flex items-center gap-2">
-                            <Truck className="w-5 h-5 text-white" />
-                            <h3 className="text-lg font-semibold">Standard</h3>
-                        </div>
-                        <p className="text-gray-300 text-sm">5–7 business days • Tracked • Free over $50</p>
-                        <p className="text-gray-400 text-sm">Best value for most orders. Reliable carriers with delivery confirmation.</p>
-                    </article>
-
-                    <article className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6 flex flex-col gap-3">
-                        <div className="flex items-center gap-2">
-                            <Clock className="w-5 h-5 text-white" />
-                            <h3 className="text-lg font-semibold">Express</h3>
-                        </div>
-                        <p className="text-gray-300 text-sm">2–3 business days • Tracked • Rate at checkout</p>
-                        <p className="text-gray-400 text-sm">Faster delivery with priority handling and detailed tracking updates.</p>
-                    </article>
-
-                    <article className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6 flex flex-col gap-3">
-                        <div className="flex items-center gap-2">
-                            <Globe className="w-5 h-5 text-white" />
-                            <h3 className="text-lg font-semibold">International</h3>
-                        </div>
-                        <p className="text-gray-300 text-sm">7–14 business days • Tracked • Duties may apply</p>
-                        <p className="text-gray-400 text-sm">Shipping to most regions worldwide. Customs fees are buyer’s responsibility.</p>
-                    </article>
-                </div>
-            </section>
-
-            {/* Timeline */}
-            <section className="container w-full px-6 mb-10">
-                <h2 className="text-2xl mb-4">Order Journey</h2>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {[
-                        { icon: <PackageCheck className="w-5 h-5" />, title: 'Order Confirmed', text: 'You receive a confirmation email.' },
-                        { icon: <Shield className="w-5 h-5" />, title: 'Processing', text: 'We prepare items and protective packaging.' },
-                        { icon: <Truck className="w-5 h-5" />, title: 'Dispatched', text: 'Parcel leaves our warehouse with tracking.' },
-                        { icon: <MapPin className="w-5 h-5" />, title: 'Delivered', text: 'Courier hands off at your address.' },
-                    ].map((step, idx) => (
-                        <div key={idx} className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4 flex flex-col gap-2">
-                            <div className="text-white">{step.icon}</div>
-                            <h4 className="text-lg font-semibold">{step.title}</h4>
-                            <p className="text-gray-300 text-sm">{step.text}</p>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* Zones & Costs */}
-            <section className="container w-full px-6 mb-10">
-                <h2 className="text-2xl mb-4">Zones & Costs</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
-                        <h3 className="font-semibold mb-1">US & Canada</h3>
-                        <p className="text-gray-300 text-sm">Standard: $8 • Express: from $18</p>
-                    </div>
-                    <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
-                        <h3 className="font-semibold mb-1">EU</h3>
-                        <p className="text-gray-300 text-sm">Standard: €9 • Express: from €20</p>
-                    </div>
-                    <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
-                        <h3 className="font-semibold mb-1">Worldwide</h3>
-                        <p className="text-gray-300 text-sm">Calculated at checkout • Duties may apply</p>
-                    </div>
-                </div>
-                <p className="text-gray-500 text-sm mt-3">Note: Costs are indicative and may vary by weight and destination.</p>
-            </section>
-
-            {/* Returns & Exchanges */}
-            <section className="container w-full px-6 mb-10">
-                <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
-                    <h2 className="text-2xl mb-2">Returns & Exchanges</h2>
-                    <p className="text-gray-300">30-day returns for unused items in original packaging. Exchanges available subject to stock.</p>
-                    <div className="mt-4 flex gap-3">
-                        <Link to="/faq" className="px-5 py-2 rounded-[10px] border border-white text-white hover:bg-white hover:text-black transition-all">Read FAQ</Link>
-                        <Link to="/contacts" className="px-5 py-2 rounded-[10px] border border-neutral-700 text-gray-300 hover:border-white hover:text-white transition-all">Contact Support</Link>
-                    </div>
-                </div>
-            </section>
         </section>
     );
-}
+};

@@ -12,7 +12,7 @@ export const FAQ = () => {
   };
 
   return (
-    <section className="w-full text-white">
+    <section className="container w-full text-white">
       <div className="flex flex-col mt-[2rem]">
         <nav className="container w-full px-6 text-lg text-gray-400">
           <Link to="/" className="hover:text-gray-200">

@@ -31,8 +31,8 @@ export const CatalogItemDetails = () => {
     }
 
     return (
-        <section className="w-full text-white">
-            <nav className="container mt-[1rem] w-full px-6 py-4 text-lg text-gray-400">
+        <section className="container w-full text-white">
+            <nav className="mt-[1rem] w-full px-6 py-4 text-lg text-gray-400">
                 <Link to="/" className="hover:text-gray-200">Home</Link>
                 <span className="mx-2">/</span>
                 <Link to="/catalog" className="hover:text-gray-200">Catalog</Link>

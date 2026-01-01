@@ -20,7 +20,7 @@ export const UserProfileDetails = () => {
                     <div className="text-center py-12 text-red-500">
                         <p>Failed to load catalog</p>
                     </div> : 
-                            <section className="w-full text-white">
+                            <section className="container w-full text-white">
                                 <div className="container w-full px-6 py-8">
                                     <nav className="text-lg text-gray-400 mb-6">
                                         <Link to="/" className="hover:text-gray-200">Home</Link>

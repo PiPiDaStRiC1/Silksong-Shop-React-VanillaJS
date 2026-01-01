@@ -2,7 +2,7 @@ import mainBackground from '@/assets/images/mainBackground.png';
 import { Link } from 'react-router-dom';
 import { Sparkles, Shield, Truck } from 'lucide-react';
 import value from '@/assets/images/value.png';
-import {freeShoppingValue} from '@/libs/constants/freeShoppingValue';
+import {freeShippingValue} from '@/libs/constants/freeShippingValue';
 
 export const Hero = () => {
     return (
@@ -34,7 +34,7 @@ export const Hero = () => {
                     <div className='flex items-center gap-2'>
                         <Truck className='w-4 h-4' />
                         <div className='flex justify-center items-center'>
-                            <span>Free shipping {freeShoppingValue}+</span>
+                            <span>Free shipping {freeShippingValue}+</span>
                             <img src={value} alt="Value" className="w-4 h-4" />
                         </div>
                     </div>

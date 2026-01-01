@@ -3,7 +3,8 @@ import logoText from '@/assets/images/logo/logoText.png'
 import {Search, User, ShoppingBasket} from 'lucide-react';
 import { useState } from 'react';
 import {Link, NavLink} from 'react-router-dom';
-import {CartModal, AuthModal} from '../ui/index';
+import {CartModal} from '../ui/index';
+import {AuthModal} from '@/pages/AuthModal'
 import { useCart } from '@/hooks/index';
 
 export const Header = () => {

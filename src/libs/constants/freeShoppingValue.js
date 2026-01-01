@@ -1,1 +1,0 @@
-export const freeShoppingValue = 1300;

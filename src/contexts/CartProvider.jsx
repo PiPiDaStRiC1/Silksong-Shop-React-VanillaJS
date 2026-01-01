@@ -4,13 +4,20 @@ import {CartContext} from '../contexts/CartContext';
 import actions from '@/libs/constants/cartActionTypes';
 import toast from 'react-hot-toast';
 
-const initCart = () => {
-    const savedFromLS = JSON.parse(localStorage.getItem('cart')) || {};
-    return savedFromLS;
+const initialState = {
+    cart: {},
+    selectedDeliveryTariff: 'Eco',
 }
 
+const initCart = () => {
+    const savedFromLS = JSON.parse(localStorage.getItem('cart')) || {};
+    const savedTariffFromLS = JSON.parse(localStorage.getItem('tariff')) || 'Eco';
+    return {cart: savedFromLS, selectedDeliveryTariff: savedTariffFromLS};
+}
+
+
 export const CartProvider = ({children}) => {
-    const [cart, dispatch] = useReducer(cartReducer, {}, initCart);
+    const [{cart, selectedDeliveryTariff}, dispatch] = useReducer(cartReducer, initialState, initCart);
     
     const addItem = useCallback((item) => {
         const existingQty = cart[item.id]?.quantity ?? 0;
@@ -49,29 +56,32 @@ export const CartProvider = ({children}) => {
         toast.error(`${item.name} quantity decreased`);
     }, []);
 
-    useEffect(() => {
-        localStorage.setItem('cart', JSON.stringify(cart));
-    }, [cart]);
+    const selectDeliveryTariff = useCallback((tariff) => {
+        dispatch({type: actions.SELECT_DELIVERY_TARIFF, payload: tariff});
+    }, []);
+
 
     const totalValue = useMemo(() => {
         return Object.values(cart).reduce((acc, item) => acc + item.price * item.quantity, 0);
     }, [cart]);
 
-    const cheapCartEl = useMemo(() => {
-        const cartElements = Object.values(cart);
-        cartElements.sort((a, b) => a.price - b.price);
-        return cartElements[0];
-    }, [cart]);
+
+    useEffect(() => {
+        localStorage.setItem('cart', JSON.stringify(cart));
+        localStorage.setItem('tariff', JSON.stringify(selectedDeliveryTariff));
+    }, [cart, selectedDeliveryTariff]);
+
 
     const value = useMemo(() => ({
         cart,
+        selectedDeliveryTariff,
         addItem,
         removeItem,
         incQty,
         decQty,
+        selectDeliveryTariff,
         totalValue,
-        cheapCartEl
-    }), [cart, addItem, removeItem, incQty, decQty, totalValue, cheapCartEl]);
+    }), [cart, selectedDeliveryTariff, addItem, removeItem, incQty, decQty, selectDeliveryTariff, totalValue]);
 
     return (
         <CartContext.Provider value={value}>

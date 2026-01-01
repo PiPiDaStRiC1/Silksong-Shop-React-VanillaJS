@@ -3,12 +3,14 @@ import { Link } from 'react-router-dom';
 import { useCart } from '@/hooks/useCart';
 import {CartItem} from './CartItem';
 import valueIcon from '@/assets/images/value.png';
-import {freeShoppingValue} from '@/libs/constants/freeShoppingValue';
+import {freeShippingValue} from '@/libs/constants/freeShippingValue';
+import {deliveryTariffs} from '@/libs/constants/deliveryTariffs'
 
 export const CartModal = ({onClose}) => {
-  const { cart, removeItem, incQty, decQty, totalValue, cheapCartEl } = useCart();
+  const { cart, removeItem, selectedDeliveryTariff, incQty, decQty, totalValue } = useCart();
   const cartElements = Object.values(cart);
-  const isShippingFree = freeShoppingValue <= totalValue;
+  const isShippingFree = freeShippingValue <= totalValue;
+  const deliveryCost = deliveryTariffs[selectedDeliveryTariff].price;
 
   return (
     <> 
@@ -56,12 +58,12 @@ export const CartModal = ({onClose}) => {
                 </div> :
                   <div className="p-4 min-h-[4.5rem] rounded-2xl border border-neutral-800 bg-neutral-900/60">
                     <p className="text-sm text-gray-300 mb-2">
-                      Add <span className="inline-flex items-center gap-1 text-white font-semibold">{freeShoppingValue - totalValue} <img src={valueIcon} alt="value" className="w-3 h-3" /></span> more for free shipping
+                      Add <span className="inline-flex items-center gap-1 text-white font-semibold">{freeShippingValue - totalValue} <img src={valueIcon} alt="value" className="w-3 h-3" /></span> more for free shipping
                     </p>
                     <div className="w-full h-2 rounded-full bg-neutral-800 overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-300"
-                        style={{ width: `${(totalValue / freeShoppingValue) * 100}%` }}
+                        className="h-full bg-gradient-to-r from-violet-900 via-purple-500 to-fuchsia-700 transition-all duration-500"
+                        style={{ width: `${(totalValue / freeShippingValue) * 100}%` }}
                       />
                     </div>
                   </div>
@@ -94,7 +96,7 @@ export const CartModal = ({onClose}) => {
                 <div className={`flex items-center justify-between ${isShippingFree ? 'text-white' : 'text-gray-400'}`}>
                   <span>Shipping</span>
                   <span className="inline-flex items-center gap-1">
-                    {isShippingFree ? 'Free' : freeShoppingValue - totalValue}
+                    {isShippingFree ? 'Free' : `at least ${deliveryCost}`}
                     {<img src={valueIcon} alt="value" className="w-3 h-3" />}
                   </span>
                 </div>
@@ -102,22 +104,28 @@ export const CartModal = ({onClose}) => {
                 <div className="flex items-center justify-between text-lg font-semibold">
                   <span className="text-white">Total</span>
                   <span className="inline-flex items-center gap-1 text-white">
-                    {isShippingFree && 
-                    (cartElements.length > 1 || cheapCartEl.quantity > 1) ? 
-                    totalValue - cheapCartEl.price : totalValue}
+                    {totalValue + (isShippingFree ? 0 : deliveryCost)}
                     <img src={valueIcon} alt="value" className="w-4 h-4" />
                   </span>
                 </div>
               </div>
 
-              <button className="w-full px-6 py-3 rounded-[10px] bg-white text-black font-semibold hover:scale-[1.02] transition">
-                Checkout
-              </button>
-              <button
-                className="w-full px-6 py-3 rounded-[10px] border border-neutral-700 text-gray-300 hover:border-white hover:text-white transition"
-              >
-                Continue Shopping
-              </button>
+              <div className='flex flex-col gap-2'>
+                <Link 
+                  to="/delivery" 
+                  className="w-full text-center px-6 py-3 rounded-[10px] bg-white text-black font-semibold hover:scale-[1.02] transition"
+                  onClick={onClose}
+                >
+                  Checkout
+                </Link>
+                <Link
+                  to="/catalog"
+                  className="w-full text-center px-6 py-3 rounded-[10px] border border-neutral-700 text-gray-300 hover:border-white hover:text-white transition"
+                  onClick={onClose}
+                >
+                  Continue Shopping
+                </Link>
+              </div>
             </div>
           </>
         )}

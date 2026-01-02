@@ -1,7 +1,7 @@
 import {cartReducer} from '../reducers/cartReducer';
 import { useEffect, useReducer, useMemo, useCallback } from 'react';
 import {CartContext} from '../contexts/CartContext';
-import actions from '@/libs/constants/cartActionTypes';
+import cartActions from '@/libs/constants/cartActionTypes';
 import toast from 'react-hot-toast';
 
 const initialState = {
@@ -11,7 +11,7 @@ const initialState = {
 
 const initCart = () => {
     const savedFromLS = JSON.parse(localStorage.getItem('cart')) || {};
-    const savedTariffFromLS = JSON.parse(localStorage.getItem('tariff')) || 'Eco';
+    const savedTariffFromLS = JSON.parse(localStorage.getItem('tariff')) ?? 'Eco';
     return {cart: savedFromLS, selectedDeliveryTariff: savedTariffFromLS};
 }
 
@@ -28,11 +28,11 @@ export const CartProvider = ({children}) => {
         }
 
         toast.success(`${item.name} added to cart`);
-        dispatch({type: actions.ADD_TO_CART, payload: item});
+        dispatch({type: cartActions.ADD_TO_CART, payload: item});
     }, [cart]);
 
     const removeItem = useCallback((item) => {
-        dispatch({type: actions.REMOVE_FROM_CART, payload: item});
+        dispatch({type: cartActions.REMOVE_FROM_CART, payload: item});
         toast.error(`${item.name} removed from cart`);
     }, []);
 
@@ -42,12 +42,12 @@ export const CartProvider = ({children}) => {
             return;
         }
 
-        dispatch({type: actions.INCREASE_QUANTITY, payload: item});
+        dispatch({type: cartActions.INCREASE_QUANTITY, payload: item});
         toast.success(`${item.name} quantity increased`);
     }, []);
 
     const decQty = useCallback((item) => {
-        dispatch({type: actions.DECREASE_QUANTITY, payload: item});
+        dispatch({type: cartActions.DECREASE_QUANTITY, payload: item});
 
         if (item.quantity <= 1) {
             toast.error(`${item.name} removed from cart`);
@@ -57,11 +57,11 @@ export const CartProvider = ({children}) => {
     }, []);
 
     const selectDeliveryTariff = useCallback((tariff) => {
-        dispatch({type: actions.SELECT_DELIVERY_TARIFF, payload: tariff});
+        dispatch({type: cartActions.SELECT_DELIVERY_TARIFF, payload: tariff});
     }, []);
 
     const resetCart = useCallback(() => {
-        dispatch({type: actions.RESET_CART});
+        dispatch({type: cartActions.RESET_CART});
     }, []);
 
 
@@ -69,6 +69,9 @@ export const CartProvider = ({children}) => {
         return Object.values(cart).reduce((acc, item) => acc + item.price * item.quantity, 0);
     }, [cart]);
 
+    const totalCount = useMemo(() => {
+        return Object.values(cart).reduce((acc, item) => acc + item.quantity, 0);
+    }, [cart]);
 
     useEffect(() => {
         localStorage.setItem('cart', JSON.stringify(cart));
@@ -86,7 +89,8 @@ export const CartProvider = ({children}) => {
         selectDeliveryTariff,
         resetCart,
         totalValue,
-    }), [cart, selectedDeliveryTariff, addItem, removeItem, incQty, decQty, selectDeliveryTariff, resetCart, totalValue]);
+        totalCount
+    }), [cart, selectedDeliveryTariff, addItem, removeItem, incQty, decQty, selectDeliveryTariff, resetCart, totalValue, totalCount]);
 
     return (
         <CartContext.Provider value={value}>

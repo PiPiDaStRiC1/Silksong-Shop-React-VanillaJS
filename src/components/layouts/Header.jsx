@@ -1,12 +1,13 @@
 import logoImage from '@/assets/images/logo/logoImage.png';
 import logoText from '@/assets/images/logo/logoText.png'
-import {Search, User, ShoppingBasket} from 'lucide-react';
+import {Heart, User, ShoppingBasket} from 'lucide-react';
 import { useState } from 'react';
 import {Link, NavLink} from 'react-router-dom';
 import {CartModal} from '../ui/index';
 import {AuthModal} from '@/pages/AuthModal'
 import { useCart, useUser } from '@/hooks/index';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 export const Header = () => {
     const [showCart, setShowCart] = useState(false);
@@ -15,6 +16,17 @@ export const Header = () => {
     const {user} = useUser();
     const navigate = useNavigate();
     const cartItemCount = Object.values(cart).length;
+
+    const notLoggedInUser = () => {
+        setShowAuthModal(true);
+        toast.error('You need to be logged in to access Delivery page!', {
+            duration: 1500,
+            style: {
+                position: 'relative',
+                top: '0rem',
+            }
+        });
+    }
     
     return (
         <>
@@ -27,19 +39,57 @@ export const Header = () => {
                         </div>
                     </Link>
                     <ul className="w-full max-w-[40rem] flex justify-between items-center"> 
-                        <li><NavLink to="/" className={({isActive}) => isActive ? 'text-lg text-gray-400' : 'text-lg hover:text-gray-400'}>Home</NavLink></li>
-                        <li><NavLink to="/catalog" className={({isActive}) => isActive ? 'text-lg text-gray-400' : 'text-lg hover:text-gray-400'}>Catalog</NavLink></li>
+                        <li>
+                            <NavLink 
+                                to="/" 
+                                className={({isActive}) => isActive ? 'text-lg text-gray-400' : 'text-lg hover:text-gray-400'}
+                            >
+                                Home
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink 
+                                to="/catalog" 
+                                className={({isActive}) => isActive ? 'text-lg text-gray-400' : 'text-lg hover:text-gray-400'}
+                            >
+                                Catalog
+                            </NavLink>
+                        </li>
                         <li><NavLink to="/reviews" className={({isActive}) => isActive ? 'text-lg text-gray-400' : 'text-lg hover:text-gray-400'}>Reviews</NavLink></li>
-                        <li><NavLink to="/delivery" className={({isActive}) => isActive ? 'text-lg text-gray-400' : 'text-lg hover:text-gray-400'}>Delivery</NavLink></li>
-                        <li><NavLink to="/faq" className={({isActive}) => isActive ? 'text-lg text-gray-400' : 'text-lg hover:text-gray-400'}>FAQ</NavLink></li>
-                        <li><NavLink to="/about" className={({isActive}) => isActive ? 'text-lg text-gray-400' : 'text-lg hover:text-gray-400'}>About</NavLink></li>
+                        <li>
+                            <button 
+                                onClick={() => {
+                                    user ? 
+                                    navigate('/delivery') :
+                                    notLoggedInUser()
+                                }}
+                            >
+                                Delivery
+                            </button>
+                        </li>
+                        <li>
+                            <NavLink 
+                                to="/faq" 
+                                className={({isActive}) => isActive ? 'text-lg text-gray-400' : 'text-lg hover:text-gray-400'}
+                            >
+                                FAQ
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink 
+                                to="/about" 
+                                className={({isActive}) => isActive ? 'text-lg text-gray-400' : 'text-lg hover:text-gray-400'}
+                            >
+                                About
+                            </NavLink>
+                        </li>
                     </ul>
                     <ul className='flex items-center gap-4'>
                         <li>
                             <button 
                                 className='cursor-pointer hover:text-gray-400'
                             >
-                                <Search size='27'/>
+                                <Heart size='27'/>
                             </button>
                         </li>
                         <li>

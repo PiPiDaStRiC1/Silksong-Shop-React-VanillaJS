@@ -1,5 +1,5 @@
-import {DataContext} from '../contexts/DataContext';
-import {useRequests} from '../hooks/useRequests';
+import {DataContext} from '@/contexts/DataContext';
+import {useRequests} from '@/hooks/useRequests';
 import { useMemo } from 'react';
 
 export const DataProvider = ({children}) => {

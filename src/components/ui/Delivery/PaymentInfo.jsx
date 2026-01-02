@@ -1,12 +1,29 @@
-import {SET_VALUE} from '@/reducers/paymentInfoReducer'
-import { useEffect } from 'react';
+import {SET_VALUE, GET_INFO_FROM_LS} from '@/reducers/paymentInfoReducer'
+import { useEffect, memo } from 'react';
+import {useUser} from '@/hooks/index'
 
-export const PaymentInfo = ({formData, dispatch, validation}) => {
+export const PaymentInfo = memo(({formData, dispatch, validation}) => {
     const {cardNumber, cardHolder, expiryDate, cvv} = formData;
+    const {user} = useUser();
 
     const handleChange = (field, value) => {
         dispatch({type: SET_VALUE, payload: {field, value}});
     }
+    
+    useEffect(() => {
+        const isAutoFilledRef = JSON.parse(sessionStorage.getItem('isAutoFilledCardHolderRef')) ?? false;
+        if (user && !cardHolder && !isAutoFilledRef) {
+            dispatch({ type: GET_INFO_FROM_LS, payload: {
+                name: user.name,
+                lastName: user.lastName, 
+            } });
+            sessionStorage.setItem('isAutoFilledCardHolderRef', 'true');
+        }
+    }, [user, cardHolder, dispatch]);
+
+    useEffect(() => {
+        return () => sessionStorage.setItem('isAutoFilledCardHolderRef', 'false');
+    }, [])
 
     useEffect(() => {
         sessionStorage.setItem('paymentInfo', JSON.stringify(formData));
@@ -114,4 +131,4 @@ export const PaymentInfo = ({formData, dispatch, validation}) => {
             </div>
         </div>
     )
-}
+});

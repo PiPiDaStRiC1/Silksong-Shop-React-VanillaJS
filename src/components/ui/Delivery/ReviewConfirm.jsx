@@ -1,4 +1,6 @@
-export const ReviewConfirm = ({allDeliveryInfo}) => {
+import {memo} from 'react'
+
+export const ReviewConfirm = memo(({allDeliveryInfo}) => {
     const {shippingData, paymentInfoData, tariff} = allDeliveryInfo;
 
     return (
@@ -30,4 +32,4 @@ export const ReviewConfirm = ({allDeliveryInfo}) => {
             </div>
         </div>
     )
-}
+});

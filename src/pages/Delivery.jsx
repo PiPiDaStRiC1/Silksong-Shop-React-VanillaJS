@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { useState, useReducer, useEffect } from "react";
+import { useState, useReducer, useEffect, useRef } from "react";
 import toast from 'react-hot-toast';
 import { MapPin, CreditCard, Package, CheckCircle2, ChevronRight } from "lucide-react";
-import {useCart} from '@/hooks/index';
+import {useCart, useOrder} from '@/hooks/index';
 import value from '@/assets/images/value.png';
 import {freeShippingValue} from '@/libs/constants/freeShippingValue';
 import {deliveryTariffs} from '@/libs/constants/deliveryTariffs';
@@ -30,10 +30,13 @@ export const Delivery = () => {
     const [currentStep, setCurrentStep] = useState(initStep);
     const [shippingData, shippingDispatch] = useReducer(shippingAddressReducer, initialShippingState, initShipping);
     const [paymentInfoData, paymentInfoDispatch] = useReducer(paymentInfoReducer, initialPaymentInfoState, initPaymentInfo);
-    const {cart, totalValue, selectedDeliveryTariff, removeItem, incQty, decQty, selectDeliveryTariff, resetCart} = useCart();
+    const {cart, totalValue, totalCount, selectedDeliveryTariff, removeItem, incQty, decQty, selectDeliveryTariff, resetCart} = useCart();
+    const {orders, createOrder, updateOrderStatus, startDeliveryTimer, cancelOrder} = useOrder();
+    const orderIdRef = useRef(null);
     const taxCost = parseFloat((totalValue * 0.05).toFixed(2));
     const isShippingFree = freeShippingValue <= totalValue;
-    const deliveryCost = deliveryTariffs[selectedDeliveryTariff ?? 'Eco'].price;
+    const deliveryCost = isShippingFree ? 0 : deliveryTariffs[selectedDeliveryTariff ?? 'Eco'].price;
+    
     
     const shippingValidation = {
         name: /^[A-ZА-ЯЁ][a-zа-яё]+$/.test(shippingData.name),
@@ -45,7 +48,7 @@ export const Delivery = () => {
         phone: /^\+[1-9]\d{10}$/.test(shippingData.phone),
     }
     const isShippingValid = Object.values(shippingValidation).every(value => value === true);   
-
+    
     const paymentValidation = {
         cardNumber: /^\d{16}$/.test(paymentInfoData.cardNumber),
         expiryDate: /^(0[1-9]|1[0-2])\/\d{2}$/.test(paymentInfoData.expiryDate),
@@ -53,46 +56,46 @@ export const Delivery = () => {
         cardHolder: /^[A-ZА-ЯЁ][a-zа-яё]+ [A-ZА-ЯЁ][a-zа-яё]+$/.test(paymentInfoData.cardHolder),
     }
     const isPaymentValid = Object.values(paymentValidation).every(value => value === true);
-
-
+    
+    
     const handleContinueButton = (newStep) => {
         if (newStep <= currentStep) {
             setCurrentStep(newStep);
             return;
         }
-
+        
         if (Object.values(cart).length === 0) {
             toast.error('Your cart is empty. Please add items to proceed.');
             return;
         }
-
+        
         if (currentStep === 1 && !isShippingValid) {
             const wrongFieldsCount = Object.values(shippingValidation).filter(value => value === false).length;
             toast.error(`Please fill ${wrongFieldsCount > 1 ? `${wrongFieldsCount} shipping fields` : '1 shipping field'} correctly.`);
             return;
         }
-
+        
         if (currentStep === 3 && !isPaymentValid) {
             const wrongFieldsCount = Object.values(paymentValidation).filter(value => value === false).length;
             toast.error(`Please fill ${wrongFieldsCount > 1 ? `${wrongFieldsCount} payment fields` : '1 payment field'} correctly.`);
             return;
         }
-
+        
         toast.success('Success!');
         setCurrentStep(newStep);
     }
-
+    
     const clearDelDataFromStorage = () => {
         sessionStorage.removeItem('shippingAddress');
         sessionStorage.removeItem('paymentInfo');
         sessionStorage.removeItem('lastStep');
         sessionStorage.removeItem('isAutoFilledRef');
-
+        
         shippingDispatch({type: RESET_SHIPPING});
         paymentInfoDispatch({type: RESET_PAYMENT});
         resetCart();
     }
-
+    
     const orderCompleteHandler = async () => {
         try {
             await toast.promise(
@@ -103,20 +106,44 @@ export const Delivery = () => {
                     error: 'Failed to place order. Please try again.'
                 }
             )
-
+            
+            updateOrderStatus(orderIdRef.current, 'shipped');
+            startDeliveryTimer(orderIdRef.current);
             clearDelDataFromStorage();
             setCurrentStep(1);
-            setTimeout(() => 
-                window.open('https://www.teamcherry.com.au/games', '_blank')
-            , 1200);
         } catch (error) {
             console.log(error.message);
         }
     }
 
     useEffect(() => {
+        if (currentStep >= 3 && !orderIdRef.current) {
+            orderIdRef.current = createOrder({ 
+                date: new Date().toString().split(' GMT')[0],
+                cartItems: cart,
+                totalValue: totalValue + taxCost + deliveryCost, 
+                taxValue: taxCost,
+                deliveryValue: deliveryCost,
+                totalCount, 
+                status: 'processing' 
+            });
+        }
+    }, [currentStep, createOrder, totalValue, totalCount, taxCost, deliveryCost, cart]);
+    
+    useEffect(() => {
         sessionStorage.setItem('lastStep', JSON.stringify(currentStep));
     }, [currentStep]);
+    
+    useEffect(() => {
+        if (!orderIdRef.current || currentStep > 2) return;
+
+        const order = orders?.[orderIdRef.current];
+
+        if (order?.status === 'processing') {
+            cancelOrder(orderIdRef.current);
+            orderIdRef.current = null
+        }
+    }, [currentStep, cancelOrder, orders]);
 
     return (
         <section className="container w-full text-white">
@@ -218,6 +245,7 @@ export const Delivery = () => {
                                             removeItem={removeItem} 
                                             incQty={incQty} 
                                             decQty={decQty} 
+                                            currentStep={currentStep}
                                         />
                                     ))}
                                     {Object.values(cart).length === 0 && (
@@ -237,7 +265,7 @@ export const Delivery = () => {
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-400">Shipping</span>
                                         <span className="inline-flex text-white justify-center items-center gap-1">
-                                            {isShippingFree ? 'Free' : `at least ${deliveryCost}`}
+                                            {!deliveryCost ? 'Free' : `at least ${deliveryCost}`}
                                             {<img src={value} alt="Value Icon" className="w-4 h-4" />}
                                         </span>
                                     </div>

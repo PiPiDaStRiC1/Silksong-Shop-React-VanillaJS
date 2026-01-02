@@ -7,6 +7,7 @@ export const initialPaymentInfoState = {
 
 export const SET_VALUE = 'SET_VALUE';
 export const RESET_FORM = 'RESET_FORM';
+export const GET_INFO_FROM_LS = 'GET_INFO_FROM_LS';
 
 export const initPaymentInfo = () => {
     try {
@@ -26,6 +27,11 @@ export const paymentInfoReducer = (state, { type, payload }) => {
         }
     case RESET_FORM:
         return initialPaymentInfoState;
+    case GET_INFO_FROM_LS:
+        return {
+            ...state,
+            cardHolder: `${payload.name} ${payload.lastName}`
+        }
     default:
         return state;
     }

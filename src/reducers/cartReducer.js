@@ -1,8 +1,8 @@
-import actions from '@/libs/constants/cartActionTypes';
+import cartActions from '@/libs/constants/cartActionTypes';
 
 export const cartReducer = ({cart, selectedDeliveryTariff}, {type, payload = null}) => {
     switch (type) {
-        case actions.ADD_TO_CART: {
+        case cartActions.ADD_TO_CART: {
             return {
                 cart: {
                     ...cart,
@@ -14,7 +14,7 @@ export const cartReducer = ({cart, selectedDeliveryTariff}, {type, payload = nul
                 selectedDeliveryTariff: selectedDeliveryTariff
             }
         }
-        case actions.REMOVE_FROM_CART: {
+        case cartActions.REMOVE_FROM_CART: {
             const newState = {...cart};
             delete newState[payload.id];
             return {
@@ -22,7 +22,7 @@ export const cartReducer = ({cart, selectedDeliveryTariff}, {type, payload = nul
                 selectedDeliveryTariff: selectedDeliveryTariff
             };
         }
-        case actions.INCREASE_QUANTITY: {
+        case cartActions.INCREASE_QUANTITY: {
             const item = cart[payload.id];
             const nextQty = (item?.quantity ?? 0) + 1;
             if (nextQty > item.stock) return {cart, selectedDeliveryTariff};
@@ -37,7 +37,7 @@ export const cartReducer = ({cart, selectedDeliveryTariff}, {type, payload = nul
                 selectedDeliveryTariff: selectedDeliveryTariff
             }
         }
-        case actions.DECREASE_QUANTITY: {
+        case cartActions.DECREASE_QUANTITY: {
             const item = cart[payload.id];
             const nextQty = (item?.quantity ?? 0) - 1;
             if (nextQty <= 0) {
@@ -59,16 +59,16 @@ export const cartReducer = ({cart, selectedDeliveryTariff}, {type, payload = nul
                 selectedDeliveryTariff: selectedDeliveryTariff
             }
         }
-        case actions.SELECT_DELIVERY_TARIFF: {
+        case cartActions.SELECT_DELIVERY_TARIFF: {
             return {
                 cart: cart,
                 selectedDeliveryTariff: payload
             }
         }
-        case actions.RESET_CART: {
+        case cartActions.RESET_CART: {
             return {
                 cart: {},
-                selectedDeliveryTariff: null
+                selectedDeliveryTariff: 'Eco'
             }
         }
         default: {

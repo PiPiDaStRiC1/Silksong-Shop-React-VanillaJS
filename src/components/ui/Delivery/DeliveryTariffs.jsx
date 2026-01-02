@@ -1,6 +1,7 @@
 import value from '@/assets/images/value.png';
+import {memo} from 'react'
 
-export const DeliveryTariffs = ({tariffs, selectedDeliveryTariff, selectDeliveryTariff}) => {
+export const DeliveryTariffs = memo(({tariffs, selectedDeliveryTariff, selectDeliveryTariff}) => {
 
     return (
         <div className="space-y-6">
@@ -39,5 +40,4 @@ export const DeliveryTariffs = ({tariffs, selectedDeliveryTariff, selectDelivery
             </div>
         </div>
     )
-    
-}
+});

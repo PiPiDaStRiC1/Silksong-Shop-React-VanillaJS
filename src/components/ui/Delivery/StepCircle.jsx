@@ -1,4 +1,6 @@
-export const StepCircle = ({step, currentStep, setCurrentStep}) => {
+import {memo} from 'react';
+
+export const StepCircle = memo(({step, currentStep, setCurrentStep}) => {
     const Icon = step.icon;
     const isCompleted = currentStep > step.id;
     const isCurrent = currentStep === step.id;
@@ -27,4 +29,4 @@ export const StepCircle = ({step, currentStep, setCurrentStep}) => {
             </span>
         </div>
     );
-}
+});

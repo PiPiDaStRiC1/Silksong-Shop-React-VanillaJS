@@ -1,8 +1,8 @@
 import { SET_FIELD, GET_INFO_FROM_LS } from '@/reducers/shippingAddressReducer';
-import { useEffect } from 'react';
+import { useEffect, memo } from 'react';
 import { useUser } from '@/hooks/useUser';
 
-export const ShippingAddress = ({ formData, dispatch, validation }) => {
+export const ShippingAddress = memo(({ formData, dispatch, validation }) => {
     const { name, lastName, address, city, state, zip, phone } = formData;
     const {user} = useUser();
     
@@ -11,15 +11,19 @@ export const ShippingAddress = ({ formData, dispatch, validation }) => {
     };
 
     useEffect(() => {
-        const isAutoFilledRef = JSON.parse(sessionStorage.getItem('isAutoFilledRef')) || false;
+        const isAutoFilledRef = JSON.parse(sessionStorage.getItem('isAutoFilledFullNameRef')) ?? false;
         if (user && !name && !lastName && !isAutoFilledRef) {
             dispatch({ type: GET_INFO_FROM_LS, payload: {
                 name: user.name,
                 lastName: user.lastName, 
             } });
-            sessionStorage.setItem('isAutoFilledRef', 'true');
+            sessionStorage.setItem('isAutoFilledFullNameRef', 'true');
         }
     }, [user, name, lastName, dispatch]);
+
+    useEffect(() => {
+        return () => sessionStorage.setItem('isAutoFilledFullNameRef', 'false');
+    }, [])
 
     useEffect(() => {
         sessionStorage.setItem('shippingAddress', JSON.stringify(formData));
@@ -197,4 +201,4 @@ export const ShippingAddress = ({ formData, dispatch, validation }) => {
             </div>
         </div>
     )
-}
+});

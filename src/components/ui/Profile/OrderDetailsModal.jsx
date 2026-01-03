@@ -45,7 +45,7 @@ export const OrderDetailsModal = ({onClose, order, items}) => {
                         </p>
                     </div>
                     <h4 className="text-white font-semibold mb-2">Items</h4>
-                    <ul className="mb-4 text-sm text-gray-300 space-y-2 max-h-[8rem] overflow-y-auto custom-scroll">
+                    <ul className="mb-4 text-sm text-gray-300 space-y-2 max-h-[6rem] overflow-y-auto custom-scroll">
                         {items.map(item => (
                             <li key={item.id} className="flex items-start justify-between">
                                 <div>

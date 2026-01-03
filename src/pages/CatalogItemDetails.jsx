@@ -2,14 +2,17 @@ import { Link, useParams } from 'react-router-dom';
 import { useMemo, useState } from 'react';
 import valueIcon from '@/assets/images/value.png';
 import { ReviewsCardFull } from '@/components/ui/Reviews/ReviewsCardFull';
-import { useData, useCart } from '@/hooks/index';
+import { useData, useCart, useWishList } from '@/hooks/index';
+import {Heart, HeartCrack} from 'lucide-react'
 
 export const CatalogItemDetails = () => {
     const { category, id } = useParams();
     const { products, reviews, isLoading, error } = useData();
     const { addItem } = useCart();
+    const { wishList, removeFromWL, addToWL } = useWishList();
     const product = useMemo(() => products.find(p => String(p.id) === String(id)), [products, id]);
     const related = useMemo(() => products.filter(p => p.category === category && String(p.id) !== String(id)).slice(0, 4), [products, category, id]);
+    const isFavorite = wishList[product.id] !== undefined;
 
     const [qty, setQty] = useState(1);
     const [tab, setTab] = useState('description'); 
@@ -111,7 +114,21 @@ export const CatalogItemDetails = () => {
                         >
                             Add to Cart
                         </button>
-                        <button className="px-5 py-2 rounded-[10px] border border-neutral-700 text-gray-300 hover:border-white hover:text-white transition-all cursor-pointer">Wishlist</button>
+                        {isFavorite ? (
+                            <button
+                                className="px-5 py-2 rounded-[10px] border border-neutral-700 text-gray-300 hover:border-white hover:text-white transition-all cursor-pointer"
+                                onClick={() => removeFromWL(product)}
+                            >
+                                <HeartCrack />
+                            </button>
+                            ) : (
+                            <button 
+                                className="px-5 py-2 rounded-[10px] border border-neutral-700 text-gray-300 hover:border-white hover:text-white transition-all cursor-pointer"
+                                onClick={() => addToWL(product)}
+                            >
+                                <Heart />
+                            </button>
+                        )}
                     </div>
 
                     <div className="mt-4">

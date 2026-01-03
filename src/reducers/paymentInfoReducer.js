@@ -30,7 +30,7 @@ export const paymentInfoReducer = (state, { type, payload }) => {
     case GET_INFO_FROM_LS:
         return {
             ...state,
-            cardHolder: `${payload.name} ${payload.lastName}`
+            ...payload
         }
     default:
         return state;

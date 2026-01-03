@@ -3,19 +3,22 @@ import logoText from '@/assets/images/logo/logoText.png'
 import {Heart, User, ShoppingBasket} from 'lucide-react';
 import { useState } from 'react';
 import {Link, NavLink} from 'react-router-dom';
-import {CartModal} from '../ui/index';
+import {CartModal, WishListModal} from '../ui/index';
 import {AuthModal} from '@/pages/AuthModal'
-import { useCart, useUser } from '@/hooks/index';
+import { useCart, useUser, useWishList } from '@/hooks/index';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 export const Header = () => {
     const [showCart, setShowCart] = useState(false);
     const [showAuthModal, setShowAuthModal] = useState(false);
+    const [showWishListModal, setShowWishListModal] = useState(false);
     const {cart} = useCart();
     const {user} = useUser();
+    const {wishList} = useWishList();
     const navigate = useNavigate();
     const cartItemCount = Object.values(cart).length;
+    const wishListItemCount = Object.values(wishList).length;
 
     const notLoggedInUser = () => {
         setShowAuthModal(true);
@@ -85,12 +88,18 @@ export const Header = () => {
                         </li>
                     </ul>
                     <ul className='flex items-center gap-4'>
-                        <li>
+                        <li className='relative'>
                             <button 
                                 className='cursor-pointer hover:text-gray-400'
+                                onClick={() => setShowWishListModal(!showWishListModal)}
                             >
                                 <Heart size='27'/>
                             </button>
+                            {wishListItemCount > 0 && (
+                                <div className="absolute top-[-0.7rem] left-[1.2rem] w-5 h-5 bg-white rounded-full flex items-center justify-center text-black text-[0.7rem] font-bold">
+                                    {wishListItemCount}
+                                </div>
+                            )}
                         </li>
                         <li>
                             <button 
@@ -122,6 +131,7 @@ export const Header = () => {
             </header>
             {showCart && <CartModal onClose={() => setShowCart(false)} />}
             {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
+            {showWishListModal && <WishListModal onClose={() => setShowWishListModal(false)} />}
         </>
     )
 }

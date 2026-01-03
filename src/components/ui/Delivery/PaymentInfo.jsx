@@ -14,8 +14,7 @@ export const PaymentInfo = memo(({formData, dispatch, validation}) => {
         const isAutoFilledRef = JSON.parse(sessionStorage.getItem('isAutoFilledCardHolderRef')) ?? false;
         if (user && !cardHolder && !isAutoFilledRef) {
             dispatch({ type: GET_INFO_FROM_LS, payload: {
-                name: user.name,
-                lastName: user.lastName, 
+                cardHolder: user.fullName 
             } });
             sessionStorage.setItem('isAutoFilledCardHolderRef', 'true');
         }

@@ -1,10 +1,11 @@
 import { SET_FIELD, GET_INFO_FROM_LS } from '@/reducers/shippingAddressReducer';
-import { useEffect, memo } from 'react';
+import { useEffect, memo, useRef } from 'react';
 import { useUser } from '@/hooks/useUser';
 
 export const ShippingAddress = memo(({ formData, dispatch, validation }) => {
     const { name, lastName, address, city, state, zip, phone } = formData;
     const {user} = useUser();
+    const prevUserRef = useRef(null);
     
     const handleChange = (field, value) => {
         dispatch({ type: SET_FIELD, payload: { field, value } });
@@ -12,18 +13,23 @@ export const ShippingAddress = memo(({ formData, dispatch, validation }) => {
 
     useEffect(() => {
         const isAutoFilledRef = JSON.parse(sessionStorage.getItem('isAutoFilledFullNameRef')) ?? false;
-        if (user && !name && !lastName && !isAutoFilledRef) {
-            dispatch({ type: GET_INFO_FROM_LS, payload: {
-                name: user.name,
-                lastName: user.lastName, 
-            } });
-            sessionStorage.setItem('isAutoFilledFullNameRef', 'true');
+        if (user && 
+            name !== prevUserRef.current?.name && 
+            lastName !== prevUserRef.current?.lastName && 
+            !isAutoFilledRef
+            ) {
+                dispatch({ type: GET_INFO_FROM_LS, payload: {
+                    name: user.name,
+                    lastName: user.lastName, 
+                }});
+                sessionStorage.setItem('isAutoFilledFullNameRef', 'true');
         }
+        prevUserRef.current = user;
     }, [user, name, lastName, dispatch]);
 
-    useEffect(() => {
-        return () => sessionStorage.setItem('isAutoFilledFullNameRef', 'false');
-    }, [])
+    // useEffect(() => {
+    //     return () => sessionStorage.setItem('isAutoFilledFullNameRef', 'false');
+    // }, [])
 
     useEffect(() => {
         sessionStorage.setItem('shippingAddress', JSON.stringify(formData));

@@ -52,7 +52,7 @@ const loginUser = async (email, fullName) => {
                 localStorage.setItem('user', JSON.stringify(userData));
                 resolve(userData);
             }
-        })
+        }, 1000)
     })
 }
 
@@ -89,18 +89,47 @@ export const UserProvider = ({children}) => {
         return user;
     }, []);
 
+    const changeUserInfo = useCallback(async (...changeFields) => {
+        await new Promise((resolve) => {
+            setTimeout(() => {
+                resolve();
+            }, 1000)
+        });
+
+        const newUser = {
+            ...saveUser,
+            ...Object.fromEntries(changeFields.map(({field, value}) => [field, value]))
+        }
+
+        localStorage.setItem('user', JSON.stringify(newUser));
+        setSaveUser(newUser);
+    }, [saveUser]);
+
     const logout = useCallback(() => {
         setSaveUser(null);
         sessionStorage.removeItem('isLoggedIn'); 
         toast.success('Logged out successfully!');
     }, []);
 
+    const deleteAccount = useCallback(() => {
+        setSaveUser(null);
+        localStorage.clear();
+        sessionStorage.clear();
+        toast.success('Account deleted successfully!');
+
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 1000);
+    }, []);
+
     const value = useMemo(() => ({
         user: saveUser,
         register,
         logout,
-        verificationLogin
-    }), [saveUser, register, logout, verificationLogin]);
+        verificationLogin,
+        changeUserInfo,
+        deleteAccount
+    }), [saveUser, register, logout, verificationLogin, changeUserInfo, deleteAccount]);
 
     return (
         <UserContext.Provider value={value}>

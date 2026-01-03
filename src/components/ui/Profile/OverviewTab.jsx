@@ -12,7 +12,7 @@ export const OverviewTab = ({setActiveTab}) => {
                 <h2 className="text-xl font-semibold text-white">Recent Orders</h2>
                 <button
                     onClick={() => setActiveTab('orders')}
-                    className="text-sm text-violet-400 hover:text-violet-300 transition"
+                    className="cursor-pointer text-sm text-violet-400 hover:text-violet-300 transition"
                 >
                     View all →
                 </button>

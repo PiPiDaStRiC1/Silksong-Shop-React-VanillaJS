@@ -1,9 +1,10 @@
-import { useState } from 'react';
 import valueIcon from '@/assets/images/value.png';
 import {Heart} from 'lucide-react';
+import { useWishList } from '@/hooks/index'
 
-export const CatalogCard = ({ name, price, imgSrc, onClick, sale, stock, onAdd }) => {
-  const [isFavorite, setIsFavorite] = useState(false);  
+export const CatalogCard = ({ id, name, price, category, imgSrc, onClick, sale, stock, onAdd }) => {
+  const {wishList, addToWL, removeFromWL} = useWishList();
+  const isFavorite = wishList[id] !== undefined;
 
   return (
     <div 
@@ -21,11 +22,16 @@ export const CatalogCard = ({ name, price, imgSrc, onClick, sale, stock, onAdd }
         <button
           onClick={(e) => {
             e.stopPropagation();
-            setIsFavorite(!isFavorite);
+
+            if (isFavorite) {
+              removeFromWL({ id });
+            } else {
+              addToWL({ id, name, price, imgSrc, stock, category });
+            }
           }}
           className={`cursor-pointer absolute top-2 left-2 rounded-full border border-white/10 bg-black/50 p-2 backdrop-blur transition-colors hover:border-white/40 ${isFavorite ? 'text-rose-400' : 'text-gray-300'}`}
         >
-          <Heart className={`h-4 w-4 ${isFavorite ? 'fill-rose-400' : 'fill-transparent'}`} />
+          <Heart className={`h-5 w-5 ${isFavorite ? 'fill-rose-400' : 'fill-transparent'}`} />
         </button>
       </div>
       <div className="mt-3 flex items-center justify-between text-white">

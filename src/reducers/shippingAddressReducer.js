@@ -30,8 +30,11 @@ export const shippingAddressReducer = (state, { type, payload }) => {
             };
         case RESET_FORM:
             return initialShippingState;
-        case GET_INFO_FROM_LS:
-            return {...state, ...payload}
+        case GET_INFO_FROM_LS: 
+            return {
+                ...state, 
+                ...payload
+            }
         default:
             return state;
     }

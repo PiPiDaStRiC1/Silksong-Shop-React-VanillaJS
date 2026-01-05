@@ -1,4 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
+import {BreadCrumbs} from '@/features/index'
 import { useMemo, useState } from 'react';
 import valueIcon from '@/assets/images/value.png';
 import { ReviewsCardFull } from '@/components/ui/Reviews/ReviewsCardFull';
@@ -20,11 +21,7 @@ export const CatalogItemDetails = () => {
     if (!product) {
         return (
             <section className="container w-full text-white">
-                <nav className="container mt-[1rem] w-full px-6 py-4 text-lg text-gray-400">
-                    <Link to="/" className="hover:text-gray-200">Home</Link>
-                    <span className="mx-2">/</span>
-                    <Link to="/catalog" className="hover:text-gray-200">Catalog</Link>
-                </nav>
+                <BreadCrumbs />
                 <div className='px-6'>
                     <h1 className="text-3xl ">Item not found</h1>
                     <p className="text-gray-400 mt-2">The requested item does not exist.</p>
@@ -34,16 +31,10 @@ export const CatalogItemDetails = () => {
     }
 
     return (
-        <section className="container w-full text-white">
-            <nav className="mt-[1rem] w-full px-6 py-4 text-lg text-gray-400">
-                <Link to="/" className="hover:text-gray-200">Home</Link>
-                <span className="mx-2">/</span>
-                <Link to="/catalog" className="hover:text-gray-200">Catalog</Link>
-                <span className="mx-2">/</span>
-                <span className="text-gray-200">{product.name}</span>
-            </nav>
-
-            <div className="container w-full px-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <section className="container w-full text-white px-6">
+            <BreadCrumbs item={product} />
+        
+            <div className="container w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6 flex items-center justify-center">
                     <img src={product.imgSrc} alt={product.name} className="max-h-[28rem] object-contain" />
                 </div>

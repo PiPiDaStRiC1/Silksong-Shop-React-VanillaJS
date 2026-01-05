@@ -1,9 +1,9 @@
 import logoImage from '@/assets/images/logo/logoImage.png';
 import logoText from '@/assets/images/logo/logoText.png'
-import {Heart, User, ShoppingBasket} from 'lucide-react';
+import {Heart, User, ShoppingBasket, Search} from 'lucide-react';
 import { useState } from 'react';
 import {Link, NavLink} from 'react-router-dom';
-import {CartModal, WishListModal} from '../ui/index';
+import {CartModal, WishListModal, SearchInput} from '../ui/index';
 import {AuthModal} from '@/pages/AuthModal'
 import { useCart, useUser, useWishList } from '@/hooks/index';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +13,7 @@ export const Header = () => {
     const [showCart, setShowCart] = useState(false);
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [showWishListModal, setShowWishListModal] = useState(false);
+    const [showSearch, setShowSearch] = useState(false);
     const {cart} = useCart();
     const {user} = useUser();
     const {wishList} = useWishList();
@@ -37,8 +38,8 @@ export const Header = () => {
                 <nav className="w-full px-6 container flex justify-between items-center text-white">
                     <Link to="/">
                         <div className='flex justify-center items-center'>
-                            <img src={logoImage} alt="logoImage" />
-                            <img src={logoText} alt="logoText" className='w-[10rem] h-auto'/>
+                            <img src={logoImage} alt="logoImage"/>
+                            <img src={logoText} alt="logoText" className='w-[10rem] h-[6.5rem]'/>
                         </div>
                     </Link>
                     <ul className="w-full max-w-[40rem] flex justify-between items-center"> 
@@ -91,6 +92,14 @@ export const Header = () => {
                         <li className='relative'>
                             <button 
                                 className='cursor-pointer hover:text-gray-400'
+                                onClick={() => setShowSearch(!showSearch)}
+                            >
+                                <Search size='27'/>
+                            </button>
+                        </li>
+                        <li className='relative'>
+                            <button 
+                                className='cursor-pointer hover:text-gray-400'
                                 onClick={() => setShowWishListModal(!showWishListModal)}
                             >
                                 <Heart size='27'/>
@@ -132,6 +141,7 @@ export const Header = () => {
             {showCart && <CartModal onClose={() => setShowCart(false)} />}
             {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
             {showWishListModal && <WishListModal onClose={() => setShowWishListModal(false)} />}
+            {showSearch && <SearchInput onClose={() => setShowSearch(false)} />}
         </>
     )
 }

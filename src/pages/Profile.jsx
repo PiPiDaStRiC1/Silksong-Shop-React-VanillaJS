@@ -16,8 +16,8 @@ export const Profile = () => {
 
     if (!user) {
         return (
-            <section className="container text-center">
-                <div className="max-w-md mx-auto rounded-2xl border border-white/10 bg-black/40 p-12">
+            <section className="container text-center min-h-screen flex justify-center items-center">
+                <div className="max-w-md mx-auto rounded-2xl bg-black/40 p-12">
                     <User className="w-16 h-16 mx-auto mb-4 text-white/30" />
                     <h2 className="text-2xl font-semibold text-white mb-2">Not logged in</h2>
                     <p className="text-gray-400 mb-6">Please sign in to view your profile</p>

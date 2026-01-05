@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import {BreadCrumbs} from '@/features/index'
 import { Mail } from "lucide-react";
 import { useState } from "react";
 import { FAQItem } from "@/components/ui/FAQ/FAQItem";
@@ -12,17 +12,11 @@ export const FAQ = () => {
   };
 
   return (
-    <section className="container w-full text-white">
+    <section className="container w-full text-white px-6">
       <div className="flex flex-col mt-[2rem]">
-        <nav className="container w-full px-6 text-lg text-gray-400">
-          <Link to="/" className="hover:text-gray-200">
-            Home
-          </Link>
-          <span className="mx-2">/</span>
-          <span className="text-gray-200">FAQ</span>
-        </nav>
+        <BreadCrumbs />
 
-        <div className="container w-full px-6 py-8">
+        <div className="container w-full py-8">
           <h1 className="text-4xl font-semibold mb-3">
             Frequently Asked Questions
           </h1>
@@ -34,7 +28,7 @@ export const FAQ = () => {
         </div>
       </div>
 
-      <div className="container w-full px-6 flex flex-col gap-3 mb-10">
+      <div className="container w-full flex flex-col gap-3 mb-10">
         {faqData.map((item) => (
           <FAQItem
             key={item.id}
@@ -45,7 +39,7 @@ export const FAQ = () => {
         ))}
       </div>
 
-      <div className="container w-full px-6 mb-10">
+      <div className="container w-full mb-10">
         <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-8">
           <div className="flex items-center gap-3 mb-4">
             <Mail className="w-6 h-6 text-white" />

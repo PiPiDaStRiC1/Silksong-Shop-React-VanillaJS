@@ -1,6 +1,6 @@
-import '../styles/style.css';
+import '@/styles/style.css';
 import {Footer, Header, Main} from '@/components/layouts/index';
-import {Home, About, Catalog, Reviews, CatalogItemDetails, Delivery, FAQ, UserProfileDetails, Profile} from '@/pages/index';
+import {Home, About, Catalog, Reviews, CatalogItemDetails, Delivery, FAQ, UserProfileDetails, Profile, Error} from '@/pages/index';
 import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import {Toaster} from 'react-hot-toast';
 import {ScrollToTop} from '@/libs/utils/ScroollToTop';
@@ -8,6 +8,7 @@ import {AppProviders} from '@/contexts/index';
 
 // СДЕЛАТЬ ABORT CONTROLLER ДЛЯ ЗАПРОСОВ В ORDER И 
 // ПОФИКСИТЬ АВТОЗАПОЛНЕНИЕ В SHIPPINGADDRESS И PAYMENTINFO
+// СДЕЛАТЬ ВАЛИДАЦИЮ В НАСТРОЙКАХ ПРИ СМЕНЕ ПОЧТЫ
 
 const App = () => {
   return (
@@ -47,10 +48,11 @@ const App = () => {
               <Route path='/delivery' element={<Delivery />} />
               <Route path='/faq' element={<FAQ />} />
               <Route path='/about' element={<About />} />
+              <Route path='*' element={<Error />} />
             </Route>
           </Routes>
           <Footer />
-      </div>
+        </div>
       </AppProviders>
     </BrowserRouter>
   )

@@ -24,7 +24,7 @@ export const CatalogCard = ({ id, name, price, category, imgSrc, onClick, sale, 
             e.stopPropagation();
 
             if (isFavorite) {
-              removeFromWL({ id });
+              removeFromWL({ id, name });
             } else {
               addToWL({ id, name, price, imgSrc, stock, category });
             }

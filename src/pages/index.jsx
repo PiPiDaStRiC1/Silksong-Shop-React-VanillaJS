@@ -8,3 +8,4 @@ export {Delivery} from './Delivery';
 export {UserProfileDetails} from './UserProfileDetails';
 export {Profile} from './Profile'
 export {AuthModal} from './AuthModal'
+export {Error} from './Error'

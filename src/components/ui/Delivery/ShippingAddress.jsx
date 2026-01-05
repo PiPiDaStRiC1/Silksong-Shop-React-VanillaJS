@@ -27,9 +27,9 @@ export const ShippingAddress = memo(({ formData, dispatch, validation }) => {
         prevUserRef.current = user;
     }, [user, name, lastName, dispatch]);
 
-    // useEffect(() => {
-    //     return () => sessionStorage.setItem('isAutoFilledFullNameRef', 'false');
-    // }, [])
+    useEffect(() => {
+        return () => sessionStorage.setItem('isAutoFilledFullNameRef', 'false');
+    }, [])
 
     useEffect(() => {
         sessionStorage.setItem('shippingAddress', JSON.stringify(formData));

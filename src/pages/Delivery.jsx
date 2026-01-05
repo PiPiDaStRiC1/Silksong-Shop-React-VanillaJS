@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import {BreadCrumbs} from '@/features/index'
 import { useState, useReducer, useEffect, useRef } from "react";
 import toast from 'react-hot-toast';
 import { MapPin, CreditCard, Package, CheckCircle2, ChevronRight } from "lucide-react";
@@ -36,7 +36,7 @@ export const Delivery = () => {
     const taxCost = parseFloat((totalValue * 0.05).toFixed(2));
     const isShippingFree = freeShippingValue <= totalValue;
     const deliveryCost = isShippingFree ? 0 : deliveryTariffs[selectedDeliveryTariff ?? 'Eco'].price;
-    
+    const PENDING_ORDER_ID = 'pendingOrderId';
     
     const shippingValidation = {
         name: /^[A-ZА-ЯЁ][a-zа-яё]+$/.test(shippingData.name),
@@ -109,6 +109,8 @@ export const Delivery = () => {
             
             updateOrderStatus(orderIdRef.current, 'shipped');
             startDeliveryTimer(orderIdRef.current);
+            sessionStorage.removeItem(PENDING_ORDER_ID);
+            orderIdRef.current = null;
             clearDelDataFromStorage();
             setCurrentStep(1);
         } catch (error) {
@@ -116,9 +118,19 @@ export const Delivery = () => {
         }
     }
 
+    // Effect to order restoration on page reloads
+    useEffect(() => {
+        const savedOrderId = sessionStorage.getItem(PENDING_ORDER_ID);
+        if (savedOrderId && orders?.[savedOrderId]?.status === 'processing') {
+            orderIdRef.current = savedOrderId
+        } else {
+            sessionStorage.removeItem(PENDING_ORDER_ID);
+        }
+    }, [orders]);
+
     useEffect(() => {
         if (currentStep >= 3 && !orderIdRef.current) {
-            orderIdRef.current = createOrder({ 
+            const newOrderId = createOrder({ 
                 date: new Date().toString().split(' GMT')[0],
                 cartItems: cart,
                 totalValue: totalValue + taxCost + deliveryCost, 
@@ -127,6 +139,9 @@ export const Delivery = () => {
                 totalCount, 
                 status: 'processing' 
             });
+
+            orderIdRef.current = newOrderId;
+            sessionStorage.setItem(PENDING_ORDER_ID, newOrderId);
         }
     }, [currentStep, createOrder, totalValue, totalCount, taxCost, deliveryCost, cart]);
     
@@ -135,26 +150,19 @@ export const Delivery = () => {
     }, [currentStep]);
     
     useEffect(() => {
-        if (!orderIdRef.current || currentStep > 2) return;
-
-        const order = orders?.[orderIdRef.current];
-
-        if (order?.status === 'processing') {
+        if (currentStep <= 2 && orderIdRef.current) {
             cancelOrder(orderIdRef.current);
-            orderIdRef.current = null
+            sessionStorage.removeItem(PENDING_ORDER_ID);
+            orderIdRef.current = null;
         }
-    }, [currentStep, cancelOrder, orders]);
+    }, [currentStep, cancelOrder]);
 
     return (
-        <section className="container w-full text-white">
+        <section className="container w-full text-white px-6">
             <div className="flex flex-col mt-[2rem]">
-                <nav className="container w-full px-6 text-lg text-gray-400">
-                    <Link to="/" className="hover:text-gray-200">Home</Link>
-                    <span className="mx-2">/</span>
-                    <span className="text-gray-200">Delivery</span>
-                </nav>
+                <BreadCrumbs />
 
-                <div className="container w-full px-6 py-8">
+                <div className="container w-full py-8">
                     <div className="max-w-4xl mx-auto mb-12">
                         <div className="flex items-center justify-between relative">
                             <div className="absolute left-0 right-0 top-1/2 h-0.5 -translate-y-1/2 bg-gradient-to-r from-white/10 via-white/10 to-white/10" />

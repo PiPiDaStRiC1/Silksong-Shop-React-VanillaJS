@@ -6,16 +6,16 @@ import {WishListProvider} from './WishListProvider';
 
 export const AppProviders = ({children}) => {
     return (
-        <UserProvider>
-            <DataProvider>
-                <CartProvider>
-                    <OrderProvider>
-                        <WishListProvider> 
+        <DataProvider>
+            <CartProvider>
+                <WishListProvider> 
+                    <UserProvider>
+                        <OrderProvider>
                             {children}
-                        </WishListProvider>
-                    </OrderProvider>
-                </CartProvider>
-            </DataProvider>
-        </UserProvider>  
+                        </OrderProvider>
+                    </UserProvider>
+                </WishListProvider>
+            </CartProvider>
+        </DataProvider> 
     )
 }

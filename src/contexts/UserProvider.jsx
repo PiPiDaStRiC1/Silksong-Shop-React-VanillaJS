@@ -1,10 +1,11 @@
 import { UserContext } from "@/contexts/UserContext";
 import { useCallback, useMemo, useState } from "react";
+import {useCart, useWishList} from '@/hooks/index'
 import toast from 'react-hot-toast';
 
 const initUser = () => {
     try {
-        const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
         
         if (isLoggedIn === 'true') {
             return JSON.parse(localStorage.getItem('user')) || null;
@@ -57,6 +58,8 @@ const loginUser = async (email, fullName) => {
 }
 
 export const UserProvider = ({children}) => {
+    const {resetCart} = useCart();
+    const {resetWL} = useWishList();
     const [saveUser, setSaveUser] = useState(initUser);
 
     const register = useCallback(async ({email, fullName = ""}) => {
@@ -70,7 +73,7 @@ export const UserProvider = ({children}) => {
         );
         
         setSaveUser(user);
-        sessionStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('isLoggedIn', 'true');
         return user;
     }, []);
 
@@ -85,7 +88,7 @@ export const UserProvider = ({children}) => {
         );
         
         setSaveUser(user);
-        sessionStorage.setItem('isLoggedIn', 'true'); 
+        localStorage.setItem('isLoggedIn', 'true'); 
         return user;
     }, []);
 
@@ -107,19 +110,19 @@ export const UserProvider = ({children}) => {
 
     const logout = useCallback(() => {
         setSaveUser(null);
-        sessionStorage.removeItem('isLoggedIn'); 
+        resetCart();
+        resetWL();
+        localStorage.removeItem('isLoggedIn'); 
         toast.success('Logged out successfully!');
-    }, []);
+    }, [resetCart, resetWL]);
 
     const deleteAccount = useCallback(() => {
         setSaveUser(null);
         localStorage.clear();
         sessionStorage.clear();
+        window.location.href = '/';
+        
         toast.success('Account deleted successfully!');
-
-        setTimeout(() => {
-            window.location.href = '/';
-        }, 1000);
     }, []);
 
     const value = useMemo(() => ({

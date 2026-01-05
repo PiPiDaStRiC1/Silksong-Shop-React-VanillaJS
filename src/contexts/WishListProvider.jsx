@@ -16,9 +16,8 @@ export const WishListProvider = ({children}) => {
         toast.error(`${item.name} Removed from Wish List`);
     }, []);
 
-    const clearWL = useCallback(() => {
+    const resetWL = useCallback(() => {
         dispatchWishList({type: CLEAR_WISHLIST});
-        toast.success('Cleared Wish List');
     }, []);
 
     useEffect(() => {
@@ -30,8 +29,8 @@ export const WishListProvider = ({children}) => {
         dispatchWishList,
         addToWL,
         removeFromWL,
-        clearWL
-    }), [wishList, dispatchWishList, addToWL, removeFromWL, clearWL]);
+        resetWL
+    }), [wishList, dispatchWishList, addToWL, removeFromWL, resetWL]);
 
     return (
         <WishListContext.Provider value={value}>

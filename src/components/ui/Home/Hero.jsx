@@ -61,7 +61,7 @@ export const Hero = () => {
 
                 <div className='flex items-center gap-6 text-xs text-gray-400 pt-2'>
                     <div>
-                        <span className='text-white text-lg font-bold'>5000+</span>
+                        <span className='text-white text-lg font-bold'>100+</span>
                         <p>Happy customers</p>
                     </div>
                     <div className='w-px h-8 bg-gray-700'></div>

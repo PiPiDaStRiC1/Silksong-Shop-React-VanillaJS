@@ -1,22 +1,25 @@
-import { Link, useNavigate } from 'react-router-dom';
-import {CatalogCard} from '@/components/ui/Catalog/CatalogCard';
-import { useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import {CatalogCard} from '@/components/ui/index';
+import {BreadCrumbs} from '@/features/index'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {useData, useCart} from '@/hooks/index';
 import value from '@/assets/images/value.png';
-import {debounce} from '@/libs/utils/debounce';
 
 export const Catalog = () => {
+    const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const { products, error, isLoading } = useData();
     const { addItem } = useCart();
 
-    const [activeCategory, setActiveCategory] = useState('all');
-    const [toggleSale, setToggleSale] = useState(false);
-    const [toggleInStock, setToggleInStock] = useState(false);
-    const [sortBy, setSortBy] = useState('popular');
+    const activeCategory = searchParams.get('category') || 'all';
+    const toggleSale = searchParams.get('sale') === 'true';
+    const toggleInStock = searchParams.get('stock') === 'true';
+    const sortBy = searchParams.get('sort') || 'popular';
+    const priceFromUrl = searchParams.get('price');
+    const price = priceFromUrl ? Number(priceFromUrl.split('-')[1]) : 1500;
+    
     const [gridLayout, setGridLayout] = useState('grid-cols-4');
-    const [price, setPrice] = useState(1500);
-    const [uiPrice, setUiPrice] = useState(1500);
-    const navigate = useNavigate();
+    const [uiPrice, setUiPrice] = useState(price); 
 
     const learnProductDetails = (p) => {
         navigate(`/catalog/${p.category}/${p.id}`);
@@ -28,59 +31,82 @@ export const Catalog = () => {
         return Math.max(...products.map(p => p.price))
     }, [products]);
 
-    const debouncedSetPrice = useMemo(() => {
-        return debounce((value) => setPrice(value), 500)
-    }, []);
-
-    const filteredProducts = useMemo(() => {
-        if (activeCategory === 'all' && 
-            !toggleSale && 
-            !toggleInStock &&
-            price === 1500
-        ) return products;
+    const debounceTimerRef = useRef(null);
+    
+    const debouncedSetPrice = useCallback((value) => {
+        if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
+        }
         
-        if (activeCategory === 'all') {
-            return products.filter(p => 
-                (toggleSale ? p.sale : true) &&
-                (toggleInStock ? p.stock > 0 : true) &&
-                (p.price <= price) 
-            );
-        }
+        debounceTimerRef.current = setTimeout(() => {
+            setSearchParams(prev => {
+                const params = new URLSearchParams(prev);
+                if (value !== maxValue) {
+                    params.set('price', `0-${value}`);
+                } else {
+                    params.delete('price');
+                }
+                return params;
+            });
+        }, 300);
+    }, [maxValue, setSearchParams]);
 
-        return products.filter(p => 
-            p.category === activeCategory &&
-            (toggleSale ? p.sale : true) &&
-            (toggleInStock ? p.stock > 0 : true) &&
-            (p.price <= price)
-        );
-    }, [products, activeCategory, toggleSale, toggleInStock, price]);
+    const displayedProducts = useMemo(() => {
+        return products
+            .filter(p =>
+                (activeCategory === 'all' || p.category === activeCategory) &&
+                (!toggleSale || p.sale) &&
+                (!toggleInStock || p.stock > 0) &&
+                (p.price <= price)
+            )
+            .sort((a, b) => {
+                switch(sortBy) {
+                    case 'priceLow': return a.price - b.price;
+                    case 'priceHigh': return b.price - a.price;
+                    case 'latest': return b.id - a.id;
+                    default: return 0;
+                }
+            });
+    }, [products, activeCategory, toggleSale, toggleInStock, price, sortBy]);
 
-    const sortedProducts = useMemo(() => {
-        const sorted = [...filteredProducts];
 
-        switch (sortBy) { 
-            case 'priceLow':
-                return sorted.sort((a, b) => a.price - b.price);
-            case 'priceHigh':
-                return sorted.sort((a, b) => b.price - a.price);
-            case 'latest':
-                return sorted.sort((a, b) => b.id - a.id);
-            case 'popular':
-            default:
-                return sorted;
-        }
-    }, [filteredProducts, sortBy]);
+    const updateFilter = (key, value, defaultValue) => {
+        setSearchParams(prev => {
+            const params = new URLSearchParams(prev);
+            if (value !== defaultValue) {
+                params.set(key, value);
+            } else {
+                params.delete(key);
+            }
+            return params;
+        })
+    };
+
+    const handleCategoryChange = (category) => {
+        updateFilter('category', category, 'all');
+    };
+
+    const handleSaleToggle = () => {
+        updateFilter('sale', (!toggleSale).toString(), 'false');
+    };
+
+    const handleStockToggle = () => {
+        updateFilter('stock', (!toggleInStock).toString(), 'false');
+    };
+
+    const handleSortChange = (sort) => {
+        updateFilter('sort', sort, 'popular');
+    };
+
+    useEffect(() => {
+        setUiPrice(price);
+    }, [price]);
 
     return (
-        <section className="container w-full text-white">
+        <section className="container w-full text-white px-6">
         <div className='flex flex-col mt-[2rem]'>
-            <nav className="container w-full px-6 text-lg text-gray-400">
-                <Link to="/" className="hover:text-gray-200">Home</Link>
-                <span className="mx-2">/</span>
-                <span className="text-gray-200">Catalog</span>
-            </nav>
-
-            <div className="container w-full px-6 py-8">
+            <BreadCrumbs />
+            <div className="container w-full py-8">
                 <h1 className="text-4xl font-semibold mb-2">Catalog</h1>
                 <p className="text-gray-400">
                     <span>Total {totalQuantity} products</span>
@@ -88,7 +114,7 @@ export const Catalog = () => {
             </div>
         </div>
 
-        <div className="container w-full px-6 grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6">
+        <div className="w-full grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6">
             <aside className="md:sticky md:top-24 h-fit rounded-2xl border border-neutral-800 bg-neutral-900 p-4 flex flex-col gap-6">
             <div>
                 <h4 className="text-lg font-semibold">Categories</h4>
@@ -96,9 +122,7 @@ export const Catalog = () => {
                     <li>
                         <button 
                             className={`w-full text-left hover:text-white cursor-pointer ${activeCategory === 'all' ? 'text-white' : 'text-gray-300'}`}
-                            onClick={() => {
-                                setActiveCategory('all');
-                            }}
+                            onClick={() => handleCategoryChange('all')}
                         >
                             All
                         </button>
@@ -106,9 +130,7 @@ export const Catalog = () => {
                     <li>
                         <button 
                             className={`w-full text-left hover:text-white cursor-pointer ${activeCategory === 'dress' ? 'text-white' : 'text-gray-300'}`}
-                            onClick={() => {
-                                setActiveCategory('dress');
-                            }}
+                            onClick={() => handleCategoryChange('dress')}
                         >
                             Dress
                         </button>
@@ -116,9 +138,7 @@ export const Catalog = () => {
                     <li>
                         <button 
                             className={`w-full text-left hover:text-white cursor-pointer ${activeCategory === 'charms' ? 'text-white' : 'text-gray-300'}`}
-                            onClick={() => {
-                                setActiveCategory('charms');
-                            }}
+                            onClick={() => handleCategoryChange('charms')}
                         >
                             Charms
                         </button>
@@ -126,9 +146,7 @@ export const Catalog = () => {
                     <li>
                         <button 
                             className={`w-full text-left hover:text-white cursor-pointer ${activeCategory === 'collectibles' ? 'text-white' : 'text-gray-300'}`}
-                            onClick={() => {
-                                setActiveCategory('collectibles');
-                            }}
+                            onClick={() => handleCategoryChange('collectibles')}
                         >
                             Collectibles
                         </button>
@@ -166,7 +184,7 @@ export const Catalog = () => {
                     >
                     <input 
                         type="checkbox" 
-                        onChange={() => setToggleInStock(!toggleInStock)}
+                        onChange={handleStockToggle}
                         checked={toggleInStock}
                         className='w-[1rem] h-[1rem]'
                     /> In stock
@@ -176,7 +194,7 @@ export const Catalog = () => {
                     >
                     <input 
                         type="checkbox" 
-                        onChange={() => setToggleSale(!toggleSale)}
+                        onChange={handleSaleToggle}
                         checked={toggleSale}
                         className='w-[1rem] h-[1rem]'
                     /> On sale
@@ -189,13 +207,13 @@ export const Catalog = () => {
                 <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                     <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm text-gray-400">Showing</span>
-                        <span className="text-white">{filteredProducts.length} products</span>
+                        <span className="text-white">{displayedProducts.length} products</span>
                     </div>
                     <div className="flex items-center gap-3">
                         <select 
                             className="bg-black text-white border border-neutral-700 rounded-lg px-3 py-2 text-sm"
                             value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value)}
+                            onChange={(e) => handleSortChange(e.target.value)}
                         >
                             <option value="popular">
                                 Sort by: Popular
@@ -244,7 +262,7 @@ export const Catalog = () => {
                             </div> : 
                                 <>
                                     <div className={`grid ${gridLayout} gap-4`}>
-                                        {sortedProducts.map((p) => (
+                                        {displayedProducts.map((p) => (
                                             <CatalogCard 
                                                 key={p.id} 
                                                 {...p} 
@@ -252,7 +270,7 @@ export const Catalog = () => {
                                                 onAdd={() => addItem(p)}
                                             />
                                         ))}
-                                        {!sortedProducts.length && 
+                                        {!displayedProducts.length && 
                                             <div className="text-center py-12 col-start-2 col-span-2">
                                                 <p className='text-lg lg:text-xl text-gray-400'>No suitable products found</p>
                                             </div>
@@ -264,8 +282,7 @@ export const Catalog = () => {
                                         <button className="px-3 py-2 rounded-lg border border-neutral-700 text-white hover:bg-white hover:text-black transition">2</button>
                                         <button className="px-3 py-2 rounded-lg border border-neutral-700 text-white hover:bg-white hover:text-black transition">Next</button>
                                     </div>
-                                </>
-                }
+                                </>}
             </div>
         </div>
     </section>

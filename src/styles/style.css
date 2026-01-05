@@ -22,6 +22,22 @@
   scrollbar-color: white #111;
 }
 
+.btn {
+  cursor: pointer;
+  padding: 0.8rem 1rem;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.05);
+  color: white;
+  transition: background-color 0.3s;
+}
+.btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
 
 @keyframes fadeInUp {
   from {

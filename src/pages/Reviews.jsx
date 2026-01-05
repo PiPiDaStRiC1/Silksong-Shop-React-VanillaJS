@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import {BreadCrumbs} from '@/features/index'
 import { useMemo, useState } from 'react';
 import {ReviewsCardFull} from '@/components/ui/index'
 import { useData } from '../hooks/useData';
@@ -82,15 +82,11 @@ export const Reviews = () => {
   }, [selectedRating, filteredReviewUsers, selectedTimePeriod, selectedSortOption]);
 
   return (
-    <section className="container w-full text-white">
+    <section className="container w-full text-white px-6">
         <div className='flex flex-col mt-[2rem]'>
-            <nav className="container w-full px-6 text-lg text-gray-400">
-                <Link to="/" className="hover:text-gray-200">Home</Link>
-                <span className="mx-2">/</span>
-                <span className="text-gray-200">Reviews</span>
-            </nav>
+            <BreadCrumbs />
 
-            <div className="container w-full px-6 py-8">
+            <div className="container w-full py-8">
                 <h1 className="text-4xl font-semibold mb-2">Customer Reviews</h1>
                 <p className="text-gray-400">
                   <span className="text-white">★★★★★</span> {totalRate}/5 from {totalQuantity} reviews
@@ -98,7 +94,7 @@ export const Reviews = () => {
             </div>
         </div>
 
-      <div className="container w-full px-6 grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6">
+      <div className="container w-full grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6">
         <aside className="md:sticky md:top-30 h-fit rounded-2xl border border-neutral-800 bg-neutral-900 p-4 flex flex-col gap-6">
           <div>
             <h4 className="text-lg font-semibold">Rating</h4>

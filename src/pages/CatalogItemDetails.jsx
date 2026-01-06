@@ -31,10 +31,10 @@ export const CatalogItemDetails = () => {
     }
 
     return (
-        <section className="container w-full text-white px-6">
+        <section className="container w-full text-white px-6 mt-[2rem]">
             <BreadCrumbs item={product} />
         
-            <div className="container w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="container w-full grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
                 <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6 flex items-center justify-center">
                     <img src={product.imgSrc} alt={product.name} className="max-h-[28rem] object-contain" />
                 </div>

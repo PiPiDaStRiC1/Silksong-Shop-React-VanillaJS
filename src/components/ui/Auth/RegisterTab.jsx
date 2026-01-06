@@ -1,11 +1,9 @@
 import formActions from '@/libs/constants/formActionTypes';
 import { Mail, Lock, User, Eye, EyeClosed } from 'lucide-react';
 import { useUser } from '@/hooks/index';
-import { useNavigate } from 'react-router-dom';
 
-export const RegisterTab = ({validation, fullName, email, password, confirmPassword, authDispatch, showPassword, setShowPassword, isAgreedPrivacy, setIsAgreedPrivacy, registerFormSuccessConditions, onClose}) => {
+export const RegisterTab = ({validation, fullName, email, password, confirmPassword, authDispatch, showPassword, setShowPassword, isAgreedPrivacy, setIsAgreedPrivacy, registerFormSuccessConditions, onSuccess}) => {
     const {register} = useUser();
-    const navigate = useNavigate();
 
     return (
         <form 
@@ -168,8 +166,7 @@ export const RegisterTab = ({validation, fullName, email, password, confirmPassw
                         try {
                             await register({email, fullName});
                             
-                            navigate('/profile');
-                            onClose();
+                            onSuccess();
                         } catch (error) {
                             console.log(error.message);
                         }

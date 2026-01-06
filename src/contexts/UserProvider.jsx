@@ -68,7 +68,7 @@ export const UserProvider = ({children}) => {
             {
                 loading: 'Verifying your login...',
                 success: `Welcome, ${fullName}! Your account has been created successfully.`,
-                error: 'You are already logged in!'
+                error: 'You are already registered!'
             }
         );
         
@@ -112,8 +112,7 @@ export const UserProvider = ({children}) => {
         setSaveUser(null);
         resetCart();
         resetWL();
-        localStorage.removeItem('isLoggedIn'); 
-        toast.success('Logged out successfully!');
+        localStorage.setItem('isLoggedIn', 'false'); 
     }, [resetCart, resetWL]);
 
     const deleteAccount = useCallback(() => {
@@ -121,8 +120,6 @@ export const UserProvider = ({children}) => {
         localStorage.clear();
         sessionStorage.clear();
         window.location.href = '/';
-        
-        toast.success('Account deleted successfully!');
     }, []);
 
     const value = useMemo(() => ({

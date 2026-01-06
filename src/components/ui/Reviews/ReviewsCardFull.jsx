@@ -22,7 +22,7 @@ export const ReviewsCardFull = ({ userInfo, reviewInfo }) => {
   return (
     <div className='flex flex-col gap-4 bg-neutral-900 border border-neutral-800 p-6 rounded-2xl hover:border-neutral-600 transition-colors'>
       <div className='flex items-start gap-4'>
-        <Link to={`/profile/${id}`} className="flex-shrink-0 group">
+        <Link to={`/reviews/${id}`} className="flex-shrink-0 group">
           <img 
             src={avatar} 
             alt={name} 
@@ -32,7 +32,7 @@ export const ReviewsCardFull = ({ userInfo, reviewInfo }) => {
         <div className='flex-grow'>
           <div className='flex items-center gap-2 flex-wrap mb-1'>
             <Link 
-              to={`/profile/${id}`} 
+              to={`/reviews/${id}`} 
               className='text-white font-semibold text-lg hover:text-gray-300 transition-colors'
             >
               {name}

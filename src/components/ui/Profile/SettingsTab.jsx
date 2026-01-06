@@ -127,7 +127,10 @@ export const SettingTab = () => {
                         <div className="flex gap-3">
                             <button 
                                 className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-colors"
-                                onClick={deleteAccount}
+                                onClick={() => {
+                                    deleteAccount();
+                                    toast.success('Account deleted successfully!');
+                                }}
                             >
                                 Yes, Delete My Account
                             </button>

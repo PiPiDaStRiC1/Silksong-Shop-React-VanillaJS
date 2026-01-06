@@ -3,10 +3,11 @@ import { useWishList } from '@/hooks/index';
 import valueIcon from '@/assets/images/value.png';
 import { useNavigate } from 'react-router-dom';
 
-export const WishListModal = ({ onClose }) => {
-  const { wishList, removeFromWL, clearWL } = useWishList();
+export const WishListModal = ({onClose}) => {
   const navigate = useNavigate();
+  const { wishList, removeFromWL, clearWL } = useWishList();
   const items = Object.values(wishList);
+
 
   const navigateToItem = (item) => {
     onClose();
@@ -34,7 +35,7 @@ export const WishListModal = ({ onClose }) => {
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+            className="cursor-pointer p-2 rounded-lg hover:bg-white/10 transition-colors"
           >
             <X className="w-5 h-5 text-gray-400" />
           </button>

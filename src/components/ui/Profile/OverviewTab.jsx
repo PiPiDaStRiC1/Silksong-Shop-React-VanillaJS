@@ -2,7 +2,7 @@ import value from '@/assets/images/value.png';
 import {CheckCircle2, Package, Clock} from 'lucide-react';
 import {useOrder} from '@/hooks/index'
 
-export const OverviewTab = ({setActiveTab}) => {
+export const OverviewTab = ({setSearchParams}) => {
     const {orders} = useOrder(); 
     const recentOrders = Object.entries(orders);
 
@@ -11,7 +11,7 @@ export const OverviewTab = ({setActiveTab}) => {
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-white">Recent Orders</h2>
                 <button
-                    onClick={() => setActiveTab('orders')}
+                    onClick={() => setSearchParams({tab: 'orders'})}
                     className="cursor-pointer text-sm text-violet-400 hover:text-violet-300 transition"
                 >
                     View all →

@@ -1,19 +1,21 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { User, Mail, Package, Heart, Settings, LogOut, Shield, Eye, ChevronRight } from 'lucide-react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { User, Mail, Package, Heart, Settings, LogOut } from 'lucide-react';
 import { useUser } from '@/hooks/index';
 import {CommonInfo, OverviewTab, OrdersTab, WishListTab, SettingTab} from '@/components/ui/index'
+import toast from 'react-hot-toast';
 
 export const Profile = () => {
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const { user, logout } = useUser();
-    const [activeTab, setActiveTab] = useState('overview');
-
+    const activeTab = searchParams.get('tab') || 'overview';
+    
     const handleLogout = () => {
         logout();
+        toast.success('Logged out successfully!');
         navigate('/');
     };
-
+    
     if (!user) {
         return (
             <section className="container text-center min-h-screen flex justify-center items-center">
@@ -24,21 +26,21 @@ export const Profile = () => {
                     <button 
                         className="cursor-pointer p-4 inline-flex justify-center items-center gap-2 cursor-pointer rounded-xl border border-white/40 bg-white/5 text-white hover:bg-white/10 transition-colors"
                         onClick={() => navigate('/')}
-                    >
+                        >
                         Back to Home
                     </button>
                 </div>
             </section>
         );
     }
-
+    
     const tabs = [
         { id: 'overview', label: 'Overview', icon: User },
         { id: 'orders', label: 'Orders', icon: Package },
         { id: 'wishlist', label: 'Wishlist', icon: Heart },
         { id: 'settings', label: 'Settings', icon: Settings },
     ];
-
+    
     return (
         <section className="container mx-auto px-6 py-12 min-h-screen">
             <div className="max-w-7xl mx-auto">
@@ -69,7 +71,7 @@ export const Profile = () => {
                         <button
                             onClick={handleLogout}
                             className="cursor-pointer flex items-center gap-2 px-5 py-3 rounded-xl border border-white/20 bg-white/5 hover:bg-white/10 transition text-white"
-                        >
+                            >
                             <LogOut className="w-4 h-4" />
                             Logout
                         </button>
@@ -82,7 +84,7 @@ export const Profile = () => {
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
+                            onClick={() => setSearchParams({ tab: tab.id })}
                             className={`cursor-pointer flex items-center gap-2 px-6 py-3 rounded-xl transition whitespace-nowrap ${
                                 activeTab === tab.id
                                     ? 'bg-white text-black font-medium'
@@ -97,7 +99,7 @@ export const Profile = () => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-6">
-                        {activeTab === 'overview' && <OverviewTab setActiveTab={setActiveTab}/>}
+                        {activeTab === 'overview' && <OverviewTab setSearchParams={setSearchParams}/>}
 
                         {activeTab === 'orders' && <OrdersTab />}
 
@@ -125,7 +127,7 @@ export const Profile = () => {
                                     <span>Browse Catalog</span>
                                 </Link>
                                 <button
-                                    onClick={() => setActiveTab('settings')}
+                                    onClick={() => setSearchParams({ tab: 'settings' })}
                                     className="cursor-pointer w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition text-white"
                                 >
                                     <Settings className="w-5 h-5" />

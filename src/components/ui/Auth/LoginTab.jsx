@@ -1,11 +1,9 @@
 import formActions from '@/libs/constants/formActionTypes';
 import { Mail, Lock, Eye, EyeClosed } from 'lucide-react';
 import { useUser } from '@/hooks/index';
-import { useNavigate } from 'react-router-dom';
 
-export const LoginTab = ({validation, email, password, authDispatch, showPassword, setShowPassword, isRememberMe, setIsRememberMe, loginFormSuccessConditions, onClose}) => {
+export const LoginTab = ({validation, email, password, authDispatch, showPassword, setShowPassword, isRememberMe, setIsRememberMe, loginFormSuccessConditions, onSuccess}) => {
     const {verificationLogin} = useUser();
-    const navigate = useNavigate();
 
     return (
         <form 
@@ -99,8 +97,7 @@ export const LoginTab = ({validation, email, password, authDispatch, showPasswor
                         try {
                             await verificationLogin(email);
                             
-                            navigate('/profile');
-                            onClose();
+                            onSuccess();
                         } catch (error) {
                             console.log(error.message);  
                         }

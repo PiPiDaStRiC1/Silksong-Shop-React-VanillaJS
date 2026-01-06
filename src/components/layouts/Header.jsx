@@ -2,16 +2,15 @@ import logoImage from '@/assets/images/logo/logoImage.png';
 import logoText from '@/assets/images/logo/logoText.png'
 import {Heart, User, ShoppingBasket, Search} from 'lucide-react';
 import { useState } from 'react';
-import {Link, NavLink} from 'react-router-dom';
+import {Link, NavLink, useLocation} from 'react-router-dom';
 import {CartModal, WishListModal, SearchInput} from '../ui/index';
-import {AuthModal} from '@/pages/AuthModal'
 import { useCart, useUser, useWishList } from '@/hooks/index';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 export const Header = () => {
+    const location = useLocation();
     const [showCart, setShowCart] = useState(false);
-    const [showAuthModal, setShowAuthModal] = useState(false);
     const [showWishListModal, setShowWishListModal] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
     const {cart} = useCart();
@@ -21,8 +20,7 @@ export const Header = () => {
     const cartItemCount = Object.values(cart).length;
     const wishListItemCount = Object.values(wishList).length;
 
-    const notLoggedInUser = () => {
-        setShowAuthModal(true);
+    const notLoggedInToast = () => {
         toast.error('You need to be logged in to access Delivery page!', {
             duration: 1500,
             style: {
@@ -61,11 +59,15 @@ export const Header = () => {
                         </li>
                         <li><NavLink to="/reviews" className={({isActive}) => isActive ? 'text-lg text-gray-400' : 'text-lg hover:text-gray-400'}>Reviews</NavLink></li>
                         <li>
-                            <button 
+                            <button
+                                className='cursor-pointer text-lg hover:text-gray-400'
                                 onClick={() => {
-                                    user ? 
-                                    navigate('/delivery') :
-                                    notLoggedInUser()
+                                    if (user) {
+                                        navigate('/delivery');
+                                    } else {
+                                        navigate('/auth', { state: { background: location, redirectTo: '/delivery' } });
+                                        notLoggedInToast();
+                                    }
                                 }}
                             >
                                 Delivery
@@ -114,9 +116,11 @@ export const Header = () => {
                             <button 
                                 className='cursor-pointer hover:text-gray-400'
                                 onClick={() => {
-                                    user ? 
-                                    navigate('/profile') :
-                                    setShowAuthModal(true)
+                                    if (user) {
+                                        navigate('/profile');
+                                    } else {
+                                        navigate('/auth', { state: { background: location } });
+                                    }
                                 }}
                             >
                                 <User size='27'/>
@@ -139,7 +143,6 @@ export const Header = () => {
                 </nav>
             </header>
             {showCart && <CartModal onClose={() => setShowCart(false)} />}
-            {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
             {showWishListModal && <WishListModal onClose={() => setShowWishListModal(false)} />}
             {showSearch && <SearchInput onClose={() => setShowSearch(false)} />}
         </>

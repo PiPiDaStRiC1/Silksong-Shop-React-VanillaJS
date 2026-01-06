@@ -1,7 +1,8 @@
 import { X } from 'lucide-react';
-import { useState, useMemo, useReducer } from 'react';
+import { useState, useMemo, useReducer, useEffect } from 'react';
 import {authFormReducer} from '@/reducers/authFormReducer';
 import { LoginTab, RegisterTab } from '@/components/ui/index';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const initialFormState = {
     email: '',
@@ -10,7 +11,11 @@ const initialFormState = {
     confirmPassword: '',
 }
 
-export const AuthModal = ({onClose}) => {
+export const AuthModal = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const redirectTo = location.state?.redirectTo; 
+    
     const [{email, fullName, password, confirmPassword}, authDispatch] = useReducer(authFormReducer, initialFormState);
 
     const [activeTab, setActiveTab] = useState('login');
@@ -32,6 +37,22 @@ export const AuthModal = ({onClose}) => {
     const loginFormSuccessConditions = validation.email && validation.password;
     const registerFormSuccessConditions = validation.email && validation.password && validation.fullName && validation.confirmPassword && isAgreedPrivacy;
 
+    const onSuccess = () => {
+        if (redirectTo) {
+            navigate(redirectTo, { replace: true });
+        } else {
+            navigate('/profile', { replace: true });
+        }
+    }
+
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+
+        return () => {
+            document.body.style.overflow = 'auto';
+        }
+    }, [])
+
     return (
         <div 
             className="fixed inset-0 bg-gradient-to-br from-black via-transparent to-black backdrop-blur-md z-50 flex justify-center items-center animate-fadeIn"
@@ -42,7 +63,7 @@ export const AuthModal = ({onClose}) => {
             >   
                 <button
                     className="absolute cursor-pointer top-4 right-4 p-2 rounded-lg text-gray-400 hover:text-white hover:bg-neutral-800 transition"
-                    onClick={onClose}
+                    onClick={() => navigate(-1)}
                 >
                     <X className="w-5 h-5" />
                 </button>
@@ -90,7 +111,7 @@ export const AuthModal = ({onClose}) => {
                         isRememberMe={isRememberMe}
                         setIsRememberMe={setIsRememberMe}
                         loginFormSuccessConditions={loginFormSuccessConditions}
-                        onClose={onClose}
+                        onSuccess={onSuccess}
                     />
                 }
 
@@ -107,7 +128,7 @@ export const AuthModal = ({onClose}) => {
                         isAgreedPrivacy={isAgreedPrivacy} 
                         setIsAgreedPrivacy={setIsAgreedPrivacy} 
                         registerFormSuccessConditions={registerFormSuccessConditions} 
-                        onClose={onClose}
+                        onSuccess={onSuccess}
                     />
                 }
             </div>

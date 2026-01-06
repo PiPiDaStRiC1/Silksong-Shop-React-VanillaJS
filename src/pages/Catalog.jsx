@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import {CatalogCard} from '@/components/ui/index';
 import {BreadCrumbs} from '@/features/index'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -6,12 +6,13 @@ import {useData, useCart} from '@/hooks/index';
 import value from '@/assets/images/value.png';
 
 export const Catalog = () => {
-    const navigate = useNavigate();
+    const navigate = useNavigate(); 
+    const {category: categoryFromURL} = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
     const { products, error, isLoading } = useData();
     const { addItem } = useCart();
 
-    const activeCategory = searchParams.get('category') || 'all';
+    const activeCategory = categoryFromURL || 'all';
     const toggleSale = searchParams.get('sale') === 'true';
     const toggleInStock = searchParams.get('stock') === 'true';
     const sortBy = searchParams.get('sort') || 'popular';
@@ -82,10 +83,6 @@ export const Catalog = () => {
         })
     };
 
-    const handleCategoryChange = (category) => {
-        updateFilter('category', category, 'all');
-    };
-
     const handleSaleToggle = () => {
         updateFilter('sale', (!toggleSale).toString(), 'false');
     };
@@ -120,36 +117,36 @@ export const Catalog = () => {
                 <h4 className="text-lg font-semibold">Categories</h4>
                 <ul className="mt-2 flex flex-col gap-2 text-gray-300">
                     <li>
-                        <button 
+                        <Link 
+                            to='/catalog'
                             className={`w-full text-left hover:text-white cursor-pointer ${activeCategory === 'all' ? 'text-white' : 'text-gray-300'}`}
-                            onClick={() => handleCategoryChange('all')}
                         >
                             All
-                        </button>
+                        </Link>
                     </li>
                     <li>
-                        <button 
+                        <Link 
+                            to='/catalog/dress'
                             className={`w-full text-left hover:text-white cursor-pointer ${activeCategory === 'dress' ? 'text-white' : 'text-gray-300'}`}
-                            onClick={() => handleCategoryChange('dress')}
                         >
                             Dress
-                        </button>
+                        </Link>
                     </li>
                     <li>
-                        <button 
+                        <Link 
+                            to='/catalog/charms'
                             className={`w-full text-left hover:text-white cursor-pointer ${activeCategory === 'charms' ? 'text-white' : 'text-gray-300'}`}
-                            onClick={() => handleCategoryChange('charms')}
                         >
                             Charms
-                        </button>
+                        </Link>
                     </li>
                     <li>
-                        <button 
+                        <Link 
+                            to='/catalog/collectibles'
                             className={`w-full text-left hover:text-white cursor-pointer ${activeCategory === 'collectibles' ? 'text-white' : 'text-gray-300'}`}
-                            onClick={() => handleCategoryChange('collectibles')}
                         >
                             Collectibles
-                        </button>
+                        </Link>
                     </li>
                 </ul>
             </div>

@@ -18,6 +18,11 @@ const initUser = () => {
     }
 }
 
+const resetStorages = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+}
+
 const verifyUser = async (email) => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -40,6 +45,8 @@ const loginUser = async (email, fullName) => {
             if (user && email === user.email) {
                 reject(new Error('User already logged!'));
             } else {
+                resetStorages();
+
                 const id = Date.now().toString();
                 const [name, lastName] = fullName.split(' ');
         
@@ -63,6 +70,8 @@ export const UserProvider = ({children}) => {
     const [saveUser, setSaveUser] = useState(initUser);
 
     const register = useCallback(async ({email, fullName = ""}) => {
+
+
         const user = await toast.promise(
             loginUser(email, fullName),
             {
@@ -92,16 +101,33 @@ export const UserProvider = ({children}) => {
         return user;
     }, []);
 
-    const changeUserInfo = useCallback(async (...changeFields) => {
-        await new Promise((resolve) => {
-            setTimeout(() => {
+    const changeUserInfo = useCallback(async ({ changes = [], signal } = {}) => {
+        await new Promise((resolve, reject) => {
+            const timeoutId = setTimeout(() => {
                 resolve();
-            }, 1000)
+            }, 2500);
+
+            if (signal) {
+                if (signal.aborted) {
+                    clearTimeout(timeoutId);
+                    reject(new DOMException('Aborted', 'AbortError'));
+                    return;
+                }
+
+                signal.addEventListener('abort', () => {
+                    clearTimeout(timeoutId);
+                    reject(new DOMException('Aborted', 'AbortError'));
+                }, { once: true, });
+            }
         });
+
+        if (!changes.length) {
+            return;
+        }
 
         const newUser = {
             ...saveUser,
-            ...Object.fromEntries(changeFields.map(({field, value}) => [field, value]))
+            ...Object.fromEntries(changes.map(({field, value}) => [field, value]))
         }
 
         localStorage.setItem('user', JSON.stringify(newUser));
@@ -117,8 +143,7 @@ export const UserProvider = ({children}) => {
 
     const deleteAccount = useCallback(() => {
         setSaveUser(null);
-        localStorage.clear();
-        sessionStorage.clear();
+        resetStorages();
         window.location.href = '/';
     }, []);
 

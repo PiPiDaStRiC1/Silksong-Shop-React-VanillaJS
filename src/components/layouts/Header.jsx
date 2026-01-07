@@ -2,34 +2,20 @@ import logoImage from '@/assets/images/logo/logoImage.png';
 import logoText from '@/assets/images/logo/logoText.png'
 import {Heart, User, ShoppingBasket, Search} from 'lucide-react';
 import { useState } from 'react';
-import {Link, NavLink, useLocation} from 'react-router-dom';
+import {Link, NavLink} from 'react-router-dom';
 import {CartModal, WishListModal, SearchInput} from '../ui/index';
-import { useCart, useUser, useWishList } from '@/hooks/index';
-import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import { useCart, useWishList, useAuthNavigation } from '@/hooks/index';
 
 export const Header = () => {
-    const location = useLocation();
+    const {cart} = useCart();
+    const {wishList} = useWishList();
+    const {authNavigate} = useAuthNavigation();
     const [showCart, setShowCart] = useState(false);
     const [showWishListModal, setShowWishListModal] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
-    const {cart} = useCart();
-    const {user} = useUser();
-    const {wishList} = useWishList();
-    const navigate = useNavigate();
     const cartItemCount = Object.values(cart).length;
     const wishListItemCount = Object.values(wishList).length;
 
-    const notLoggedInToast = () => {
-        toast.error('You need to be logged in to access Delivery page!', {
-            duration: 1500,
-            style: {
-                position: 'relative',
-                top: '0rem',
-            }
-        });
-    }
-    
     return (
         <>
             <header className="w-full fixed flex justify-center items-center h-auto bg-black z-50">
@@ -61,14 +47,7 @@ export const Header = () => {
                         <li>
                             <button
                                 className='cursor-pointer text-lg hover:text-gray-400'
-                                onClick={() => {
-                                    if (user) {
-                                        navigate('/delivery');
-                                    } else {
-                                        navigate('/auth', { state: { background: location, redirectTo: '/delivery' } });
-                                        notLoggedInToast();
-                                    }
-                                }}
+                                onClick={() => authNavigate('/delivery')}
                             >
                                 Delivery
                             </button>
@@ -115,13 +94,7 @@ export const Header = () => {
                         <li>
                             <button 
                                 className='cursor-pointer hover:text-gray-400'
-                                onClick={() => {
-                                    if (user) {
-                                        navigate('/profile');
-                                    } else {
-                                        navigate('/auth', { state: { background: location } });
-                                    }
-                                }}
+                                onClick={() => authNavigate('/profile')}
                             >
                                 <User size='27'/>
                             </button>

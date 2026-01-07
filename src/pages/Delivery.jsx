@@ -1,7 +1,7 @@
 import {BreadCrumbs} from '@/features/index'
-import { useState, useReducer, useEffect, useRef } from "react";
+import { useState, useReducer, useEffect, useRef, useCallback } from "react";
 import toast from 'react-hot-toast';
-import { MapPin, CreditCard, Package, CheckCircle2, ChevronRight } from "lucide-react";
+import { MapPin, CreditCard, Package, CheckCircle2, ChevronRight, X } from "lucide-react";
 import {useCart, useOrder} from '@/hooks/index';
 import value from '@/assets/images/value.png';
 import {freeShippingValue} from '@/libs/constants/freeShippingValue';
@@ -27,12 +27,14 @@ const initStep = () => {
 }
 
 export const Delivery = () => {
+    const controllerRef = useRef(null);
+    const orderIdRef = useRef(null);
     const [currentStep, setCurrentStep] = useState(initStep);
+    const [loading, setLoading] = useState(false);
     const [shippingData, shippingDispatch] = useReducer(shippingAddressReducer, initialShippingState, initShipping);
     const [paymentInfoData, paymentInfoDispatch] = useReducer(paymentInfoReducer, initialPaymentInfoState, initPaymentInfo);
     const {cart, totalValue, totalCount, selectedDeliveryTariff, removeItem, incQty, decQty, selectDeliveryTariff, resetCart} = useCart();
     const {orders, createOrder, updateOrderStatus, startDeliveryTimer, cancelOrder} = useOrder();
-    const orderIdRef = useRef(null);
     const taxCost = parseFloat((totalValue * 0.05).toFixed(2));
     const isShippingFree = freeShippingValue <= totalValue;
     const deliveryCost = isShippingFree ? 0 : deliveryTariffs[selectedDeliveryTariff ?? 'Eco'].price;
@@ -97,9 +99,33 @@ export const Delivery = () => {
     }
     
     const orderCompleteHandler = async () => {
+        setLoading(true);
+        controllerRef.current?.abort();
+
+        controllerRef.current = new AbortController();
+
         try {
             await toast.promise(
-                new Promise(resolve => setTimeout(() => resolve(true), 2000)),
+                new Promise((resolve, reject) => {
+                    const timeoutId = setTimeout(() => {
+                        resolve(true);
+                    }, 2000);
+                
+                    const signal = controllerRef.current.signal;
+
+                    if (signal) {
+                        if (signal.aborted) {
+                            clearTimeout(timeoutId);
+                            reject(new DOMException('Aborted', 'AbortError'));
+                            return;
+                        }
+
+                        signal.addEventListener('abort', () => {
+                            clearTimeout(timeoutId);
+                            reject(new DOMException('Aborted', 'AbortError'));
+                        }, {once: true})
+                    }
+                }),
                 {
                     loading: 'Placing your order...',
                     success: 'Order placed successfully!',
@@ -110,13 +136,26 @@ export const Delivery = () => {
             updateOrderStatus(orderIdRef.current, 'shipped');
             startDeliveryTimer(orderIdRef.current);
             sessionStorage.removeItem(PENDING_ORDER_ID);
-            orderIdRef.current = null;
             clearDelDataFromStorage();
             setCurrentStep(1);
+            orderIdRef.current = null;
         } catch (error) {
-            console.log(error.message);
+            if (error.name === 'AbortError') {
+                toast.success('Order cancelled')
+            } else {
+                console.log(error.message);
+            }
+        } finally {
+            setLoading(false);
+            controllerRef.current = null;
         }
     }
+
+    const abortOrder = useCallback(() => {
+        controllerRef.current?.abort();
+        controllerRef.current = null;
+    }, []);
+
 
     // Effect to order restoration on page reloads
     useEffect(() => {
@@ -129,33 +168,39 @@ export const Delivery = () => {
     }, [orders]);
 
     useEffect(() => {
-        if (currentStep >= 3 && !orderIdRef.current) {
-            const newOrderId = createOrder({ 
-                date: new Date().toString().split(' GMT')[0],
-                cartItems: cart,
-                totalValue: totalValue + taxCost + deliveryCost, 
-                taxValue: taxCost,
-                deliveryValue: deliveryCost,
-                totalCount, 
-                status: 'processing' 
-            });
+        if (currentStep !== 3 || orderIdRef.current) return;
 
-            orderIdRef.current = newOrderId;
-            sessionStorage.setItem(PENDING_ORDER_ID, newOrderId);
-        }
-    }, [currentStep, createOrder, totalValue, totalCount, taxCost, deliveryCost, cart]);
+        const newOrderId = createOrder({ 
+            date: new Date().toString().split(' GMT')[0],
+            cartItems: cart,
+            totalValue: totalValue + taxCost + deliveryCost, 
+            taxValue: taxCost,
+            deliveryValue: deliveryCost,
+            totalCount, 
+            status: 'processing' 
+        });
+
+        orderIdRef.current = newOrderId;
+        sessionStorage.setItem(PENDING_ORDER_ID, newOrderId);
+    }, [totalValue, taxCost, deliveryCost, totalCount, cart, createOrder, currentStep]);
     
     useEffect(() => {
         sessionStorage.setItem('lastStep', JSON.stringify(currentStep));
     }, [currentStep]);
     
     useEffect(() => {
+        // case of aborting order (AbortController) when user goes back to previous steps
         if (currentStep <= 2 && orderIdRef.current) {
+            abortOrder();
             cancelOrder(orderIdRef.current);
             sessionStorage.removeItem(PENDING_ORDER_ID);
             orderIdRef.current = null;
         }
-    }, [currentStep, cancelOrder]);
+    }, [currentStep, abortOrder, cancelOrder]);
+
+    useEffect(() => {
+        return () => abortOrder();
+    }, [abortOrder]);
 
     return (
         <section className="container w-full text-white px-6">
@@ -231,13 +276,30 @@ export const Delivery = () => {
                                             Continue
                                             <ChevronRight className="h-4 w-4" />
                                         </button> :
-                                        <button 
-                                            className="px-6 inline-flex justify-center items-center gap-2 cursor-pointer py-3 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors"
-                                            onClick={orderCompleteHandler}
-                                        >
-                                            Place Order
-                                            <ChevronRight className="h-4 w-4" />
-                                        </button>
+                                        loading ? 
+                                            <>
+                                                <div className='flex gap-2'>
+                                                    <span
+                                                        className='px-6 inline-flex justify-center items-center gap-2 cursor-pointer py-3 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors'
+                                                    >
+                                                        <div className="opacity-50 w-5 h-5 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                                        Placing...
+                                                    </span> 
+                                                    <button
+                                                        className='px-6 inline-flex justify-center items-center gap-2 cursor-pointer py-3 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors'
+                                                        onClick={abortOrder}
+                                                    >
+                                                        <X />
+                                                    </button>
+                                                </div>
+                                            </> :
+                                            <button 
+                                                className="px-6 inline-flex justify-center items-center gap-2 cursor-pointer py-3 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors"
+                                                onClick={orderCompleteHandler}
+                                            >
+                                                Place Order
+                                                <ChevronRight className="h-4 w-4" />
+                                            </button>
                                     }
                                 </div>
                             </div>

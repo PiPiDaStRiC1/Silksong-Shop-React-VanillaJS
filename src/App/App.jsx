@@ -6,14 +6,16 @@ import {Routes, Route, useLocation} from 'react-router-dom';
 import {Toaster} from 'react-hot-toast';
 import {ScrollToTop} from '@/libs/utils/ScroollToTop';
 import {AppProviders} from '@/contexts/index';
-import {ProtectedRoute} from '@/features/index'
+import {ProtectedRoute, GuestOnlyRoute} from '@/features/index'
 
-// СДЕЛАТЬ ABORT CONTROLLER ДЛЯ ЗАПРОСОВ В ORDER И 
+// ToDo:
+// ПОСМОТРЕТЬ await, ГДЕ ЕСТЬ ПРОМИССЫ И ОБЕРНУТЬ, ВОЗМОЖНО, В TRY CATCH
 // ПОФИКСИТЬ АВТОЗАПОЛНЕНИЕ В SHIPPINGADDRESS И PAYMENTINFO
-// СДЕЛАТЬ ВАЛИДАЦИЮ В НАСТРОЙКАХ ПРИ СМЕНЕ ПОЧТЫ
-// ВОЗМОЖНО УБРАТЬ ВСЕ SIDE-EFFECTS (TOASTЫ) ИЗ КОНТЕКСТОВ И ХУКОВ
-// ПЕРЕДАЛАТЬ ПРОВЕРКУ ЛОГИНА НА ГЛОБАЛЬНЫЙ ФЛАГ isLoggedIn ВМЕСТО ПРОВЕРКИ user\
 // Header.jsx стал сложнее (много условной логики). Можно вынести в useAuthNavigation() хук
+
+// ГЛОБАЛЬНОЕ ИЗМЕНЕНИЕ НУЖНО СДЕЛАТЬ!!!!!!!!!!!!!!!!!!!!!!!
+// Вместо единого ключа 'wishList' и 'cart', хранить данные отдельно для каждого пользователя:
+// 'wishList_{userId}' и 'cart_{userId}' 
 
 const App = () => {
   const location = useLocation();
@@ -53,23 +55,16 @@ const App = () => {
             <Route path='/catalog/:category/:id' element={<CatalogItemDetails />} />
             <Route path='/reviews' element={<Reviews />} />
             <Route path='/reviews/:userId' element={<UserProfileDetails />} />
-            <Route 
-              path='/delivery' 
-              element={
-                <ProtectedRoute>
-                  <Delivery />
-                </ProtectedRoute>
-              } 
-            />
+            <Route path='/delivery' element={<ProtectedRoute><Delivery /></ProtectedRoute>} />
             <Route path='/faq' element={<FAQ />} />
             <Route path='/about' element={<About />} />
-            <Route path='/auth' element={<AuthModal />} />
+            <Route path='/auth' element={<GuestOnlyRoute><AuthModal /></GuestOnlyRoute>} />
             <Route path='*' element={<Error />} />
           </Route>
         </Routes>
         {locationState?.background && 
           <Routes>
-            <Route path='/auth' element={<AuthModal />} />
+              <Route path='/auth' element={<GuestOnlyRoute><AuthModal /></GuestOnlyRoute>} />
           </Routes>
         }
         <Footer />

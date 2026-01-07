@@ -5,7 +5,7 @@ import value from '@/assets/images/value.png';
 export const CommonInfo = () => {
     const {orders = {}} = useOrder();
     const {wishList = {}} = useWishList();
-    const [totalOrders, totalSpent] = Object.values(orders).reduce((acc, el) => [acc[0] + 1, acc[1] + el.totalValue], [0, 0]);
+    const [totalOrders, totalSpent] = Object.values(orders).reduce((acc, el) => [acc[0] + 1, el.status !== 'processing' ? acc[1] + el.totalValue : acc[1]], [0, 0]);
     const totalCompleted = Object.values(orders).filter(order => order.status === 'delivered').length;
     const wishListCount = Object.values(wishList).length;
 

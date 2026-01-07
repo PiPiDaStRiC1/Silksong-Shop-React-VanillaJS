@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 
 export const Profile = () => {
     const navigate = useNavigate();
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const [searchParams, setSearchParams] = useSearchParams();
     const { user, logout } = useUser();
     const activeTab = searchParams.get('tab') || 'overview';
@@ -16,7 +17,7 @@ export const Profile = () => {
         navigate('/');
     };
     
-    if (!user) {
+    if (!isLoggedIn) {
         return (
             <section className="container text-center min-h-screen flex justify-center items-center">
                 <div className="max-w-md mx-auto rounded-2xl bg-black/40 p-12">

@@ -1,9 +1,10 @@
 import { User, Mail, Trash2, AlertCircle } from "lucide-react";
 import { useUser } from "@/hooks/index";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 
 export const SettingTab = () => {
+    const controllerRef = useRef(null);
     const { user, changeUserInfo, deleteAccount } = useUser();
     const [editMode, setEditMode] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -13,31 +14,75 @@ export const SettingTab = () => {
         email: user?.email || '',
     });
 
+    const validation = {
+        fullName: /^[A-ZА-ЯЁ][a-zа-яё]+ [A-ZА-ЯЁ][a-zа-яё]+$/.test(formData.fullName),
+        email: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email),
+    }
+
+    const isFormValid = validation.fullName && validation.email;
+
+    const handleCancelEdit = () => {
+        // CANCEL ABORT CONTROLLER IF EXISTS
+        if (controllerRef.current) {
+            controllerRef.current.abort();
+            controllerRef.current = null;
+        }
+        setLoading(false);
+        setFormData({
+            fullName: user?.fullName || '',
+            email: user?.email || '',
+        });
+    };
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const handleSaveProfile = async () => {
-        setLoading(true);
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        if (!isLoggedIn) {
+            toast.error('User not loaded.');
+            return;
+        }
 
+        setLoading(true);
+        
         if (formData.fullName === user.fullName && formData.email === user.email) {
             setLoading(false);
             setEditMode(false);
             toast.error('No changes made to save.');
             return;
         }
+    
+        // ABORTCONTROLLER SETUP
+        const controller = new AbortController();
+        controllerRef.current = controller;
 
-        const [name, lastName] = formData.fullName.split(' ');
-        await changeUserInfo(
-            { field: 'fullName', value: formData.fullName },
-            { field: 'email', value: formData.email },
-            { field: 'name', value: name },
-            { field: 'lastName', value: lastName }
-        );
-        setLoading(false);
-        setEditMode(false);
-        toast.success('Profile updated successfully!');
+        const [name, lastName = ""] = formData.fullName.split(' ');
+
+        try {
+            await changeUserInfo({
+                changes: [
+                    { field: 'fullName', value: formData.fullName },
+                    { field: 'email', value: formData.email },
+                    { field: 'name', value: name },
+                    { field: 'lastName', value: lastName }
+                ],
+                signal: controller.signal
+            });
+            setEditMode(false);
+            toast.success('Profile updated successfully!');
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                toast('Profile update cancelled.');
+            } else {
+                toast.error('Failed to update profile.');
+            }
+        } finally {
+            setLoading(false);
+            controllerRef.current = null;
+        }
     };
 
     return (
@@ -60,6 +105,12 @@ export const SettingTab = () => {
                             disabled={!editMode || loading}
                             className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-white placeholder-gray-500 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:border-violet-500 transition-colors"
                         />
+                        {!validation.fullName && formData.fullName && (
+                            <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1 animate-fadeIn">
+                                <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
+                                Invalid full name format (e.g., John Doe)
+                            </p>
+                        )}
                     </div>
                     <div>
                         <label className="text-gray-300 block text-sm font-medium mb-2 flex items-center gap-1">
@@ -74,11 +125,17 @@ export const SettingTab = () => {
                             disabled={!editMode || loading}
                             className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-white placeholder-gray-500 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:border-blue-500 transition-colors"
                         />
+                        {!validation.email && formData.email && (
+                            <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1 animate-fadeIn">
+                                <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
+                                Invalid email format (e.g., your@email.com)
+                            </p>
+                        )}
                     </div>
                     <div className="md:col-span-2 flex gap-3 mt-4">
                         {!editMode ? (
                             <button 
-                                className="cursor-pointer p-3 inline-flex justify-center items-center gap-2 cursor-pointer rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors"
+                                className="cursor-pointer p-3 inline-flex justify-center items-center gap-2 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors"
                                 onClick={() => setEditMode(true)}
                             >
                                 Edit Profile
@@ -86,16 +143,15 @@ export const SettingTab = () => {
                         ) : (
                             <>
                                 <button 
-                                    className="cursor-pointer p-3 inline-flex justify-center items-center gap-2 cursor-pointer rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors"
+                                    className={`cursor-pointer p-3 inline-flex justify-center items-center gap-2 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors${!isFormValid ? ' opacity-50 cursor-not-allowed' : ''}`}
                                     onClick={handleSaveProfile}
-                                    disabled={loading}
+                                    disabled={loading || !isFormValid}
                                 >
                                     {loading ? 'Saving...' : 'Save Changes'}
                                 </button>
                                 <button 
-                                    className="px-6 py-3 rounded-xl border border-white/20 text-white hover:bg-white/10 transition-colors"
-                                    onClick={() => setEditMode(false)}
-                                    disabled={loading}
+                                    className="cursor-pointer px-6 py-3 rounded-xl border border-white/20 text-white hover:bg-white/10 transition-colors"
+                                    onClick={() => handleCancelEdit()}
                                 >
                                     Cancel
                                 </button>
@@ -115,7 +171,7 @@ export const SettingTab = () => {
                 </p>
                 {!showDeleteConfirm ? (
                     <button 
-                        className="px-6 py-3 rounded-xl border border-red-500/50 bg-red-900/20 hover:bg-red-900/30 transition text-red-300 font-medium inline-flex items-center gap-2"
+                        className="cursor-pointer px-6 py-3 rounded-xl border border-red-500/50 bg-red-900/20 hover:bg-red-900/30 transition text-red-300 font-medium inline-flex items-center gap-2"
                         onClick={() => setShowDeleteConfirm(true)}
                     >
                         <Trash2 className="w-4 h-4" />
@@ -126,7 +182,7 @@ export const SettingTab = () => {
                         <p className="text-red-200 font-medium">Are you absolutely sure?</p>
                         <div className="flex gap-3">
                             <button 
-                                className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-colors"
+                                className="cursor-pointer px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-colors"
                                 onClick={() => {
                                     deleteAccount();
                                     toast.success('Account deleted successfully!');
@@ -135,7 +191,7 @@ export const SettingTab = () => {
                                 Yes, Delete My Account
                             </button>
                             <button 
-                                className="px-4 py-2 rounded-lg border border-white/20 text-white hover:bg-white/10 transition-colors"
+                                className="cursor-pointer px-4 py-2 rounded-lg border border-white/20 text-white hover:bg-white/10 transition-colors"
                                 onClick={() => setShowDeleteConfirm(false)}
                             >
                                 Cancel

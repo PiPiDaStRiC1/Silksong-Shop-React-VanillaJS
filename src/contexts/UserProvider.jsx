@@ -70,8 +70,6 @@ export const UserProvider = ({children}) => {
     const [saveUser, setSaveUser] = useState(initUser);
 
     const register = useCallback(async ({email, fullName = ""}) => {
-
-
         const user = await toast.promise(
             loginUser(email, fullName),
             {
@@ -105,7 +103,7 @@ export const UserProvider = ({children}) => {
         await new Promise((resolve, reject) => {
             const timeoutId = setTimeout(() => {
                 resolve();
-            }, 2500);
+            }, 2000);
 
             if (signal) {
                 if (signal.aborted) {

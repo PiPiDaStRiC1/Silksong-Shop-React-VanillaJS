@@ -2,41 +2,48 @@ import { useState, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import { useData } from '@/hooks/index';
 import {SearchCard} from './SearchCard';
+import toast from 'react-hot-toast';
 
 export const SearchInput = ({onClose}) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const { products } = useData();
-    
+
     useEffect(() => {
         let isCancelled = false;
+        const query = searchQuery.trim().toLowerCase();
+        if (query === '') {
+            setSearchResults([]);
+            return
+        };
 
-        const timerId = setTimeout(async () => {
-            const query = searchQuery.trim().toLowerCase();
-            if (query === '') {
-                setSearchResults([]);
-                return;
-            }
-            setIsLoading(true);
+        setIsLoading(true);
+        
+        const debounceTimerId = setTimeout(async () => {
+            try {
+                const result = await new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve(products.filter(p => p.name.toLowerCase().includes(query)));
+                    }, 200)
+                });
 
-            const filteredResult = await new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve(products.filter((el) => el.name.toLowerCase().includes(query)));
-                }, 200)
-            });
-            
-            if (!isCancelled) {
-                setSearchResults(filteredResult);
-                setIsLoading(false);
+                if (!isCancelled) {
+                    setSearchResults(result);
+                }
+            } catch (error) {
+                console.log(error);
+                toast.error('Something went wrong. Please try again.');
+            } finally {
+                setIsLoading(false)
             }
-        }, 200);
+        }, 200)
 
         return () => {
-            clearTimeout(timerId);
+            clearTimeout(debounceTimerId);
             isCancelled = true;
-        };
-    }, [products, searchQuery]);
+        }
+    }, [searchQuery, products]);
 
     useEffect(() => {
         const handleEsc = (e) => {
@@ -50,6 +57,7 @@ export const SearchInput = ({onClose}) => {
         setSearchQuery('');
         onClose();
     };
+
 
     return (
         <div 
@@ -96,7 +104,7 @@ export const SearchInput = ({onClose}) => {
                             <div className='inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-white'></div>
                             <p className='text-gray-400 text-lg mt-4'>Searching...</p>
                         </div>
-                    ) : searchResults.length === 0 && !isLoading ? (
+                    ) : searchResults.length === 0 ? (
                         <div className='text-center py-16'>
                             <X className='w-12 h-12 mx-auto text-gray-600 mb-4' />
                             <p className='text-gray-400 text-lg'>No products found</p>
@@ -115,7 +123,7 @@ export const SearchInput = ({onClose}) => {
                     )}
                 </div>
 
-                {searchResults.length > 0 && (
+                {searchResults.length > 0 && !isLoading && (
                     <div className='text-center mt-6 text-gray-500 text-xs'>
                         {searchResults.length === 1 ? 'Total 1 item' : `Total ${searchResults.length} items`}
                     </div>

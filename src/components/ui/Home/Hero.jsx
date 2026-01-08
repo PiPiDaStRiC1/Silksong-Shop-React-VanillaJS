@@ -58,20 +58,7 @@ export const Hero = () => {
                         Learn More
                     </Link>
                 </div>
-
-                <div className='flex items-center gap-6 text-xs text-gray-400 pt-2'>
-                    <div>
-                        <span className='text-white text-lg font-bold'>100+</span>
-                        <p>Happy customers</p>
-                    </div>
-                    <div className='w-px h-8 bg-gray-700'></div>
-                    <div>
-                        <span className='text-yellow-500 text-lg font-bold'>★ <span className='text-white'>4.9</span></span>
-                        <p>Average rating</p>
-                    </div>
-                </div>
             </div>
-
             <div className="absolute bottom-10 right-10 w-32 h-32 bg-red-600/20 rounded-full blur-3xl animate-[float_6s_ease-in-out_infinite]"></div>
             <div className="absolute top-20 right-1/4 w-24 h-24 bg-purple-600/20 rounded-full blur-3xl animate-[float_8s_ease-in-out_infinite_reverse]"></div>
         </article>

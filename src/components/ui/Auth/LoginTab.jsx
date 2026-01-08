@@ -1,6 +1,7 @@
 import formActions from '@/libs/constants/formActionTypes';
 import { Mail, Lock, Eye, EyeClosed } from 'lucide-react';
 import { useUser } from '@/hooks/index';
+import toast from 'react-hot-toast';
 
 export const LoginTab = ({validation, email, password, authDispatch, showPassword, setShowPassword, isRememberMe, setIsRememberMe, loginFormSuccessConditions, onSuccess}) => {
     const {verificationLogin} = useUser();
@@ -99,7 +100,10 @@ export const LoginTab = ({validation, email, password, authDispatch, showPasswor
                             
                             onSuccess();
                         } catch (error) {
-                            console.log(error.message);  
+                            if (error.message !== 'User not found') {
+                                console.log(error.message);  
+                                toast.error('Something went wrong. Please try again.');
+                            }
                         }
                     }
                 }}

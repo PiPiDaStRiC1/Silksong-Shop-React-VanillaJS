@@ -1,6 +1,6 @@
 import { User, Mail, Trash2, AlertCircle } from "lucide-react";
 import { useUser } from "@/hooks/index";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
 export const SettingTab = () => {
@@ -21,12 +21,14 @@ export const SettingTab = () => {
 
     const isFormValid = validation.fullName && validation.email;
 
+    const handleAbortController = () => {
+        controllerRef.current?.abort();
+        controllerRef.current = null;
+    };
+
     const handleCancelEdit = () => {
         // CANCEL ABORT CONTROLLER IF EXISTS
-        if (controllerRef.current) {
-            controllerRef.current.abort();
-            controllerRef.current = null;
-        }
+        handleAbortController();
         setLoading(false);
         setFormData({
             fullName: user?.fullName || '',
@@ -56,6 +58,8 @@ export const SettingTab = () => {
         }
     
         // ABORTCONTROLLER SETUP
+        controllerRef.current?.abort();
+
         const controller = new AbortController();
         controllerRef.current = controller;
 
@@ -84,6 +88,10 @@ export const SettingTab = () => {
             controllerRef.current = null;
         }
     };
+
+    useEffect(() => {
+        return () => handleAbortController();
+    }, []);
 
     return (
         <div className="space-y-6">

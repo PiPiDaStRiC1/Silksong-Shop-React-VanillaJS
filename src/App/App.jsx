@@ -9,13 +9,22 @@ import {AppProviders} from '@/contexts/index';
 import {ProtectedRoute, GuestOnlyRoute} from '@/features/index'
 
 // ToDo:
-// ПОСМОТРЕТЬ await, ГДЕ ЕСТЬ ПРОМИССЫ И ОБЕРНУТЬ, ВОЗМОЖНО, В TRY CATCH
+// ЗАКРЫТИЕ ВСЕХ МОДАЛОК НА ESC
+// ГЛОБАЛЬНЫЙ АДАПТИВ И ПЕРЕСМОТР UI (НАПРИМЕР БЕСКОНЕЧНАЯ ЛЕНТА В CATALOG)
 // ПОФИКСИТЬ АВТОЗАПОЛНЕНИЕ В SHIPPINGADDRESS И PAYMENTINFO
-// Header.jsx стал сложнее (много условной логики). Можно вынести в useAuthNavigation() хук
+// СДЕЛАТЬ ТАКУЮ МОДЕЛЬ:
 
-// ГЛОБАЛЬНОЕ ИЗМЕНЕНИЕ НУЖНО СДЕЛАТЬ!!!!!!!!!!!!!!!!!!!!!!!
-// Вместо единого ключа 'wishList' и 'cart', хранить данные отдельно для каждого пользователя:
-// 'wishList_{userId}' и 'cart_{userId}' 
+// localStorage = {
+//   users: {
+//     "42": { id: "42", email: "a@a.com" },
+//     "99": { id: "99", email: "b@b.com" }
+//   },
+
+//   currentUserId: "42",
+
+//   cart_42: { ... },
+//   wishlist_42: [ ... ]
+// }
 
 const App = () => {
   const location = useLocation();

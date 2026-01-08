@@ -1,6 +1,7 @@
 import formActions from '@/libs/constants/formActionTypes';
 import { Mail, Lock, User, Eye, EyeClosed } from 'lucide-react';
 import { useUser } from '@/hooks/index';
+import toast from 'react-hot-toast';
 
 export const RegisterTab = ({validation, fullName, email, password, confirmPassword, authDispatch, showPassword, setShowPassword, isAgreedPrivacy, setIsAgreedPrivacy, registerFormSuccessConditions, onSuccess}) => {
     const {register} = useUser();
@@ -168,7 +169,10 @@ export const RegisterTab = ({validation, fullName, email, password, confirmPassw
                             
                             onSuccess();
                         } catch (error) {
-                            console.log(error.message);
+                            if (error.message !== 'User already logged!') {
+                                console.log(error.message);
+                                toast.error('Something went wrong. Please try again.');
+                            }
                         }
                     }
                 }}

@@ -10,13 +10,16 @@ const initialState = {
 }
 
 const initCart = () => {
-    const savedFromLS = JSON.parse(localStorage.getItem('cart')) || {};
-    const savedTariffFromLS = JSON.parse(localStorage.getItem('tariff')) ?? 'Eco';
-    return {cart: savedFromLS, selectedDeliveryTariff: savedTariffFromLS};
+    const currentUserId = localStorage.getItem('currentUserId') || null;
+    const savedFromLS = JSON.parse(localStorage.getItem(`cart_${currentUserId}`)) || {cart: {}, tariff: 'Eco'};
+    const savedCart = savedFromLS?.cart || {};
+    const savedTariffFromLS = savedFromLS?.tariff || 'Eco';
+    return {cart: savedCart, selectedDeliveryTariff: savedTariffFromLS};
 }
 
 
 export const CartProvider = ({children}) => {
+    const currentUserId = localStorage.getItem('currentUserId') || null;
     const [{cart, selectedDeliveryTariff}, dispatch] = useReducer(cartReducer, initialState, initCart);
     
     const addItem = useCallback((item) => {
@@ -64,7 +67,6 @@ export const CartProvider = ({children}) => {
         dispatch({type: cartActions.RESET_CART});
     }, []);
 
-
     const totalValue = useMemo(() => {
         return Object.values(cart).reduce((acc, item) => acc + item.price * item.quantity, 0);
     }, [cart]);
@@ -73,10 +75,21 @@ export const CartProvider = ({children}) => {
         return Object.values(cart).reduce((acc, item) => acc + item.quantity, 0);
     }, [cart]);
 
+    // SAVED FROM LS IF USER LOGGED IN
     useEffect(() => {
-        localStorage.setItem('cart', JSON.stringify(cart));
-        localStorage.setItem('tariff', JSON.stringify(selectedDeliveryTariff));
-    }, [cart, selectedDeliveryTariff]);
+        if (currentUserId) {
+            const saved = JSON.parse(localStorage.getItem(`cart_${currentUserId}`)) || {};
+            dispatch({type: cartActions.INIT_CART, payload: saved?.cart || {}});
+        } else {
+            dispatch({type: cartActions.INIT_CART, payload: {}});
+        }
+    }, [currentUserId]);
+
+    useEffect(() => {
+        if (currentUserId) {
+            localStorage.setItem(`cart_${currentUserId}`, JSON.stringify({cart, tariff: selectedDeliveryTariff}));
+        }
+    }, [cart, selectedDeliveryTariff, currentUserId]);
 
 
     const value = useMemo(() => ({

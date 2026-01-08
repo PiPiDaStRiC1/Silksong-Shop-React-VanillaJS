@@ -1,10 +1,15 @@
 export const ADD_TO_WISHLIST = 'ADD_TO_WISHLIST';
 export const REMOVE_FROM_WISHLIST = 'REMOVE_FROM_WISHLIST';
 export const CLEAR_WISHLIST = 'CLEAR_WISHLIST';
+export const INIT_WISHLIST = 'INIT_WISHLIST';
 
-export const initWishList = () => {
+export const initWishList = () => { 
     try {
-        return JSON.parse(localStorage.getItem('wishList')) || {};
+        const currentUserId = localStorage.getItem('currentUserId') || null;
+        if (currentUserId) {
+            return JSON.parse(localStorage.getItem(`wishList_${currentUserId}`)) || {};
+        }
+        return {};
     } catch (error) {
         console.log(error.message);
         return {};
@@ -25,5 +30,9 @@ export const wishListReducer = (state, {type, payload = null}) => {
         }
         case CLEAR_WISHLIST:
             return {};
+        case INIT_WISHLIST:
+            return payload || {};
+        default:
+            return state
     }
 }   

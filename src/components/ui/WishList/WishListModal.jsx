@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 export const WishListModal = ({onClose}) => {
   const navigate = useNavigate();
-  const { wishList, removeFromWL, clearWL } = useWishList();
+  const { wishList, removeFromWL, resetWL } = useWishList();
   const items = Object.values(wishList);
 
 
@@ -102,7 +102,7 @@ export const WishListModal = ({onClose}) => {
         {items.length > 0 && (
           <div className="p-6 border-t border-white/10 space-y-3">
             <button
-              onClick={clearWL}
+              onClick={resetWL}
               className="w-full cursor-pointer px-4 py-2 rounded-lg border border-white/10 text-white hover:bg-white/5 transition-colors"
             >
               Clear Wishlist

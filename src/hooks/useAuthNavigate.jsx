@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 export const useAuthNavigation = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const isLoggedIn = localStorage.getItem('currentUserId') || null;
 
     const authNavigate = (path, {redirectTo} = {}) => {
         if (isLoggedIn) navigate(path);

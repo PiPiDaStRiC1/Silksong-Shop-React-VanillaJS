@@ -5,12 +5,10 @@ import toast from 'react-hot-toast';
 
 const initUser = () => {
     try {
-        const isLoggedIn = localStorage.getItem('isLoggedIn');
-        
-        if (isLoggedIn === 'true') {
-            return JSON.parse(localStorage.getItem('user')) || null;
+        const currentUserId = localStorage.getItem('currentUserId');
+        if (currentUserId) {
+            return JSON.parse(localStorage.getItem('users'))?.[currentUserId] || null;
         }
-        
         return null;
     } catch (error) {
         console.log(error.message);
@@ -18,18 +16,15 @@ const initUser = () => {
     }
 }
 
-const resetStorages = () => {
-    localStorage.clear();
-    sessionStorage.clear();
-}
-
 const verifyUser = async (email) => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            const user = JSON.parse(localStorage.getItem('user'));
+            const users = JSON.parse(localStorage.getItem('users')) || {};
+            const user = Object.values(users).find(u => u.email === email);
 
             if (user && email === user.email) {
                 resolve(user);
+                localStorage.setItem('currentUserId', user.id);
             } else {
                 reject(new Error('User not found'));
             }
@@ -40,13 +35,12 @@ const verifyUser = async (email) => {
 const loginUser = async (email, fullName) => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            const user = JSON.parse(localStorage.getItem('user'));
+            const users = JSON.parse(localStorage.getItem('users')) || {};
+            const user = Object.values(users).find(u => u.email === email);
 
             if (user && email === user.email) {
                 reject(new Error('User already logged!'));
             } else {
-                resetStorages();
-
                 const id = Date.now().toString();
                 const [name, lastName] = fullName.split(' ');
         
@@ -57,7 +51,8 @@ const loginUser = async (email, fullName) => {
                     name,
                     lastName,
                 } 
-                localStorage.setItem('user', JSON.stringify(userData));
+                localStorage.setItem('users', JSON.stringify({...users, [id]: userData}));
+                localStorage.setItem('currentUserId', id);
                 resolve(userData);
             }
         }, 1000)
@@ -80,7 +75,6 @@ export const UserProvider = ({children}) => {
         );
         
         setSaveUser(user);
-        localStorage.setItem('isLoggedIn', 'true');
         return user;
     }, []);
 
@@ -95,7 +89,6 @@ export const UserProvider = ({children}) => {
         );
         
         setSaveUser(user);
-        localStorage.setItem('isLoggedIn', 'true'); 
         return user;
     }, []);
 
@@ -103,7 +96,7 @@ export const UserProvider = ({children}) => {
         await new Promise((resolve, reject) => {
             const timeoutId = setTimeout(() => {
                 resolve();
-            }, 2000);
+            }, 2500);
 
             if (signal) {
                 if (signal.aborted) {
@@ -128,20 +121,27 @@ export const UserProvider = ({children}) => {
             ...Object.fromEntries(changes.map(({field, value}) => [field, value]))
         }
 
-        localStorage.setItem('user', JSON.stringify(newUser));
+        const users = JSON.parse(localStorage.getItem('users')) || {};
+        localStorage.setItem('users', JSON.stringify({...users, [saveUser.id]: newUser}));
         setSaveUser(newUser);
     }, [saveUser]);
 
     const logout = useCallback(() => {
+        localStorage.setItem('currentUserId', '');
         setSaveUser(null);
-        resetCart();
         resetWL();
-        localStorage.setItem('isLoggedIn', 'false'); 
-    }, [resetCart, resetWL]);
+        resetCart();
+        sessionStorage.clear();
+    }, [resetWL, resetCart]);
 
     const deleteAccount = useCallback(() => {
+        const currentUserId = localStorage.getItem('currentUserId') || null;
+        const users = JSON.parse(localStorage.getItem('users')) || {};
+        const newUsers = {...users};
+        delete users?.[currentUserId]
+        localStorage.setItem('users', JSON.stringify(newUsers));
+        localStorage.setItem('currentUserId', '');
         setSaveUser(null);
-        resetStorages();
         window.location.href = '/';
     }, []);
 

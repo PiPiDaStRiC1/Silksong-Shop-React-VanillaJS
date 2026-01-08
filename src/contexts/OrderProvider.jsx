@@ -8,6 +8,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 export const OrderProvider = ({children}) => {
     const navigate = useNavigate();
+    const currentUserId = localStorage.getItem('currentUserId') || null;
     const [{orders, deliveryTimers}, dispatch] = useReducer(orderReducer, initialOrderState, initOrderState);
 
     const createOrder = useCallback((orderData) => {
@@ -38,9 +39,21 @@ export const OrderProvider = ({children}) => {
         toast.loading(<span>Please wait {Math.floor(deliveryTime / 1000)} seconds... You can track your order status in your {<Link to="/profile" className='text-gray-200 hover:underline italic'>Profile</Link>} page</span>, {duration: deliveryTime - 1000});
     }, [navigate, updateOrderStatus]);
 
+    // SAVED FROM LS IF USER LOGGED IN
     useEffect(() => {
-        localStorage.setItem('orders', JSON.stringify({ orders: orders ?? {}, deliveryTimers: deliveryTimers ?? {} }));
-    }, [orders, deliveryTimers])
+        if (currentUserId) {
+            const saved = JSON.parse(localStorage.getItem(`orders_${currentUserId}`)) || { orders: {}, deliveryTimers: {} };
+            dispatch({type: orderActions.INIT_ORDERS, payload: saved.orders});
+        } else {
+            dispatch({type: orderActions.INIT_ORDERS, payload: {}});
+        }
+    }, [currentUserId])
+
+    useEffect(() => {
+        if (currentUserId) {
+            localStorage.setItem(`orders_${currentUserId}`, JSON.stringify({ orders: orders ?? {}, deliveryTimers: deliveryTimers ?? {} }));
+        }
+    }, [orders, deliveryTimers, currentUserId])
 
     useEffect(() => {
         return () => {

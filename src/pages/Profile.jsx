@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 
 export const Profile = () => {
     const navigate = useNavigate();
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const isLoggedIn = Number(localStorage.getItem('currentUserId')) || null;
     const [searchParams, setSearchParams] = useSearchParams();
     const { user, logout } = useUser();
     const activeTab = searchParams.get('tab') || 'overview';

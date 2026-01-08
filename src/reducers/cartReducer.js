@@ -59,20 +59,22 @@ export const cartReducer = ({cart, selectedDeliveryTariff}, {type, payload = nul
                 selectedDeliveryTariff: selectedDeliveryTariff
             }
         }
-        case cartActions.SELECT_DELIVERY_TARIFF: {
+        case cartActions.SELECT_DELIVERY_TARIFF: 
             return {
                 cart: cart,
                 selectedDeliveryTariff: payload
             }
-        }
-        case cartActions.RESET_CART: {
+        case cartActions.RESET_CART: 
             return {
                 cart: {},
                 selectedDeliveryTariff: 'Eco'
             }
-        }
-        default: {
+        case cartActions.INIT_CART:
+            return {
+                cart: payload,
+                selectedDeliveryTariff: selectedDeliveryTariff
+            }
+        default: 
             return {cart, selectedDeliveryTariff};
-        }
     }
 }

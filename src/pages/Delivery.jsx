@@ -19,7 +19,10 @@ const steps = [
 
 const initStep = () => {
     try {
-        return JSON.parse(sessionStorage.getItem('lastStep')) || 1;
+        const currentUserId = localStorage.getItem('currentUserId') || null;
+        if (currentUserId) {
+            return JSON.parse(localStorage.getItem(`lastStep_${currentUserId}`)) || 1;
+        }
     } catch (error) {
         console.log(error.message);
         return 1;
@@ -27,6 +30,7 @@ const initStep = () => {
 }
 
 export const Delivery = () => {
+    const currentUserId = localStorage.getItem('currentUserId') || null;
     const controllerRef = useRef(null);
     const orderIdRef = useRef(null);
     const [currentStep, setCurrentStep] = useState(initStep);
@@ -90,7 +94,6 @@ export const Delivery = () => {
     const clearDelDataFromStorage = () => {
         sessionStorage.removeItem('shippingAddress');
         sessionStorage.removeItem('paymentInfo');
-        sessionStorage.removeItem('lastStep');
         sessionStorage.removeItem('isAutoFilledRef');
         
         shippingDispatch({type: RESET_SHIPPING});
@@ -184,9 +187,21 @@ export const Delivery = () => {
         sessionStorage.setItem(PENDING_ORDER_ID, newOrderId);
     }, [totalValue, taxCost, deliveryCost, totalCount, cart, createOrder, currentStep]);
     
+    // SAVED FROM LS IF USER LOGGED IN
     useEffect(() => {
-        sessionStorage.setItem('lastStep', JSON.stringify(currentStep));
-    }, [currentStep]);
+        if (currentUserId) {
+            const saved = JSON.parse(localStorage.getItem(`lastStep_${currentUserId}`)) || 1;
+            setCurrentStep(saved);
+        } else {
+            setCurrentStep(1);
+        }
+    }, [currentUserId]);
+
+    useEffect(() => {
+        if (currentUserId) {
+            localStorage.setItem(`lastStep_${currentUserId}`, JSON.stringify(currentStep));
+        }
+    }, [currentStep, currentUserId]);
     
     useEffect(() => {
         // case of aborting order (AbortController) when user goes back to previous steps

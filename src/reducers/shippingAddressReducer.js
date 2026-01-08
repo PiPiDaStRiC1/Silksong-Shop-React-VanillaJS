@@ -10,7 +10,11 @@ export const initialShippingState = {
 
 export const initShipping = () => {
     try {
-        return JSON.parse(sessionStorage.getItem('shippingAddress')) || initialShippingState; 
+        const currentUserId = localStorage.getItem('currentUserId') || null;
+        if (currentUserId) {
+            return JSON.parse(localStorage.getItem(`delInfo_${currentUserId}`))?.shippingData || initialShippingState; 
+        }
+        return {};
     } catch (error) {
         console.log(error.message);
         return initialShippingState;
@@ -20,6 +24,7 @@ export const initShipping = () => {
 export const SET_FIELD = 'SET_FIELD';
 export const RESET_FORM = 'RESET_FORM';
 export const GET_INFO_FROM_LS = 'GET_INFO_FROM_LS';
+export const INIT_SHIPPING = 'INIT_SHIPPING';
 
 export const shippingAddressReducer = (state, { type, payload }) => {
     switch (type) {
@@ -35,6 +40,8 @@ export const shippingAddressReducer = (state, { type, payload }) => {
                 ...state, 
                 ...payload
             }
+        case INIT_SHIPPING:
+            return payload || initialShippingState;
         default:
             return state;
     }

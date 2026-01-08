@@ -51,6 +51,11 @@ export const orderReducer = ({orders, deliveryTimers}, {type, payload = null}) =
                     [payload.orderId]: payload.timerId
                 }
             }
+        case orderActions.INIT_ORDERS:
+            return {
+                orders: payload || {},
+                deliveryTimers
+            }
         default:
             return {orders, deliveryTimers};
     }

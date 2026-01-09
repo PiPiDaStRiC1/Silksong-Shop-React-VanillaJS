@@ -12,9 +12,9 @@ export const initShipping = () => {
     try {
         const currentUserId = localStorage.getItem('currentUserId') || null;
         if (currentUserId) {
-            return JSON.parse(localStorage.getItem(`delInfo_${currentUserId}`))?.shippingData || initialShippingState; 
+            return JSON.parse(localStorage.getItem(`delivery_${currentUserId}`))?.shippingData || initialShippingState; 
         }
-        return {};
+        return initialShippingState;
     } catch (error) {
         console.log(error.message);
         return initialShippingState;

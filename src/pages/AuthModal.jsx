@@ -53,6 +53,14 @@ export const AuthModal = () => {
         }
     }, [])
 
+    useEffect(() => {
+        const handleEsc = (e) => {
+            if (e.key === 'Escape') navigate(-1);
+        }
+        window.addEventListener('keydown', handleEsc);
+        return () => window.removeEventListener('keydown', handleEsc);
+    })
+
     return (
         <div 
             className="fixed inset-0 bg-gradient-to-br from-black via-transparent to-black backdrop-blur-md z-50 flex justify-center items-center animate-fadeIn"

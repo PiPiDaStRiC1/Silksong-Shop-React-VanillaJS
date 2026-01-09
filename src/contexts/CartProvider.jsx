@@ -79,9 +79,9 @@ export const CartProvider = ({children}) => {
     useEffect(() => {
         if (currentUserId) {
             const saved = JSON.parse(localStorage.getItem(`cart_${currentUserId}`)) || {};
-            dispatch({type: cartActions.INIT_CART, payload: saved?.cart || {}});
+            dispatch({type: cartActions.INIT_CART, payload: {cart: saved?.cart || {}, tariff: saved?.tariff || 'Eco'}});
         } else {
-            dispatch({type: cartActions.INIT_CART, payload: {}});
+            dispatch({type: cartActions.INIT_CART, payload: {cart: {}, tariff: 'Eco'}});
         }
     }, [currentUserId]);
 

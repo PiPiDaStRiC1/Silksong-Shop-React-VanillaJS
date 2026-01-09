@@ -71,8 +71,8 @@ export const cartReducer = ({cart, selectedDeliveryTariff}, {type, payload = nul
             }
         case cartActions.INIT_CART:
             return {
-                cart: payload,
-                selectedDeliveryTariff: selectedDeliveryTariff
+                cart: payload.cart,
+                selectedDeliveryTariff: payload.tariff
             }
         default: 
             return {cart, selectedDeliveryTariff};

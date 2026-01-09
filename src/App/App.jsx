@@ -8,28 +8,12 @@ import {ScrollToTop} from '@/libs/utils/ScroollToTop';
 import {AppProviders} from '@/contexts/index';
 import {ProtectedRoute, GuestOnlyRoute} from '@/features/index'
 
-// ToDo:
-// ДОБАВЛЯТЬ ВСЕ ДАННЫЕ ИЗ DELIVERY В LS, Т.К ИНАЧЕ, ЕСЛИ ЗАКАЗ УЖЕ В ОЖИДАНИИ 
-// И МЫ РЕЛОГАЕМ, ТО ПОЛУЧАЮТСЯ ДАННЫЕ, КОТОРЫЕ ВВЕЛ ОДИН ПОЛЬЗОВАТЕЛЬ ПОЯВЯТЬСЯ У ВТОРОГО
-// А ТАКЖЕ НЕ БУДЕТ ДОСТУПА, КОТОРЫЙ НАХОДИТСЯ В СТАТУСЕ ОЖИДАНИЯ
-// 
+// ToDo: 
 // ПРОТЕСТИТЬ ТАЙМЕРЫ, КОГДА МЫ ВЫХОДИМ ИЗ АККАУНТА (ПО ИДЕИ ОНИ ДОЛЖНЫ ПРЕРВАТЬСЯ)
-// ЗАКРЫТИЕ ВСЕХ МОДАЛОК НА ESC
+// ЗАКРЫТИЕ ВСЕХ МОДАЛОК НА ESC (СДЕЛАНО, НО НУЖНО УБЕДИТЬСЯ В ПРОИЗВОДИТЕЛЬНОСТИ)
+// (ПО ФАКТУ СЛУШАТЕЛЬ НА КАЖДУЮ НАЖАТУЮ КЛАВИШУ В HEADER - ЭТО ПЛОХО)
 // ГЛОБАЛЬНЫЙ АДАПТИВ И ПЕРЕСМОТР UI (НАПРИМЕР БЕСКОНЕЧНАЯ ЛЕНТА В CATALOG)
 // ПОФИКСИТЬ АВТОЗАПОЛНЕНИЕ В SHIPPINGADDRESS И PAYMENTINFO
-// СДЕЛАТЬ ТАКУЮ МОДЕЛЬ:
-
-// localStorage = {
-//   users: {
-//     "42": { id: "42", email: "a@a.com" },
-//     "99": { id: "99", email: "b@b.com" }
-//   },
-
-//   currentUserId: "42",
-
-//   cart_42: { ... },
-//   wishlist_42: [ ... ]
-// }
 
 const App = () => {
   const location = useLocation();

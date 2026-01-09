@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 
 export const SettingTab = () => {
     const controllerRef = useRef(null);
-    const { user, changeUserInfo, deleteAccount } = useUser();
+    const { user, changeUserInfo, deleteAccount, currentUserId } = useUser();
     const [editMode, setEditMode] = useState(false);
     const [loading, setLoading] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -42,8 +42,7 @@ export const SettingTab = () => {
     };
 
     const handleSaveProfile = async () => {
-        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-        if (!isLoggedIn) {
+        if (!currentUserId) {
             toast.error('User not loaded.');
             return;
         }

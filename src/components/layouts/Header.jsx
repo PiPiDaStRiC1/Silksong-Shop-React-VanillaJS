@@ -1,7 +1,7 @@
 import logoImage from '@/assets/images/logo/logoImage.png';
 import logoText from '@/assets/images/logo/logoText.png'
 import {Heart, User, ShoppingBasket, Search} from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {Link, NavLink} from 'react-router-dom';
 import {CartModal, WishListModal, SearchInput} from '../ui/index';
 import { useCart, useWishList, useAuthNavigation } from '@/hooks/index';
@@ -15,6 +15,17 @@ export const Header = () => {
     const [showSearch, setShowSearch] = useState(false);
     const cartItemCount = Object.values(cart).length;
     const wishListItemCount = Object.values(wishList).length;
+
+    useEffect(() => {
+        const handleEsc = (e) => {
+            if (e.key === 'Escape') {
+                setShowCart(false);
+                setShowWishListModal(false);
+            }
+        }
+        window.addEventListener('keydown', handleEsc);
+        return () => window.removeEventListener('keydown', handleEsc)
+    }, []);
 
     return (
         <>

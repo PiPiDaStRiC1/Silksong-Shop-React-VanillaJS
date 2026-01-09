@@ -24,10 +24,6 @@ export const PaymentInfo = memo(({formData, dispatch, validation}) => {
         return () => sessionStorage.setItem('isAutoFilledCardHolderRef', 'false');
     }, [])
 
-    useEffect(() => {
-        sessionStorage.setItem('paymentInfo', JSON.stringify(formData));
-    }, [formData])
-
     return (
         <div className="space-y-6">
             <div>

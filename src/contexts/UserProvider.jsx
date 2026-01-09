@@ -1,6 +1,5 @@
 import { UserContext } from "@/contexts/UserContext";
-import { useCallback, useMemo, useState } from "react";
-import {useCart, useWishList} from '@/hooks/index'
+import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from 'react-hot-toast';
 
 const initUser = () => {
@@ -60,9 +59,8 @@ const loginUser = async (email, fullName) => {
 }
 
 export const UserProvider = ({children}) => {
-    const {resetCart} = useCart();
-    const {resetWL} = useWishList();
     const [saveUser, setSaveUser] = useState(initUser);
+    const currentUserId = localStorage.getItem('currentUserId') || null;
 
     const register = useCallback(async ({email, fullName = ""}) => {
         const user = await toast.promise(
@@ -96,7 +94,7 @@ export const UserProvider = ({children}) => {
         await new Promise((resolve, reject) => {
             const timeoutId = setTimeout(() => {
                 resolve();
-            }, 2500);
+            }, 2000);
 
             if (signal) {
                 if (signal.aborted) {
@@ -129,30 +127,44 @@ export const UserProvider = ({children}) => {
     const logout = useCallback(() => {
         localStorage.setItem('currentUserId', '');
         setSaveUser(null);
-        resetWL();
-        resetCart();
-        sessionStorage.clear();
-    }, [resetWL, resetCart]);
+    }, []);
 
     const deleteAccount = useCallback(() => {
         const currentUserId = localStorage.getItem('currentUserId') || null;
         const users = JSON.parse(localStorage.getItem('users')) || {};
         const newUsers = {...users};
-        delete users?.[currentUserId]
+        delete newUsers?.[currentUserId]
         localStorage.setItem('users', JSON.stringify(newUsers));
-        localStorage.setItem('currentUserId', '');
         setSaveUser(null);
+        localStorage.removeItem(`cart_${currentUserId}`);
+        localStorage.removeItem(`wishList_${currentUserId}`);
+        localStorage.removeItem(`delivery_${currentUserId}`);
+        const deliveryTimers = JSON.parse(localStorage.getItem(`orders_${currentUserId}`))?.deliveryTimers;
+        if (deliveryTimers) {
+            Object.values(deliveryTimers).forEach(timerId => clearTimeout(timerId));
+        }
+        localStorage.removeItem(`orders_${currentUserId}`);
+        localStorage.setItem('currentUserId', '');
         window.location.href = '/';
     }, []);
 
+    useEffect(() => {
+        if (currentUserId) {
+            localStorage.setItem('currentUserId', currentUserId);
+        } else {
+            localStorage.setItem('currentUserId', '');
+        }
+    }, [currentUserId])
+
     const value = useMemo(() => ({
         user: saveUser,
+        currentUserId,
         register,
         logout,
         verificationLogin,
         changeUserInfo,
         deleteAccount
-    }), [saveUser, register, logout, verificationLogin, changeUserInfo, deleteAccount]);
+    }), [saveUser, currentUserId, register, logout, verificationLogin, changeUserInfo, deleteAccount]);
 
     return (
         <UserContext.Provider value={value}>

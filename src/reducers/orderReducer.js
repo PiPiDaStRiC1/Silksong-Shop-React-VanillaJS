@@ -7,7 +7,11 @@ export const initialOrderState = {
 
 export const initOrderState = () => {
     try {
-        return JSON.parse(localStorage.getItem('orders')) || initialOrderState;
+        const currentUserId = localStorage.getItem('currentUserId') || null;
+        if (currentUserId) {
+            return JSON.parse(localStorage.getItem(`orders_${currentUserId}`)) || initialOrderState;
+        }
+        return initialOrderState;
     } catch (error) {
         console.log(error.message);
         return initialOrderState;

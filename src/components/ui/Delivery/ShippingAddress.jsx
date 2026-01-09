@@ -31,10 +31,6 @@ export const ShippingAddress = memo(({ formData, dispatch, validation }) => {
         return () => sessionStorage.setItem('isAutoFilledFullNameRef', 'false');
     }, [])
 
-    useEffect(() => {
-        sessionStorage.setItem('shippingAddress', JSON.stringify(formData));
-    }, [formData]);
-
     return (
         <div className="space-y-6">
             <div>

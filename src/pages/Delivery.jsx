@@ -2,13 +2,13 @@ import {BreadCrumbs} from '@/features/index'
 import { useState, useReducer, useEffect, useRef, useCallback } from "react";
 import toast from 'react-hot-toast';
 import { MapPin, CreditCard, Package, CheckCircle2, ChevronRight, X } from "lucide-react";
-import {useCart, useOrder} from '@/hooks/index';
+import {useCart, useOrder, useUser} from '@/hooks/index';
 import value from '@/assets/images/value.png';
 import {freeShippingValue} from '@/libs/constants/freeShippingValue';
 import {deliveryTariffs} from '@/libs/constants/deliveryTariffs';
 import {ShippingAddress, DeliveryTariffs, PaymentInfo, ReviewConfirm, OrderCard, StepCircle} from '@/components/ui/index'
-import { shippingAddressReducer, initialShippingState, initShipping, RESET_FORM as RESET_SHIPPING } from '@/reducers/shippingAddressReducer';
-import { paymentInfoReducer, initialPaymentInfoState, initPaymentInfo, RESET_FORM as RESET_PAYMENT } from '@/reducers/paymentInfoReducer'
+import { shippingAddressReducer, initialShippingState, initShipping, RESET_FORM as RESET_SHIPPING, INIT_SHIPPING } from '@/reducers/shippingAddressReducer';
+import { paymentInfoReducer, initialPaymentInfoState, initPaymentInfo, RESET_FORM as RESET_PAYMENT, INIT_PAYMENT_INFO } from '@/reducers/paymentInfoReducer'
 
 const steps = [
     { id: 1, title: "Shipping", icon: MapPin },
@@ -21,28 +21,41 @@ const initStep = () => {
     try {
         const currentUserId = localStorage.getItem('currentUserId') || null;
         if (currentUserId) {
-            return JSON.parse(localStorage.getItem(`lastStep_${currentUserId}`)) || 1;
+            return JSON.parse(localStorage.getItem(`delivery_${currentUserId}`))?.currentStep || 1;
         }
+        return 1;
     } catch (error) {
         console.log(error.message);
         return 1;
     }
 }
 
+const initOrderId = () => {
+    try {
+       const currentUserId = localStorage.getItem('currentUserId') || null;
+        if (currentUserId) {
+            return JSON.parse(localStorage.getItem(`delivery_${currentUserId}`))?.pendingOrderId || null;
+        } 
+        return null;
+    } catch (error) {
+        console.log(error.message);
+        return null;
+    }
+}
+
 export const Delivery = () => {
-    const currentUserId = localStorage.getItem('currentUserId') || null;
     const controllerRef = useRef(null);
-    const orderIdRef = useRef(null);
+    const orderIdRef = useRef(initOrderId());
     const [currentStep, setCurrentStep] = useState(initStep);
     const [loading, setLoading] = useState(false);
     const [shippingData, shippingDispatch] = useReducer(shippingAddressReducer, initialShippingState, initShipping);
     const [paymentInfoData, paymentInfoDispatch] = useReducer(paymentInfoReducer, initialPaymentInfoState, initPaymentInfo);
     const {cart, totalValue, totalCount, selectedDeliveryTariff, removeItem, incQty, decQty, selectDeliveryTariff, resetCart} = useCart();
-    const {orders, createOrder, updateOrderStatus, startDeliveryTimer, cancelOrder} = useOrder();
+    const {createOrder, updateOrderStatus, startDeliveryTimer, cancelOrder} = useOrder();
+    const {currentUserId} = useUser();
     const taxCost = parseFloat((totalValue * 0.05).toFixed(2));
     const isShippingFree = freeShippingValue <= totalValue;
     const deliveryCost = isShippingFree ? 0 : deliveryTariffs[selectedDeliveryTariff ?? 'Eco'].price;
-    const PENDING_ORDER_ID = 'pendingOrderId';
     
     const shippingValidation = {
         name: /^[A-ZА-ЯЁ][a-zа-яё]+$/.test(shippingData.name),
@@ -92,8 +105,6 @@ export const Delivery = () => {
     }
     
     const clearDelDataFromStorage = () => {
-        sessionStorage.removeItem('shippingAddress');
-        sessionStorage.removeItem('paymentInfo');
         sessionStorage.removeItem('isAutoFilledRef');
         
         shippingDispatch({type: RESET_SHIPPING});
@@ -138,7 +149,7 @@ export const Delivery = () => {
             
             updateOrderStatus(orderIdRef.current, 'shipped');
             startDeliveryTimer(orderIdRef.current);
-            sessionStorage.removeItem(PENDING_ORDER_ID);
+            localStorage.removeItem(`delivery_${currentUserId}`);
             clearDelDataFromStorage();
             setCurrentStep(1);
             orderIdRef.current = null;
@@ -159,20 +170,10 @@ export const Delivery = () => {
         controllerRef.current = null;
     }, []);
 
-
-    // Effect to order restoration on page reloads
-    useEffect(() => {
-        const savedOrderId = sessionStorage.getItem(PENDING_ORDER_ID);
-        if (savedOrderId && orders?.[savedOrderId]?.status === 'processing') {
-            orderIdRef.current = savedOrderId
-        } else {
-            sessionStorage.removeItem(PENDING_ORDER_ID);
-        }
-    }, [orders]);
-
+    
     useEffect(() => {
         if (currentStep !== 3 || orderIdRef.current) return;
-
+        
         const newOrderId = createOrder({ 
             date: new Date().toString().split(' GMT')[0],
             cartItems: cart,
@@ -182,36 +183,62 @@ export const Delivery = () => {
             totalCount, 
             status: 'processing' 
         });
-
+        
         orderIdRef.current = newOrderId;
-        sessionStorage.setItem(PENDING_ORDER_ID, newOrderId);
-    }, [totalValue, taxCost, deliveryCost, totalCount, cart, createOrder, currentStep]);
+        localStorage.setItem(`delivery_${currentUserId}`, JSON.stringify({
+            shippingData,
+            paymentInfoData,
+            currentStep,
+            pendingOrderId: newOrderId
+        }));
+    }, [totalValue, taxCost, deliveryCost, totalCount, cart, createOrder, currentStep, currentUserId, shippingData, paymentInfoData]);
     
     // SAVED FROM LS IF USER LOGGED IN
     useEffect(() => {
         if (currentUserId) {
-            const saved = JSON.parse(localStorage.getItem(`lastStep_${currentUserId}`)) || 1;
-            setCurrentStep(saved);
-        } else {
+            const saved = JSON.parse(localStorage.getItem(`delivery_${currentUserId}`)) || {};
+            shippingDispatch({type: INIT_SHIPPING, payload: saved?.shippingData || initialShippingState});
+            paymentInfoDispatch({type: INIT_PAYMENT_INFO, payload: saved?.paymentInfoData || initialPaymentInfoState});
+            setCurrentStep(saved?.currentStep || 1);
+
+            const savedOrderId = saved?.pendingOrderId;
+            const allOrders = JSON.parse(localStorage.getItem(`orders_${currentUserId}`)) || {};
+            if (savedOrderId && allOrders?.[savedOrderId]?.status === 'processing') {
+                orderIdRef.current = savedOrderId
+            } else {
+                orderIdRef.current = null;
+            }
+        } else {    
+            shippingDispatch({type: INIT_SHIPPING, payload: initialShippingState});
+            paymentInfoDispatch({type: INIT_PAYMENT_INFO, payload: initialPaymentInfoState});
             setCurrentStep(1);
+            orderIdRef.current = null;
         }
     }, [currentUserId]);
 
     useEffect(() => {
         if (currentUserId) {
-            localStorage.setItem(`lastStep_${currentUserId}`, JSON.stringify(currentStep));
+            localStorage.setItem(`delivery_${currentUserId}`, JSON.stringify({
+                shippingData,
+                paymentInfoData,
+                currentStep,
+                pendingOrderId: orderIdRef.current
+            }));
         }
-    }, [currentStep, currentUserId]);
+    }, [currentStep, currentUserId, shippingData, paymentInfoData]);
     
     useEffect(() => {
         // case of aborting order (AbortController) when user goes back to previous steps
         if (currentStep <= 2 && orderIdRef.current) {
             abortOrder();
             cancelOrder(orderIdRef.current);
-            sessionStorage.removeItem(PENDING_ORDER_ID);
+
+            const deliveryInfo = JSON.parse(localStorage.getItem(`delivery_${currentUserId}`)) || {};
+            delete deliveryInfo.pendingOrderId;
+            localStorage.setItem(`delivery_${currentUserId}`, JSON.stringify(deliveryInfo));
             orderIdRef.current = null;
         }
-    }, [currentStep, abortOrder, cancelOrder]);
+    }, [currentStep, abortOrder, cancelOrder, currentUserId]);
 
     useEffect(() => {
         return () => abortOrder();

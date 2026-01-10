@@ -5,31 +5,22 @@ import { useUser } from '@/hooks/useUser';
 export const ShippingAddress = memo(({ formData, dispatch, validation }) => {
     const { name, lastName, address, city, state, zip, phone } = formData;
     const {user} = useUser();
-    const prevUserRef = useRef(null);
+    const isTouched = useRef(false); 
     
     const handleChange = (field, value) => {
         dispatch({ type: SET_FIELD, payload: { field, value } });
     };
 
     useEffect(() => {
-        const isAutoFilledRef = JSON.parse(sessionStorage.getItem('isAutoFilledFullNameRef')) ?? false;
-        if (user && 
-            name !== prevUserRef.current?.name && 
-            lastName !== prevUserRef.current?.lastName && 
-            !isAutoFilledRef
-            ) {
-                dispatch({ type: GET_INFO_FROM_LS, payload: {
-                    name: user.name,
-                    lastName: user.lastName, 
-                }});
-                sessionStorage.setItem('isAutoFilledFullNameRef', 'true');
-        }
-        prevUserRef.current = user;
-    }, [user, name, lastName, dispatch]);
+        if (isTouched.current) return;
+        if (!user) return;
 
-    useEffect(() => {
-        return () => sessionStorage.setItem('isAutoFilledFullNameRef', 'false');
-    }, [])
+        dispatch({ type: GET_INFO_FROM_LS, payload: {
+            name: user.name,
+            lastName:  user.lastName
+        }});
+        isTouched.current = true;
+    }, [dispatch, user]);
 
     return (
         <div className="space-y-6">

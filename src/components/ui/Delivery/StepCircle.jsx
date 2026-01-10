@@ -1,6 +1,6 @@
 import {memo} from 'react';
 
-export const StepCircle = memo(({step, currentStep, setCurrentStep}) => {
+export const StepCircle = memo(({step, currentStep, handleContinueButton}) => {
     const Icon = step.icon;
     const isCompleted = currentStep > step.id;
     const isCurrent = currentStep === step.id;
@@ -8,7 +8,7 @@ export const StepCircle = memo(({step, currentStep, setCurrentStep}) => {
     return (
         <div className="relative flex flex-col items-center gap-3 z-10">
             <button
-                onClick={() => setCurrentStep(step.id)}
+                onClick={() => handleContinueButton(step.id)}
                 className={`
                     h-14 w-14 cursor-pointer rounded-full border-2 flex items-center justify-center transition-all duration-300
                     ${isCompleted 

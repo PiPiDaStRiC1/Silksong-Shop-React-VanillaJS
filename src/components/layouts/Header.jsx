@@ -17,15 +17,20 @@ export const Header = () => {
     const wishListItemCount = Object.values(wishList).length;
 
     useEffect(() => {
+        const isAnyModal = showCart || showWishListModal || showSearch;
+
+        if (!isAnyModal) return;
+
         const handleEsc = (e) => {
             if (e.key === 'Escape') {
                 setShowCart(false);
+                setShowSearch(false);
                 setShowWishListModal(false);
             }
         }
         window.addEventListener('keydown', handleEsc);
         return () => window.removeEventListener('keydown', handleEsc)
-    }, []);
+    }, [showCart, showWishListModal, showSearch]);
 
     return (
         <>

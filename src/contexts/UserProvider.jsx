@@ -60,7 +60,7 @@ const loginUser = async (email, fullName) => {
 
 export const UserProvider = ({children}) => {
     const [saveUser, setSaveUser] = useState(initUser);
-    const currentUserId = localStorage.getItem('currentUserId') || null;
+    const [currentUserId, setCurrentUserId] = useState(() => localStorage.getItem('currentUserId'))
 
     const register = useCallback(async ({email, fullName = ""}) => {
         const user = await toast.promise(
@@ -72,6 +72,7 @@ export const UserProvider = ({children}) => {
             }
         );
         
+        setCurrentUserId(user.id);
         setSaveUser(user);
         return user;
     }, []);
@@ -86,6 +87,7 @@ export const UserProvider = ({children}) => {
             }
         );
         
+        setCurrentUserId(user.id);
         setSaveUser(user);
         return user;
     }, []);
@@ -125,12 +127,17 @@ export const UserProvider = ({children}) => {
     }, [saveUser]);
 
     const logout = useCallback(() => {
+        const orderTimers = JSON.parse(localStorage.getItem(`orders_${currentUserId}`))?.deliveryTimers;
+        if (orderTimers) {
+            Object.values(orderTimers).forEach(timerId => clearTimeout(timerId));
+        }
+
         localStorage.setItem('currentUserId', '');
         setSaveUser(null);
-    }, []);
+        setCurrentUserId(null);
+    }, [currentUserId]);
 
     const deleteAccount = useCallback(() => {
-        const currentUserId = localStorage.getItem('currentUserId') || null;
         const users = JSON.parse(localStorage.getItem('users')) || {};
         const newUsers = {...users};
         delete newUsers?.[currentUserId]
@@ -145,8 +152,9 @@ export const UserProvider = ({children}) => {
         }
         localStorage.removeItem(`orders_${currentUserId}`);
         localStorage.setItem('currentUserId', '');
+        setCurrentUserId(null);
         window.location.href = '/';
-    }, []);
+    }, [currentUserId]);
 
     useEffect(() => {
         if (currentUserId) {

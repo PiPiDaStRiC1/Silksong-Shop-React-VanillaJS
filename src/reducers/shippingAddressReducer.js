@@ -12,7 +12,9 @@ export const initShipping = () => {
     try {
         const currentUserId = localStorage.getItem('currentUserId') || null;
         if (currentUserId) {
-            return JSON.parse(localStorage.getItem(`delivery_${currentUserId}`))?.shippingData || initialShippingState; 
+            const user = JSON.parse(localStorage.getItem('users'))[currentUserId] || {};
+            const loggedUserShippingState = {...initialShippingState, name: user.name || '', lastName: user.lastName || ''};
+            return JSON.parse(localStorage.getItem(`delivery_${currentUserId}`))?.shippingData || loggedUserShippingState; 
         }
         return initialShippingState;
     } catch (error) {

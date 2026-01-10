@@ -14,7 +14,9 @@ export const initPaymentInfo = () => {
     try {
         const currentUserId = localStorage.getItem('currentUserId') || null;
         if (currentUserId) {
-            return JSON.parse(localStorage.getItem(`delivery_${currentUserId}`))?.paymentInfoData || initialPaymentInfoState; 
+            const user = JSON.parse(localStorage.getItem('users'))[currentUserId] || {};
+            const loggedUserPaymentInfoState = {...initialPaymentInfoState, cardHolder: `${user.name || ''} ${user.lastName || ''}`};
+            return JSON.parse(localStorage.getItem(`delivery_${currentUserId}`))?.paymentInfoData || loggedUserPaymentInfoState; 
         }
         return initialPaymentInfoState;
     } catch (error) {

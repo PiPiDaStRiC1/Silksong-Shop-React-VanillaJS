@@ -9,22 +9,21 @@ import {AppProviders} from '@/contexts/index';
 import {ProtectedRoute, GuestOnlyRoute} from '@/features/index'
 
 // ToDo: 
-// ПРОТЕСТИТЬ ТАЙМЕРЫ, КОГДА МЫ ВЫХОДИМ ИЗ АККАУНТА (ПО ИДЕИ ОНИ ДОЛЖНЫ ПРЕРВАТЬСЯ)
-// ЗАКРЫТИЕ ВСЕХ МОДАЛОК НА ESC (СДЕЛАНО, НО НУЖНО УБЕДИТЬСЯ В ПРОИЗВОДИТЕЛЬНОСТИ)
-// (ПО ФАКТУ СЛУШАТЕЛЬ НА КАЖДУЮ НАЖАТУЮ КЛАВИШУ В HEADER - ЭТО ПЛОХО)
+// КАК-ТО СДЕЛАТЬ ВОССТАНОВЛЕНИЕ ТАЙМЕРОВ, ДАЖЕ ПОСЛЕ РЕЛОГА ПОЛЬЗОВАТЕЛЯ
+// (ПОКА ЧТО ПРОСТО БУДУ ОЧИЩАТЬ ТАЙМЕРЫ ПРИ РАЗЛОГЕ)
+// ПОФИКСИТЬ БАГ С КРУЖОЧКАМИ В DELIVERY
 // ГЛОБАЛЬНЫЙ АДАПТИВ И ПЕРЕСМОТР UI (НАПРИМЕР БЕСКОНЕЧНАЯ ЛЕНТА В CATALOG)
-// ПОФИКСИТЬ АВТОЗАПОЛНЕНИЕ В SHIPPINGADDRESS И PAYMENTINFO
 
-const App = () => {
+function App() {
   const location = useLocation();
   const locationState = location.state;
 
   return (
     <AppProviders>
-      <ScrollToTop behavior='smooth'/>
+      <ScrollToTop behavior='smooth' />
       <div className='flex flex-col justify-between'>
         <Header />
-        <Toaster 
+        <Toaster
           toastOptions={{
             style: {
               background: '#1c1c1c',
@@ -42,8 +41,7 @@ const App = () => {
               duration: 2500,
               iconTheme: { primary: '#ef4444', secondary: '#fff' }
             }
-          }}
-        />
+          }} />
         <Routes location={locationState?.background || location}>
           <Route element={<Main />}>
             <Route index path='/' element={<Home />} />
@@ -60,15 +58,14 @@ const App = () => {
             <Route path='*' element={<Error />} />
           </Route>
         </Routes>
-        {locationState?.background && 
+        {locationState?.background &&
           <Routes>
-              <Route path='/auth' element={<GuestOnlyRoute><AuthModal /></GuestOnlyRoute>} />
-          </Routes>
-        }
+            <Route path='/auth' element={<GuestOnlyRoute><AuthModal /></GuestOnlyRoute>} />
+          </Routes>}
         <Footer />
       </div>
     </AppProviders>
-  )
+  );
 }
 
 export default App;

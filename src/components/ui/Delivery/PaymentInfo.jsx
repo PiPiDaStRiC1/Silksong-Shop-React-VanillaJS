@@ -1,28 +1,25 @@
 import {SET_VALUE, GET_INFO_FROM_LS} from '@/reducers/paymentInfoReducer'
-import { useEffect, memo } from 'react';
+import { useEffect, memo, useRef } from 'react';
 import {useUser} from '@/hooks/index'
 
 export const PaymentInfo = memo(({formData, dispatch, validation}) => {
     const {cardNumber, cardHolder, expiryDate, cvv} = formData;
     const {user} = useUser();
+    const isTouched = useRef(false);
 
     const handleChange = (field, value) => {
         dispatch({type: SET_VALUE, payload: {field, value}});
     }
-    
-    useEffect(() => {
-        const isAutoFilledRef = JSON.parse(sessionStorage.getItem('isAutoFilledCardHolderRef')) ?? false;
-        if (user && !cardHolder && !isAutoFilledRef) {
-            dispatch({ type: GET_INFO_FROM_LS, payload: {
-                cardHolder: user.fullName 
-            } });
-            sessionStorage.setItem('isAutoFilledCardHolderRef', 'true');
-        }
-    }, [user, cardHolder, dispatch]);
 
     useEffect(() => {
-        return () => sessionStorage.setItem('isAutoFilledCardHolderRef', 'false');
-    }, [])
+        if (isTouched.current) return;
+        if (!user) return;
+
+        dispatch({ type: GET_INFO_FROM_LS, payload: {
+            cardHolder: user.fullName 
+        }});
+        isTouched.current = true;
+    })
 
     return (
         <div className="space-y-6">

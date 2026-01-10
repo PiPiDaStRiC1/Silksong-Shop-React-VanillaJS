@@ -1,5 +1,5 @@
 import {OrderContext} from './OrderContext';
-import {useCallback, useEffect, useMemo, useReducer} from 'react';
+import {useCallback, useEffect, useMemo, useReducer, useRef} from 'react';
 import orderActions from '@/libs/constants/orderActionTypes';
 import {orderReducer, initOrderState, initialOrderState} from '@/reducers/orderReducer'
 import {getRandomInt} from '@/libs/utils/randomNumber'
@@ -10,21 +10,25 @@ export const OrderProvider = ({children}) => {
     const navigate = useNavigate();
     const currentUserId = localStorage.getItem('currentUserId') || null;
     const [{orders, deliveryTimers}, dispatch] = useReducer(orderReducer, initialOrderState, initOrderState);
+    const delTimersRef = useRef({});
 
     const createOrder = useCallback((orderData) => {
         const orderId = crypto.randomUUID();
-        dispatch({type: orderActions.CREATE_ORDER, payload: {orderId: orderId, orderData: orderData}});
+        dispatch({type: orderActions.CREATE_ORDER, payload: {orderId, orderData}});
         return orderId;
     }, []);
 
     const updateOrderStatus = useCallback((orderId, status) => {
-        dispatch({type: orderActions.UPDATE_ORDER_STATUS, payload: {orderId: orderId, status: status}});
+        dispatch({type: orderActions.UPDATE_ORDER_STATUS, payload: {orderId, status}});
     }, []);
 
     const cancelOrder = useCallback((orderId) => {
-        clearTimeout(deliveryTimers[orderId]);
-        dispatch({type: orderActions.CANCEL_ORDER, payload: {orderId: orderId}});
-    }, [deliveryTimers]);
+        dispatch({type: orderActions.CANCEL_ORDER, payload: {orderId}});
+    }, []);
+
+    const initOrders = useCallback((ordersData) => {
+        dispatch({type: orderActions.INIT_ORDERS, payload: ordersData});
+    }, []);
 
     const startDeliveryTimer = useCallback((orderId) => {
         const deliveryTime = getRandomInt(5000, 15000);
@@ -34,7 +38,7 @@ export const OrderProvider = ({children}) => {
             toast.success('Your order has been delivered!');
         }, deliveryTime);
 
-        dispatch({type: orderActions.START_DELIVERY_TIMER, payload: {orderId: orderId, timerId: timerId}});
+        dispatch({type: orderActions.START_DELIVERY_TIMER, payload: {orderId, timerId}});
         
         toast.loading(<span>Please wait {Math.floor(deliveryTime / 1000)} seconds... You can track your order status in your {<Link to="/profile" className='text-gray-200 hover:underline italic'>Profile</Link>} page</span>, {duration: deliveryTime - 1000});
     }, [navigate, updateOrderStatus]);
@@ -56,10 +60,14 @@ export const OrderProvider = ({children}) => {
     }, [orders, deliveryTimers, currentUserId])
 
     useEffect(() => {
-        return () => {
-            Object.values(deliveryTimers || {}).forEach(timerId => clearTimeout(timerId));
-        }
+        delTimersRef.current = deliveryTimers;
     }, [deliveryTimers]);
+
+    useEffect(() => {
+        return () => {
+            Object.values(delTimersRef.current).forEach(timerId => clearTimeout(timerId));
+        }
+    }, []);
     
     const value = useMemo(() => ({
         orders,
@@ -68,7 +76,8 @@ export const OrderProvider = ({children}) => {
         updateOrderStatus,
         cancelOrder,
         startDeliveryTimer,
-    }), [orders, deliveryTimers, createOrder, updateOrderStatus, cancelOrder, startDeliveryTimer]);
+        initOrders
+    }), [orders, deliveryTimers, createOrder, updateOrderStatus, cancelOrder, startDeliveryTimer, initOrders]);
 
     return (
         <OrderContext.Provider value={value}>

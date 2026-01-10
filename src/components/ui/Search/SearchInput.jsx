@@ -45,19 +45,10 @@ export const SearchInput = ({onClose}) => {
         }
     }, [searchQuery, products]);
 
-    useEffect(() => {
-        const handleEsc = (e) => {
-            if (e.key === 'Escape') onClose();
-        };
-        window.addEventListener('keydown', handleEsc);
-        return () => window.removeEventListener('keydown', handleEsc);
-    }, [onClose]);
-
     const handleResultClick = () => {
         setSearchQuery('');
         onClose();
     };
-
 
     return (
         <div 

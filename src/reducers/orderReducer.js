@@ -41,10 +41,12 @@ export const orderReducer = ({orders, deliveryTimers}, {type, payload = null}) =
             }
         case orderActions.CANCEL_ORDER: {
             const newOrders = {...orders};
+            const newTimers = {...deliveryTimers};
             delete newOrders[payload.orderId];
+            delete newTimers[payload.orderId];
             return {
                 orders: newOrders,
-                deliveryTimers
+                deliveryTimers: newTimers
             };
         }
         case orderActions.START_DELIVERY_TIMER:

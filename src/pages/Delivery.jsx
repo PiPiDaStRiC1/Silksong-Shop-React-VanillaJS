@@ -51,7 +51,7 @@ export const Delivery = () => {
     const [shippingData, shippingDispatch] = useReducer(shippingAddressReducer, initialShippingState, initShipping);
     const [paymentInfoData, paymentInfoDispatch] = useReducer(paymentInfoReducer, initialPaymentInfoState, initPaymentInfo);
     const {cart, totalValue, totalCount, selectedDeliveryTariff, removeItem, incQty, decQty, selectDeliveryTariff, resetCart} = useCart();
-    const {createOrder, updateOrderStatus, startDeliveryTimer, cancelOrder} = useOrder();
+    const {initOrders, createOrder, updateOrderStatus, startDeliveryTimer, cancelOrder} = useOrder();
     const {currentUserId} = useUser();
     const taxCost = parseFloat((totalValue * 0.05).toFixed(2));
     const isShippingFree = freeShippingValue <= totalValue;
@@ -76,37 +76,29 @@ export const Delivery = () => {
     }
     const isPaymentValid = Object.values(paymentValidation).every(value => value === true);
     
-    
+    const canGoToStep = (step) => {
+        if (step <= currentStep) return true;
+
+        if (Object.values(cart).length === 0) return false;
+
+        if (step === 2 && !isShippingValid) return false;
+        if (step === 3 && !isShippingValid) return false;
+        if (step === 4 && (!isShippingValid || !isPaymentValid)) return false;
+
+        return true;
+    }
+
     const handleContinueButton = (newStep) => {
-        if (newStep <= currentStep) {
-            setCurrentStep(newStep);
+        if (!canGoToStep(newStep)) {
+            toast.error('Please fill in fields correctly!');
             return;
         }
-        
-        if (Object.values(cart).length === 0) {
-            toast.error('Your cart is empty. Please add items to proceed.');
-            return;
-        }
-        
-        if (currentStep === 1 && !isShippingValid) {
-            const wrongFieldsCount = Object.values(shippingValidation).filter(value => value === false).length;
-            toast.error(`Please fill ${wrongFieldsCount > 1 ? `${wrongFieldsCount} shipping fields` : '1 shipping field'} correctly.`);
-            return;
-        }
-        
-        if (currentStep === 3 && !isPaymentValid) {
-            const wrongFieldsCount = Object.values(paymentValidation).filter(value => value === false).length;
-            toast.error(`Please fill ${wrongFieldsCount > 1 ? `${wrongFieldsCount} payment fields` : '1 payment field'} correctly.`);
-            return;
-        }
-        
-        toast.success('Success!');
+
         setCurrentStep(newStep);
+        toast.success('Success!')
     }
     
     const clearDelDataFromStorage = () => {
-        sessionStorage.removeItem('isAutoFilledRef');
-        
         shippingDispatch({type: RESET_SHIPPING});
         paymentInfoDispatch({type: RESET_PAYMENT});
         resetCart();
@@ -117,15 +109,15 @@ export const Delivery = () => {
         controllerRef.current?.abort();
 
         controllerRef.current = new AbortController();
-
+        const signal = controllerRef.current.signal;
+        
         try {
             await toast.promise(
                 new Promise((resolve, reject) => {
                     const timeoutId = setTimeout(() => {
                         resolve(true);
                     }, 2000);
-                
-                    const signal = controllerRef.current.signal;
+                    
 
                     if (signal) {
                         if (signal.aborted) {
@@ -172,7 +164,7 @@ export const Delivery = () => {
 
     
     useEffect(() => {
-        if (currentStep !== 3 || orderIdRef.current) return;
+        if (currentStep !== 3 && currentStep !== 4 || orderIdRef.current) return;
         
         const newOrderId = createOrder({ 
             date: new Date().toString().split(' GMT')[0],
@@ -197,13 +189,15 @@ export const Delivery = () => {
     useEffect(() => {
         if (currentUserId) {
             const saved = JSON.parse(localStorage.getItem(`delivery_${currentUserId}`)) || {};
+            const allOrders = JSON.parse(localStorage.getItem(`orders_${currentUserId}`)) || {orders: {}};
+            
             shippingDispatch({type: INIT_SHIPPING, payload: saved?.shippingData || initialShippingState});
             paymentInfoDispatch({type: INIT_PAYMENT_INFO, payload: saved?.paymentInfoData || initialPaymentInfoState});
             setCurrentStep(saved?.currentStep || 1);
+            initOrders(allOrders.orders || {});
 
             const savedOrderId = saved?.pendingOrderId;
-            const allOrders = JSON.parse(localStorage.getItem(`orders_${currentUserId}`)) || {};
-            if (savedOrderId && allOrders?.[savedOrderId]?.status === 'processing') {
+            if (savedOrderId && allOrders.orders?.[savedOrderId]?.status === 'processing') {
                 orderIdRef.current = savedOrderId
             } else {
                 orderIdRef.current = null;
@@ -212,9 +206,10 @@ export const Delivery = () => {
             shippingDispatch({type: INIT_SHIPPING, payload: initialShippingState});
             paymentInfoDispatch({type: INIT_PAYMENT_INFO, payload: initialPaymentInfoState});
             setCurrentStep(1);
+            initOrders({});
             orderIdRef.current = null;
         }
-    }, [currentUserId]);
+    }, [currentUserId, initOrders]);
 
     useEffect(() => {
         if (currentUserId) {
@@ -234,8 +229,13 @@ export const Delivery = () => {
             cancelOrder(orderIdRef.current);
 
             const deliveryInfo = JSON.parse(localStorage.getItem(`delivery_${currentUserId}`)) || {};
-            delete deliveryInfo.pendingOrderId;
-            localStorage.setItem(`delivery_${currentUserId}`, JSON.stringify(deliveryInfo));
+            const orders = JSON.parse(localStorage.getItem(`orders_${currentUserId}`)) || {};
+            const newDeliveryInfo = {...deliveryInfo};
+            const newOrders = {...orders};
+            delete newDeliveryInfo.pendingOrderId;
+            delete newOrders.orders[orderIdRef.current];
+            localStorage.setItem(`delivery_${currentUserId}`, JSON.stringify(newDeliveryInfo));
+            localStorage.setItem(`orders_${currentUserId}`, JSON.stringify(newOrders));
             orderIdRef.current = null;
         }
     }, [currentStep, abortOrder, cancelOrder, currentUserId]);
@@ -259,12 +259,12 @@ export const Delivery = () => {
                                 style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
                             />
 
-                            {steps.map((step) => (
+                            {steps.map(step => (
                                 <StepCircle 
                                     key={step.id}
                                     step={step} 
                                     currentStep={currentStep}
-                                    setCurrentStep={handleContinueButton} 
+                                    handleContinueButton={handleContinueButton} 
                                 />
                             ))}
                         </div>

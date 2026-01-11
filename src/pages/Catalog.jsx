@@ -1,9 +1,8 @@
-import { Link, useNavigate, useSearchParams, useParams } from 'react-router-dom';
-import {CatalogCard} from '@/components/ui/index';
+import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
+import {CatalogCard, CatalogFilters} from '@/components/ui/index';
 import {BreadCrumbs} from '@/features/index'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {useData, useCart} from '@/hooks/index';
-import value from '@/assets/images/value.png';
 
 export const Catalog = () => {
     const navigate = useNavigate(); 
@@ -113,91 +112,12 @@ export const Catalog = () => {
 
         <div className="w-full grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6">
             <aside className="md:sticky md:top-24 h-fit rounded-2xl border border-neutral-800 bg-neutral-900 p-4 flex flex-col gap-6">
-            <div>
-                <h4 className="text-lg font-semibold">Categories</h4>
-                <ul className="mt-2 flex flex-col gap-2 text-gray-300">
-                    <li>
-                        <Link 
-                            to='/catalog'
-                            className={`w-full text-left hover:text-white cursor-pointer ${activeCategory === 'all' ? 'text-white' : 'text-gray-300'}`}
-                        >
-                            All
-                        </Link>
-                    </li>
-                    <li>
-                        <Link 
-                            to='/catalog/dress'
-                            className={`w-full text-left hover:text-white cursor-pointer ${activeCategory === 'dress' ? 'text-white' : 'text-gray-300'}`}
-                        >
-                            Dress
-                        </Link>
-                    </li>
-                    <li>
-                        <Link 
-                            to='/catalog/charms'
-                            className={`w-full text-left hover:text-white cursor-pointer ${activeCategory === 'charms' ? 'text-white' : 'text-gray-300'}`}
-                        >
-                            Charms
-                        </Link>
-                    </li>
-                    <li>
-                        <Link 
-                            to='/catalog/collectibles'
-                            className={`w-full text-left hover:text-white cursor-pointer ${activeCategory === 'collectibles' ? 'text-white' : 'text-gray-300'}`}
-                        >
-                            Collectibles
-                        </Link>
-                    </li>
-                </ul>
-            </div>
-
-            <div>
-                <h4 className="text-lg font-semibold">Price</h4>
-                <div className="mt-3 flex items-center gap-2">
-                    <input 
-                        type="range" 
-                        min="50" 
-                        max={maxValue} 
-                        value={uiPrice}
-                        className="w-full"
-                        onChange={(e) => {
-                            const value = Number(e.target.value);
-                            setUiPrice(value);
-                            debouncedSetPrice(value);
-                        }} 
-                    />
-                </div>
-                <p className="inline-flex justify-center items-center gap-2 text-sm text-gray-400 mt-1">
-                    Below {price}
-                    <img src={value} alt="Value icon" className='w-[1rem] h-[1rem]'/>
-                </p>
-            </div>
-
-            <div>
-                <h4 className="text-lg font-semibold">Availability</h4>
-                <div className="mt-2 flex flex-col gap-2 text-sm text-gray-300">
-                <label 
-                    className={`inline-flex items-center gap-2 ${toggleInStock ? 'text-white' : 'text-gray-300'}`}
-                    >
-                    <input 
-                        type="checkbox" 
-                        onChange={handleStockToggle}
-                        checked={toggleInStock}
-                        className='w-[1rem] h-[1rem]'
-                    /> In stock
-                </label>
-                <label 
-                    className={`inline-flex items-center gap-2 ${toggleSale ? 'text-white' : 'text-gray-300'}`}
-                    >
-                    <input 
-                        type="checkbox" 
-                        onChange={handleSaleToggle}
-                        checked={toggleSale}
-                        className='w-[1rem] h-[1rem]'
-                    /> On sale
-                </label>
-                </div>
-            </div>
+                <CatalogFilters 
+                    maxValue={maxValue} 
+                    priceData={{price, uiPrice, setUiPrice, debouncedSetPrice}}
+                    handlers={{toggleInStock, handleSaleToggle, handleStockToggle, toggleSale}}
+                    activeCategory={activeCategory}
+                />
             </aside>
 
             <div className="flex flex-col gap-4">
@@ -226,7 +146,7 @@ export const Catalog = () => {
                             </option>
                         </select>
                         <select 
-                            className="bg-black text-white border border-neutral-700 rounded-lg px-3 py-2 text-sm"
+                            className="bg-black hidden lg:block text-white border border-neutral-700 rounded-lg px-3 py-2 text-sm"
                             value={gridLayout}
                             onChange={(e) => setGridLayout(e.target.value)}
                         >
@@ -258,7 +178,7 @@ export const Catalog = () => {
                                 <p>Failed to load catalog</p>
                             </div> : 
                                 <>
-                                    <div className={`grid ${gridLayout} gap-4`}>
+                                    <div className={`grid grid-cols-2 lg:${gridLayout} gap-4`}>
                                         {displayedProducts.map((p) => (
                                             <CatalogCard 
                                                 key={p.id} 
@@ -268,18 +188,13 @@ export const Catalog = () => {
                                             />
                                         ))}
                                         {!displayedProducts.length && 
-                                            <div className="text-center py-12 col-start-2 col-span-2">
+                                            <div className="text-center py-12 justify-center col-span-full">
                                                 <p className='text-lg lg:text-xl text-gray-400'>No suitable products found</p>
                                             </div>
                                         }
                                     </div>
-                                    <div className="flex justify-center items-center gap-2 mt-4">
-                                        <button className="px-3 py-2 rounded-lg border border-neutral-700 text-white hover:bg-white hover:text-black transition">Prev</button>
-                                        <button className="px-3 py-2 rounded-lg border border-neutral-700 bg-white text-black">1</button>
-                                        <button className="px-3 py-2 rounded-lg border border-neutral-700 text-white hover:bg-white hover:text-black transition">2</button>
-                                        <button className="px-3 py-2 rounded-lg border border-neutral-700 text-white hover:bg-white hover:text-black transition">Next</button>
-                                    </div>
-                                </>}
+                                </>
+                }
             </div>
         </div>
     </section>

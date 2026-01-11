@@ -4,7 +4,7 @@ export const ProductsCard = ({ product, frame }) => {
     const { name, imgSrc } = product;
 
     return (
-        <Link to="/catalog" className="group w-[20rem]">
+        <Link to="/catalog/dress" className="group">
             <div className="relative flex flex-col items-center gap-4 rounded-2xl border border-neutral-800 bg-neutral-900/80 px-5 py-6 shadow-md transition hover:-translate-y-1 hover:border-white/50">
                 <span className="absolute right-4 top-3 text-[0.7rem] uppercase tracking-[0.2em] text-gray-400">Dress</span>
 

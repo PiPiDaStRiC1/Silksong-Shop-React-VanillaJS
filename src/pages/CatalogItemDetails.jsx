@@ -13,10 +13,15 @@ export const CatalogItemDetails = () => {
     const { wishList, removeFromWL, addToWL } = useWishList();
     const product = useMemo(() => products.find(p => String(p.id) === String(id)), [products, id]);
     const related = useMemo(() => products.filter(p => p.category === category && String(p.id) !== String(id)).slice(0, 4), [products, category, id]);
-    const isFavorite = wishList[product.id] !== undefined;
+    const isFavorite = wishList[product?.id] !== undefined;
 
     const [qty, setQty] = useState(1);
     const [tab, setTab] = useState('description'); 
+
+    const sortedReviews = reviews.flatMap(reviewUser => {
+        const filteredReviews = reviewUser.reviews.filter(r => String(r.productId) === String(id));
+        return filteredReviews.map(r => ({ ...r, userInfo: { id: reviewUser.id, name: reviewUser.name, avatar: reviewUser.avatar, verified: reviewUser.verified } }));
+    })
 
     if (!product) {
         return (
@@ -40,7 +45,7 @@ export const CatalogItemDetails = () => {
                 </div>
 
                 <div className="flex flex-col gap-4">
-                    <h1 className="text-3xl font-semibold">{product.name}</h1>
+                    <h1 className="text-3xl font-semibold text-xl md:text-3xl">{product.name}</h1>
                     <div className="flex items-center gap-3">
                         <div className="flex items-center gap-2 text-lg">
                             {product.sale && (
@@ -96,7 +101,7 @@ export const CatalogItemDetails = () => {
                             </button>
                         </div>
                         <button 
-                            className="px-5 py-2 disabled:opacity-50 disabled:cursor-not-allowed rounded-[10px] border border-white text-white hover:bg-white hover:text-black transition-all cursor-pointer"
+                            className="px-5 py-2 text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed rounded-[10px] border border-white text-white hover:bg-white hover:text-black transition-all cursor-pointer"
                             disabled={product.stock === 0}
                             onClick={() => {
                                 addItem({...product, quantity: qty})
@@ -141,20 +146,14 @@ export const CatalogItemDetails = () => {
                             <div className="py-4 flex flex-col gap-4 max-h-[32rem] overflow-y-auto scrollbar-reviews custom-scroll">
                                 {isLoading && <p className="text-gray-400">Loading reviews...</p>}
                                 {error.length !== 0 && <p className="text-red-500">Failed to load reviews</p>}
-                                {!isLoading && reviews && <p className="text-gray-400 text-center py-1">No reviews yet.</p>}
-                                {/* TWO CYCLES */}
-                                {!isLoading && reviews.map(reviewUser => reviewUser.reviews.map(r => (
-                                    String(r.productId) === String(product.id) ?
-                                        <ReviewsCardFull 
-                                            key={r.id} 
-                                            userInfo={{
-                                                id: reviewUser.id, 
-                                                name: reviewUser.name, 
-                                                avatar: reviewUser.avatar,
-                                                verified: reviewUser.verified
-                                            }} 
-                                            reviewInfo={{...r}} /> : null
-                                )))}
+                                {!isLoading && !reviews && <p className="text-gray-400 text-center py-1">No reviews yet.</p>}
+                                {!isLoading && sortedReviews.map(r => (
+                                    <ReviewsCardFull 
+                                        key={r.id} 
+                                        userInfo={r.userInfo}
+                                        reviewInfo={{...r}} 
+                                    />
+                                ))}
                                 <div>
                                     <Link to="/reviews" className="text-white hover:text-gray-400">Read all reviews →</Link>
                                 </div>
@@ -164,7 +163,7 @@ export const CatalogItemDetails = () => {
                 </div>
             </div>
 
-            <div className="container w-full px-6 mt-10">
+            <div className="container w-full px-6 my-10">
                 <div className="flex items-center justify-between">
                     <h2 className="text-2xl">Related Items</h2>
                     <Link to="/catalog" className="text-white hover:text-gray-400">View All →</Link>

@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
+  base: 'Silksong-Shop-React-VanillaJS',
   plugins: [
     react({
       // CAN AUTO ADD useMemo/useCallback/React.memo THERE IT NEEDS

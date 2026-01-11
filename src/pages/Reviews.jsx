@@ -236,14 +236,6 @@ export const Reviews = () => {
                                 </div>
                               )}
                           </div>
-
-                          {/* Buttons on mobile */}
-                          {/* <div className="flex justify-center items-center gap-2 mt-6">
-                              <button className="px-3 py-2 rounded-lg border border-neutral-700 text-white hover:bg-white hover:text-black transition">Prev</button>
-                              <button className="px-3 py-2 rounded-lg border border-neutral-700 bg-white text-black">1</button>
-                              <button className="px-3 py-2 rounded-lg border border-neutral-700 text-white hover:bg-white hover:text-black transition">2</button>
-                              <button className="px-3 py-2 rounded-lg border border-neutral-700 text-white hover:bg-white hover:text-black transition">Next</button>
-                          </div> */}
                         </>
                     )}
             </div>

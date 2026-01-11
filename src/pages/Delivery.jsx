@@ -1,5 +1,5 @@
 import {BreadCrumbs} from '@/features/index'
-import { useState, useReducer, useEffect, useRef, useCallback } from "react";
+import { useState, useReducer, useEffect, useRef, useCallback, useMemo } from "react";
 import toast from 'react-hot-toast';
 import { MapPin, CreditCard, Package, CheckCircle2, ChevronRight, X } from "lucide-react";
 import {useCart, useOrder, useUser} from '@/hooks/index';
@@ -57,7 +57,7 @@ export const Delivery = () => {
     const isShippingFree = freeShippingValue <= totalValue;
     const deliveryCost = isShippingFree ? 0 : deliveryTariffs[selectedDeliveryTariff ?? 'Eco'].price;
     
-    const shippingValidation = {
+    const shippingValidation = useMemo(() => ({
         name: /^[A-ZА-ЯЁ][a-zа-яё]+$/.test(shippingData.name),
         lastName: /^[A-ZА-ЯЁ][a-zа-яё]+$/.test(shippingData.lastName),
         address: shippingData.address.length >= 10,
@@ -65,15 +65,15 @@ export const Delivery = () => {
         state: /^[A-ZА-ЯЁ][a-zа-яё]+(?:[\s-][A-ZА-ЯЁ][a-zа-яё]+)*$/.test(shippingData.state),
         zip: /^\d{5}(-\d{4})?$/.test(shippingData.zip),
         phone: /^\+[1-9]\d{10}$/.test(shippingData.phone),
-    }
+    }), [shippingData]);
     const isShippingValid = Object.values(shippingValidation).every(value => value === true);   
     
-    const paymentValidation = {
+    const paymentValidation = useMemo(() => ({
         cardNumber: /^\d{16}$/.test(paymentInfoData.cardNumber),
         expiryDate: /^(0[1-9]|1[0-2])\/\d{2}$/.test(paymentInfoData.expiryDate),
         cvv: /^\d{3}$/.test(paymentInfoData.cvv),
         cardHolder: /^[A-ZА-ЯЁ][a-zа-яё]+ [A-ZА-ЯЁ][a-zа-яё]+$/.test(paymentInfoData.cardHolder),
-    }
+    }), [paymentInfoData]);
     const isPaymentValid = Object.values(paymentValidation).every(value => value === true);
     
     const canGoToStep = (step) => {
@@ -229,13 +229,14 @@ export const Delivery = () => {
             cancelOrder(orderIdRef.current);
 
             const deliveryInfo = JSON.parse(localStorage.getItem(`delivery_${currentUserId}`)) || {};
-            const orders = JSON.parse(localStorage.getItem(`orders_${currentUserId}`)) || {};
+            const allOrders = JSON.parse(localStorage.getItem(`orders_${currentUserId}`)) || {orders: {}};
             const newDeliveryInfo = {...deliveryInfo};
-            const newOrders = {...orders};
+            const newOrders = {...allOrders};
             delete newDeliveryInfo.pendingOrderId;
             delete newOrders.orders[orderIdRef.current];
             localStorage.setItem(`delivery_${currentUserId}`, JSON.stringify(newDeliveryInfo));
             localStorage.setItem(`orders_${currentUserId}`, JSON.stringify(newOrders));
+
             orderIdRef.current = null;
         }
     }, [currentStep, abortOrder, cancelOrder, currentUserId]);

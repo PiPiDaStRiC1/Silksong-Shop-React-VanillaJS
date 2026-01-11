@@ -14,10 +14,10 @@ export const ReviewerProfile = ({user}) => {
                         <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-neutral-900" aria-label="online" />
                     </div>
                     <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-row items-center gap-2">
                             <h1 className="text-2xl md:text-3xl font-semibold">{user.name} {user.lastname}</h1>
                             {user.verified && (
-                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-emerald-500/10 text-emerald-300 border border-emerald-600/50">
+                                <span className="inline-flex w-[5rem] items-center gap-1 px-2 py-1 rounded-full text-xs bg-emerald-500/10 text-emerald-300 border border-emerald-600/50">
                                     <BadgeCheck className="w-3 h-3" />
                                     Verified
                                 </span>

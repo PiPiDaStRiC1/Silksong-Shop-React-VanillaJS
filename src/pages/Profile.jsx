@@ -54,16 +54,16 @@ export const Profile = () => {
                                 {user.name[0]}
                             </div>
                             <div>
-                                <h1 className="text-3xl font-bold text-white mb-1">{user.fullName}</h1>
+                                <h1 className="text-3xl font-bold text-white mb-1 w-full">{user.fullName}</h1>
                                 <div className="flex items-center gap-2 text-gray-300 mb-2">
                                     <Mail className="w-4 h-4" />
                                     <span className="text-sm">{user.email}</span>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-medium border border-emerald-500/30">
+                                <div className="flex flex-col sm:flex-row gap-2">
+                                    <span className="px-3 py-1 text-center rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-medium border border-emerald-500/30">
                                         Verified Member
                                     </span>
-                                    <span className="px-3 py-1 rounded-full bg-violet-500/20 text-violet-400 text-xs font-medium border border-violet-500/30">
+                                    <span className="px-3 py-1 text-center rounded-full bg-violet-500/20 text-violet-400 text-xs font-medium border border-violet-500/30">
                                         Since {new Date().getFullYear()}
                                     </span>
                                 </div>
@@ -110,7 +110,7 @@ export const Profile = () => {
                     </div>
 
                     <div className="space-y-6">
-                        <div className="rounded-2xl border border-white/10 bg-black/40 backdrop-blur p-6">
+                        <div className="rounded-2xl border border-white/10 bg-black/40 p-6">
                             <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
                             <div className="space-y-3">
                                 <Link

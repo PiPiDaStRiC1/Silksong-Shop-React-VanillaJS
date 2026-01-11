@@ -1,6 +1,7 @@
 import user1 from '@/assets/images/previews/user1.png';
 import user2 from '@/assets/images/previews/user2.png';
 import user3 from '@/assets/images/previews/user3.png';
+import user4 from '@/assets/images/previews/user4.png';
 
 export const FEATURED_REVIEWS = [
     {
@@ -64,6 +65,27 @@ export const FEATURED_REVIEWS = [
             { id: 1, productId: 3, starCount: 5, helpfulCount: 9, content: "Paint lines are neat, no gloss pools. Fits perfectly into my LED shelf without glare.", date: "2 weeks ago" },
             { id: 2, productId: 6, starCount: 4, helpfulCount: 17, content: "Chain is solid, welds are smooth; minor swirl on the backplate but invisible when worn.", date: "1 month ago" },
             { id: 3, productId: 11, starCount: 5, helpfulCount: 19, content: "Matte coating looks premium, magnet is strong, and foam insert was cut to size.", date: "2 months ago" },
+        ]
+    },
+    {
+        id: 4, 
+        name: "Jason", 
+        lastname: "Miller",
+        location: "Hollownest, EU",
+        rating: 4.6,
+        stats: {
+            reviews: 15,
+            likes: 99,
+            helpful: 24,
+        },
+        avatar: user4,
+        bio: "Streamer who gifts merch to community; needs dependable packaging and stock alerts.",
+        verified: false,
+        joined: "June 2023",
+        reviews: [
+            { id: 1, productId: 12, starCount: 5, helpfulCount: 9, content: "Arrived before stream, zero dents. Audience loved the emboss and the included stand.", date: "2 weeks ago" },
+            { id: 2, productId: 9, starCount: 4, helpfulCount: 7, content: "Poster colors pop on camera; tube had end caps, just a slight roll memory.", date: "1 month ago" },
+            { id: 3, productId: 7, starCount: 5, helpfulCount: 8, content: "Charm backing card is thick, foil stamp looks luxe, perfect for giveaways.", date: "2 months ago" },
         ]
     },
 ]

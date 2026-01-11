@@ -80,7 +80,7 @@ export const OrderDetailsModal = ({onClose, order, items}) => {
                     <img 
                         src={frameBottom} 
                         alt="frameBottom" 
-                        className='top-[1rem] w-[25rem] absolute left-[50%] translate-x-[-50%]' 
+                        className='top-[1rem] w-[25rem] absolute left-[50%] translate-x-[-50%] z-10' 
                     />
                 </div>
             </div>

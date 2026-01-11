@@ -30,16 +30,16 @@ export const BreadCrumbs = ({item = null, profile = null}) => {
     })
 
     return (
-        <nav className="container w-full text-lg text-gray-400 mt-[2rem]">
+        <nav className="container w-full text-lg text-gray-400 sm:mt-[2rem]">
             {crumbs.map((crumb, index) => {
                 const isLast = index === crumbs.length - 1;
 
                 return (
                     <span key={crumb.path} className="inline-flex items-center">
-                        {index > 0 && <span className="mx-2">/</span>}
+                        {index > 0 && <span className="mx-2 text-[1rem] md:text-base">/</span>}
                         {isLast ? 
-                            <span className="text-gray-200">{crumb.label}</span>
-                        : <Link to={crumb.path} className="hover:text-gray-200">{crumb.label}</Link>}
+                            <span className="text-gray-200 text-[1rem] md:text-base">{crumb.label}</span>
+                        : <Link to={crumb.path} className="hover:text-gray-200 text-[1rem] md:text-base">{crumb.label}</Link>}
                     </span>
                 )
             })}

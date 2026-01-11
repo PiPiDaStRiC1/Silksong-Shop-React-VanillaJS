@@ -10,7 +10,7 @@ export const CommonInfo = () => {
     const wishListCount = Object.values(wishList).length;
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
             <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-violet-900/20 to-black p-6">
                 <Package className="w-8 h-8 text-violet-400 mb-3" />
                 <p className="text-3xl font-bold text-white mb-1">{totalOrders}</p>

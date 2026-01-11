@@ -11,8 +11,12 @@ import {ProtectedRoute, GuestOnlyRoute} from '@/features/index'
 // ToDo: 
 // КАК-ТО СДЕЛАТЬ ВОССТАНОВЛЕНИЕ ТАЙМЕРОВ, ДАЖЕ ПОСЛЕ РЕЛОГА ПОЛЬЗОВАТЕЛЯ
 // (ПОКА ЧТО ПРОСТО БУДУ ОЧИЩАТЬ ТАЙМЕРЫ ПРИ РАЗЛОГЕ)
-// ПОФИКСИТЬ БАГ С КРУЖОЧКАМИ В DELIVERY
-// ГЛОБАЛЬНЫЙ АДАПТИВ И ПЕРЕСМОТР UI (НАПРИМЕР БЕСКОНЕЧНАЯ ЛЕНТА В CATALOG)
+// 
+// ОПТИМИЗАЦИЯ ВСЕГО, ЧТО МОЖНО
+// 
+// СДЕЛАТЬ БОЛЕЕ ДЕТАЛЬНУЮ ОПТИМИЗАЦИЮ КАРТИНОК (СКЕЛЕТОН) И БЕСКОНЕЧНОГО СКРОЛЛА
+// ГЛОБАЛЬНЫЙ АДАПТИВ И ПЕРЕСМОТР UI (ЧАСТИЧНО СДЕЛАННО)
+// СДЕЛАТЬ НОРМАЛЬНЫЕ ФИЛЬТРЫ НА МОБИЛКЕ
 
 function App() {
   const location = useLocation();
@@ -21,7 +25,7 @@ function App() {
   return (
     <AppProviders>
       <ScrollToTop behavior='smooth' />
-      <div className='flex flex-col justify-between'>
+      <div className='flex flex-col justify-between bg-black'>
         <Header />
         <Toaster
           toastOptions={{
@@ -31,7 +35,7 @@ function App() {
               border: '1px solid #333',
               textAlign: 'center',
               position: 'relative',
-              top: '5rem'
+              top: '5rem',
             },
             success: {
               duration: 2000,

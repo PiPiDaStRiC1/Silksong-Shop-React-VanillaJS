@@ -6,7 +6,7 @@ export const OrdersTab = () => {
     const allOrders = Object.entries(orders);
 
     return (
-        <div className="rounded-2xl border border-white/10 bg-black/40 backdrop-blur p-6">
+        <div className="rounded-2xl border border-white/10 bg-black/40 backdrop-blur p-8">
             <h2 className="text-xl font-semibold text-white mb-6">All Orders</h2>
             {allOrders.length > 0 ? 
                 <div className="space-y-4">

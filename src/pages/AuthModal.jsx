@@ -11,7 +11,7 @@ const initialFormState = {
     confirmPassword: '',
 }
 
-export const AuthModal = () => {
+export default function AuthModal() {
     const navigate = useNavigate();
     const location = useLocation();
     const redirectTo = location.state?.redirectTo; 

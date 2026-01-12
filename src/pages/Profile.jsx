@@ -4,7 +4,7 @@ import { useUser } from '@/hooks/index';
 import {CommonInfo, OverviewTab, OrdersTab, WishListTab, SettingTab} from '@/components/ui/index'
 import toast from 'react-hot-toast';
 
-export const Profile = () => {
+export default function Profile() {
     const navigate = useNavigate();
     const isLoggedIn = Number(localStorage.getItem('currentUserId')) || null;
     const [searchParams, setSearchParams] = useSearchParams();
@@ -43,7 +43,7 @@ export const Profile = () => {
     ];
     
     return (
-        <section className="container mx-auto px-6 py-12 min-h-screen">
+        <section className="container mx-auto sm:px-6 py-12 min-h-screen">
             <div className="max-w-7xl mx-auto">
                 <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-r from-violet-900/30 via-purple-900/30 to-fuchsia-900/30 p-8 mb-8">
                     <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDMpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-40"></div>
@@ -54,7 +54,10 @@ export const Profile = () => {
                                 {user.name[0]}
                             </div>
                             <div>
-                                <h1 className="text-3xl font-bold text-white mb-1 w-full">{user.fullName}</h1>
+                                <h1 className="text-3xl font-bold text-white mb-1 w-full">
+                                    <span className="block md:hidden">{user.name}</span>
+                                    <span className="hidden md:block">{user.fullName}</span>
+                                </h1>
                                 <div className="flex items-center gap-2 text-gray-300 mb-2">
                                     <Mail className="w-4 h-4" />
                                     <span className="text-sm">{user.email}</span>

@@ -46,14 +46,14 @@ export const Header = () => {
         <>
             <header className="w-full fixed flex justify-center items-center h-auto bg-black z-50 border-b border-neutral-800">
                 <nav className="w-full px-3 sm:px-6 container flex gap-5 justify-between items-center text-white py-3 sm:py-2">
-                    <Link to="/" className='min-w-0'>
+                    <Link to="/" className='flex-shrink-0'>
                         <div className='flex items-center'>
                             <img src={logoImage} alt="logoImage" className='w-15 h-12 sm:w-auto sm:h-auto'/>
                             <img src={logoText} alt="logoText" className='hidden sm:block w-[8rem] sm:w-[10rem] h-[5rem] sm:h-[6.5rem]'/>
                         </div>
                     </Link>
                     
-                    <ul className="hidden lg:flex w-full max-w-[40rem] justify-between items-center ml-8"> 
+                    <ul className="hidden lg:flex w-full max-w-[40rem] justify-between items-center"> 
                         <li>
                             <NavLink 
                                 to="/" 
@@ -73,7 +73,7 @@ export const Header = () => {
                         <li><NavLink to="/reviews" className={({isActive}) => isActive ? 'text-sm lg:text-lg text-gray-400' : 'text-sm lg:text-lg hover:text-gray-400 transition'}>Reviews</NavLink></li>
                         <li>
                             <button
-                                className='text-sm lg:text-lg hover:text-gray-400 transition'
+                                className='cursor-pointer text-sm lg:text-lg hover:text-gray-400 transition'
                                 onClick={() => authNavigate('/delivery')}
                             >
                                 Delivery
@@ -97,7 +97,7 @@ export const Header = () => {
                         </li>
                     </ul>
                     
-                    <ul className='flex items-center gap-2 sm:gap-4 lg:ml-10'>
+                    <ul className='flex items-center gap-2 sm:gap-4'>
                         <li className='relative'>
                             <button 
                                 className='cursor-pointer hover:text-gray-400 transition'

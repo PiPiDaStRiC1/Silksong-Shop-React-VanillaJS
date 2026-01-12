@@ -3,6 +3,7 @@ import {CatalogCard, CatalogFilters} from '@/components/ui/index';
 import {BreadCrumbs} from '@/features/index'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {useData, useCart} from '@/hooks/index';
+import { SlidersHorizontal, X } from 'lucide-react';
 
 export const Catalog = () => {
     const navigate = useNavigate(); 
@@ -20,6 +21,7 @@ export const Catalog = () => {
     
     const [gridLayout, setGridLayout] = useState('grid-cols-4');
     const [uiPrice, setUiPrice] = useState(price); 
+    const [isFiltersOpen, setIsFiltersOpen] = useState(false); 
 
     const learnProductDetails = (p) => {
         navigate(`/catalog/${p.category}/${p.id}`);
@@ -98,8 +100,19 @@ export const Catalog = () => {
         setUiPrice(price);
     }, [price]);
 
+    useEffect(() => {
+        if (isFiltersOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isFiltersOpen]);
+
     return (
-        <section className="container w-full text-white px-6">
+        <section className="container w-full text-white sm:px-6">
         <div className='flex flex-col mt-[2rem]'>
             <BreadCrumbs />
             <div className="container w-full py-8">
@@ -111,7 +124,7 @@ export const Catalog = () => {
         </div>
 
         <div className="w-full grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6">
-            <aside className="md:sticky md:top-24 h-fit rounded-2xl border border-neutral-800 bg-neutral-900 p-4 flex flex-col gap-6">
+            <aside className="hidden md:block md:sticky md:top-24 h-fit rounded-2xl border border-neutral-800 bg-neutral-900 p-4 flex-col gap-6">
                 <CatalogFilters 
                     maxValue={maxValue} 
                     priceData={{price, uiPrice, setUiPrice, debouncedSetPrice}}
@@ -127,6 +140,13 @@ export const Catalog = () => {
                         <span className="text-white">{displayedProducts.length} products</span>
                     </div>
                     <div className="flex items-center gap-3">
+                        <button 
+                            onClick={() => setIsFiltersOpen(true)}
+                            className="md:hidden flex items-center gap-2 bg-black text-white border border-neutral-700 rounded-lg px-3 py-2 text-sm hover:bg-neutral-800 transition"
+                        >
+                            <SlidersHorizontal className="w-4 h-4" />
+                            Filters
+                        </button>
                         <select 
                             className="bg-black text-white border border-neutral-700 rounded-lg px-3 py-2 text-sm"
                             value={sortBy}
@@ -197,6 +217,52 @@ export const Catalog = () => {
                 }
             </div>
         </div>
+        {isFiltersOpen && (
+            <div className="fixed inset-0 z-50 md:hidden">
+                <div 
+                    className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fadeIn"
+                    onClick={() => setIsFiltersOpen(false)}
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-neutral-900 rounded-t-3xl border-t border-neutral-800 p-6 max-h-[85vh] overflow-y-auto animate-slideUp">
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-xl font-semibold text-white">Filters</h3>
+                        <button 
+                            onClick={() => setIsFiltersOpen(false)}
+                            className="p-2 hover:bg-neutral-800 rounded-lg transition"
+                        >
+                            <X className="w-5 h-5 text-gray-400" />
+                        </button>
+                    </div>
+                    
+                    <div className="flex flex-col gap-6">
+                        <CatalogFilters 
+                            maxValue={maxValue} 
+                            priceData={{price, uiPrice, setUiPrice, debouncedSetPrice}}
+                            handlers={{toggleInStock, handleSaleToggle, handleStockToggle, toggleSale}}
+                            activeCategory={activeCategory}
+                        />
+                        
+                        <div className="flex gap-3 pt-4 border-t border-neutral-800">
+                            <button
+                                onClick={() => {
+                                    setSearchParams({});
+                                    setIsFiltersOpen(false);
+                                }}
+                                className="flex-1 py-3 rounded-lg border border-neutral-700 bg-black text-white hover:bg-neutral-800 transition"
+                            >
+                                Reset
+                            </button>
+                            <button
+                                onClick={() => setIsFiltersOpen(false)}
+                                className="flex-1 py-3 rounded-lg bg-white text-black font-medium hover:bg-gray-200 transition"
+                            >
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
     </section>
     );
 }

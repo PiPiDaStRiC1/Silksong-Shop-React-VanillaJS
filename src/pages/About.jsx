@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { BreadCrumbs } from '@/features/index';
 
-export const About = () => {
+export default function About() {
     return (
-        <section className="container w-full text-white px-6">
+        <section className="container w-full text-white sm:px-6">
             <div className='flex flex-col mt-[2rem]'>
                 <BreadCrumbs />
                 <div className="container w-full py-8">

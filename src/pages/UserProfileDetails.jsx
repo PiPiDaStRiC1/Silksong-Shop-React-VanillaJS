@@ -3,7 +3,7 @@ import {BreadCrumbs} from '@/features/index'
 import { useData } from "@/hooks/useData";
 import { ReviewerProfile } from "@/components/ui/index";
 
-export const UserProfileDetails = () => {
+export default function UserProfileDetails() {
     const { reviews, error, isLoading } = useData();
     const {userId} = useParams();
 
@@ -20,7 +20,7 @@ export const UserProfileDetails = () => {
                             <p>Failed to load reviewer</p>
                         </div> : 
                                 <section className="container w-full text-white">
-                                    <div className="container w-full px-6 py-8">
+                                    <div className="container w-full sm:px-6 py-8">
                                         <BreadCrumbs profile={user}/>
                                         <ReviewerProfile user={user}/>
                                     </div>

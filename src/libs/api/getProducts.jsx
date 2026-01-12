@@ -5,7 +5,7 @@ export const getProducts = async () => {
         const response = await new Promise((resolve) => {
             setTimeout(() => {
                 resolve(catalogData)
-            }, 1000)
+            }, 500)
         });
         const data = await response;
         return data;

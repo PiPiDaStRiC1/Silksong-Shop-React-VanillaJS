@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
+import {memo} from 'react'
 
-export const ProductsCard = ({ product, frame }) => {
+export const ProductsCard = memo(({ product, frame }) => {
     const { name, imgSrc } = product;
 
     return (
@@ -36,4 +37,4 @@ export const ProductsCard = ({ product, frame }) => {
             </div>
         </Link>
     );
-};
+});

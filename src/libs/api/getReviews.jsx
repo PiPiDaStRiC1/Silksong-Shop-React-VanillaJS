@@ -5,7 +5,7 @@ export const getReviews = async () => {
         const response = await new Promise((resolve) => {
             setTimeout(() => {
                 resolve(reviewsData)
-            }, 1000)
+            }, 500)
         });
         const data = await response;
         return data;

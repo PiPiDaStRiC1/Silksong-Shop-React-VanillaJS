@@ -1,17 +1,22 @@
 import {BreadCrumbs} from '@/features/index'
 import { useMemo, useState } from 'react';
-import {ReviewsCardFull} from '@/components/ui/index'
+import {ReviewsCardFull, ReviewsFilters} from '@/components/ui/index'
 import { useData } from '../hooks/useData';
 import {parseAgoToDays} from '@/libs/utils/parseDate';
+import { useSearchParams } from 'react-router-dom';
+import { SlidersHorizontal, X } from 'lucide-react';
 
 export const Reviews = () => {
   const { reviews, isLoading, error } = useData();
-  const [selectedRating, setSelectedRating] = useState('5');
-  const [toggleVerified, setToggleVerified] = useState(true);
-  const [toggleUnverified, setToggleUnverified] = useState(false);
-  const [selectedTimePeriod, setSelectedTimePeriod] = useState('allTime');
-  const [selectedSortOption, setSelectedSortOption] = useState('helpful');
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const selectedRating = searchParams.get('rating') || '5';
+  const selectedTimePeriod = searchParams.get('time') || 'allTime';
+  const selectedVerified = searchParams.get('verified') !== 'false';
+  const selectedUnverified = searchParams.get('unverified') === 'true';
+  const selectedSortOption = searchParams.get('sortBy') || 'helpful';
 
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   const [totalQuantity, totalRate] = useMemo(() => {
     const quantity = reviews.reduce((acc, reviewUser) => acc + reviewUser.reviews.length, 0);
@@ -22,18 +27,18 @@ export const Reviews = () => {
 
   const filteredReviewUsers = useMemo(() => {
     let sorted = null;
-    if (toggleVerified && toggleUnverified) {
+    if (selectedVerified && selectedUnverified) {
       sorted = [...reviews];
-    } else if (toggleVerified) {
+    } else if (selectedVerified) {
       sorted = [...reviews].filter(reviewUser => reviewUser.verified);
-    } else if (toggleUnverified) {
+    } else if (selectedUnverified) {
       sorted = [...reviews].filter(reviewUser => !reviewUser.verified);
     } else {
       sorted = [];
     }
 
     return sorted;
-  }, [reviews, toggleVerified, toggleUnverified]);
+  }, [reviews, selectedVerified, selectedUnverified]);
 
 
   const sortedReviews = useMemo(() => {
@@ -82,7 +87,7 @@ export const Reviews = () => {
   }, [selectedRating, filteredReviewUsers, selectedTimePeriod, selectedSortOption]);
 
   return (
-    <section className="container w-full text-white px-6">
+    <section className="container w-full text-white sm:px-6">
         <div className='flex flex-col mt-[2rem]'>
             <BreadCrumbs />
 
@@ -95,100 +100,14 @@ export const Reviews = () => {
         </div>
 
       <div className="container w-full grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6">
-        <aside className="md:sticky md:top-30 h-fit rounded-2xl border border-neutral-800 bg-neutral-900 p-4 flex flex-col gap-6">
-          <div>
-            <h4 className="text-lg font-semibold">Rating</h4>
-            <ul className="mt-3 flex flex-col gap-2 text-gray-300 text-sm">
-              <li>
-                <button 
-                  className={`w-full ${selectedRating === '5' ? 'text-white' : ''} cursor-pointer text-left hover:text-white flex items-center gap-2`}
-                  onClick={() => setSelectedRating('5')}
-                >
-                  <span>★★★★★ (5 stars)</span>
-                </button>
-              </li>
-              <li>
-                <button 
-                  className={`w-full ${selectedRating === '4' ? 'text-white' : ''} cursor-pointer text-left hover:text-white flex items-center gap-2`}
-                  onClick={() => setSelectedRating('4')}
-                >
-                  <span>★★★★☆ (4 stars)</span>
-                </button>
-              </li>
-              <li>
-                <button 
-                  className={`w-full ${selectedRating === '3' ? 'text-white' : ''} cursor-pointer text-left hover:text-white flex items-center gap-2`}
-                  onClick={() => setSelectedRating('3')}
-                >
-                  <span>★★★☆☆ (3 stars)</span>
-                </button>
-              </li>
-              <li>
-                <button 
-                  className={`w-full ${selectedRating === 'other' ? 'text-white' : ''} cursor-pointer text-left hover:text-white flex items-center gap-2`}
-                  onClick={() => setSelectedRating('other')}
-                >
-                  <span>Below 3 stars</span>
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-lg font-semibold">Verification</h4>
-            <ul className="mt-2 flex flex-col gap-2 text-gray-300 text-sm">
-              <li>
-                <button className="w-full cursor-pointer text-left hover:text-white flex items-center gap-2">
-                  <input 
-                    type="checkbox" 
-                    checked={toggleVerified}
-                    onChange={() => setToggleVerified(v => !v)}
-                  />
-                  <span>Verified buyers</span>
-                </button>
-              </li>
-              <li>
-                <button className="w-full cursor-pointer text-left hover:text-white flex items-center gap-2">
-                  <input 
-                    type="checkbox" 
-                    checked={toggleUnverified}
-                    onChange={() => setToggleUnverified(v => !v)}
-                  />
-                  <span>Unverifed buyers</span>
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-lg font-semibold">Time Period</h4>
-            <ul className="mt-2 flex flex-col gap-2 text-gray-300 text-sm">
-              <li>
-                <button 
-                  className={`w-full cursor-pointer text-left hover:text-white ${selectedTimePeriod === 'allTime' ? 'text-white' : ''}`}
-                  onClick={() => setSelectedTimePeriod('allTime')}
-                >
-                  All time
-                </button>
-              </li>
-              <li>
-                <button 
-                  className={`w-full cursor-pointer text-left hover:text-white ${selectedTimePeriod === '30days' ? 'text-white' : ''}`}
-                  onClick={() => setSelectedTimePeriod('30days')}
-                >
-                  Last 30 days
-                </button>
-              </li>
-              <li>
-                <button 
-                  className={`w-full cursor-pointer text-left hover:text-white ${selectedTimePeriod === '90days' ? 'text-white' : ''}`}
-                  onClick={() => setSelectedTimePeriod('90days')}
-                >
-                  Last 90 days
-                </button>
-              </li>
-            </ul>
-          </div>
+        <aside className="hidden sm:flex md:sticky md:top-30 h-fit rounded-2xl border border-neutral-800 bg-neutral-900 p-4 flex-col gap-6">
+          <ReviewsFilters 
+            selectedRating={selectedRating}
+            selectedVerified={selectedVerified}
+            selectedTimePeriod={selectedTimePeriod}
+            selectedUnverified={selectedUnverified}
+            setSearchParams={setSearchParams}
+          />
         </aside>
 
         <div className="flex flex-col gap-4">
@@ -197,16 +116,29 @@ export const Reviews = () => {
               <span className="text-sm text-gray-400">Showing</span>
               <span className="text-white">{sortedReviews.length} reviews</span>
             </div>
-            <select 
-              className="bg-black text-white border border-neutral-700 rounded-lg px-3 py-2 text-sm"
-              value={selectedSortOption}
-              onChange={(e) => setSelectedSortOption(e.target.value)}
-            >
-              <option value="helpful">Sort by: Helpful</option>
-              <option value="mostRecent">Sort by: Most Recent</option>
-              <option value="mostOld">Sort by: Most Old</option>
-            </select>
-          </div>
+              <div className='flex items-center gap-3'>
+                <button 
+                    onClick={() => setIsFiltersOpen(true)}
+                    className="md:hidden flex items-center gap-2 bg-black text-white border border-neutral-700 rounded-lg px-3 py-2 text-sm hover:bg-neutral-800 transition"
+                >
+                    <SlidersHorizontal className="w-4 h-4" />
+                    Filters
+                </button>
+                <select 
+                  className="bg-black text-white border border-neutral-700 rounded-lg px-3 py-2 text-sm"
+                  value={selectedSortOption}
+                  onChange={(e) => setSearchParams(prev => {
+                    const params = new URLSearchParams(prev);
+                    params.set('sortBy', e.target.value);
+                    return params;
+                  })}
+                >
+                  <option value="helpful">Sort by: Helpful</option>
+                  <option value="mostRecent">Sort by: Most Recent</option>
+                  <option value="mostOld">Sort by: Most Old</option>
+                </select>
+              </div>
+            </div>
 
           {isLoading ? 
             <div className="text-center py-12 text-gray-400">
@@ -240,6 +172,53 @@ export const Reviews = () => {
                     )}
             </div>
         </div>
+        {isFiltersOpen && (
+          <div className="fixed inset-0 z-50 md:hidden">
+            <div 
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fadeIn"
+                onClick={() => setIsFiltersOpen(false)}
+            />
+            <div className="absolute bottom-0 left-0 right-0 bg-neutral-900 rounded-t-3xl border-t border-neutral-800 p-6 max-h-[85vh] overflow-y-auto animate-slideUp">
+                <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-semibold text-white">Filters</h3>
+                    <button 
+                        onClick={() => setIsFiltersOpen(false)}
+                        className="p-2 hover:bg-neutral-800 rounded-lg transition"
+                    >
+                        <X className="w-5 h-5 text-gray-400" />
+                    </button>
+                </div>
+                
+                <div className="flex flex-col gap-6">
+                    <ReviewsFilters 
+                      selectedRating={selectedRating}
+                      selectedVerified={selectedVerified}
+                      selectedTimePeriod={selectedTimePeriod}
+                      selectedUnverified={selectedUnverified}
+                      setSearchParams={setSearchParams}
+                    />
+                    
+                    <div className="flex gap-3 pt-4 border-t border-neutral-800">
+                        <button
+                            onClick={() => {
+                                setSearchParams({});
+                                setIsFiltersOpen(false);
+                            }}
+                            className="flex-1 py-3 rounded-lg border border-neutral-700 bg-black text-white hover:bg-neutral-800 transition"
+                        >
+                            Reset
+                        </button>
+                        <button
+                            onClick={() => setIsFiltersOpen(false)}
+                            className="flex-1 py-3 rounded-lg bg-white text-black font-medium hover:bg-gray-200 transition"
+                        >
+                            Apply
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        )}
     </section>
   );
 };

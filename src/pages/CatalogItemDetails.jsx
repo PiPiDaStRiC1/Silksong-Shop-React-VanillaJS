@@ -36,7 +36,7 @@ export const CatalogItemDetails = () => {
     }
 
     return (
-        <section className="container w-full text-white px-6 mt-[2rem]">
+        <section className="container w-full text-white sm:px-6 mt-[2rem]">
             <BreadCrumbs item={product} />
         
             <div className="container w-full grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">

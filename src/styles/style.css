@@ -132,3 +132,11 @@
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out;
 }
+
+@media (max-width: 767px) {
+  div[role="status"] {
+    width: 15rem !important;
+    font-size: 0.8rem !important;
+    padding: 0.1rem !important;
+  }
+}

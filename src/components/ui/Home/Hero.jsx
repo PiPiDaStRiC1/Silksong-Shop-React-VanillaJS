@@ -63,4 +63,4 @@ export const Hero = () => {
             <div className="hidden sm:block absolute top-20 right-1/4 w-24 h-24 bg-purple-600/20 rounded-full blur-3xl animate-[float_8s_ease-in-out_infinite_reverse]"></div>
         </article>
     )
-}
+};

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { FAQItem } from "@/components/ui/FAQ/FAQItem";
 import { faqData } from "@/libs/constants/featuredFAQ";
 
-export const FAQ = () => {
+export default function FAQ() {
   const [openId, setOpenId] = useState(null);
 
   const toggleItem = (id) => {
@@ -12,7 +12,7 @@ export const FAQ = () => {
   };
 
   return (
-    <section className="container w-full text-white px-6">
+    <section className="container w-full text-white sm:px-6">
       <div className="flex flex-col mt-[2rem]">
         <BreadCrumbs />
 
@@ -29,10 +29,10 @@ export const FAQ = () => {
       </div>
 
       <div className="container w-full flex flex-col gap-3 mb-10">
-        {faqData.map((item) => (
+        {faqData.map(item => (
           <FAQItem
             key={item.id}
-            {...item}
+            item={item}
             isOpen={openId === item.id}
             onToggle={() => toggleItem(item.id)}
           />

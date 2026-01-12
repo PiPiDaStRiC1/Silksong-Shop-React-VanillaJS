@@ -1,7 +1,8 @@
 import { BadgeCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import {memo} from 'react'
 
-export const ReviewsCard = ({name, avatar, reviews, date, verified}) => {
+export const ReviewsCard = memo(({name, avatar, reviews, date, verified}) => {
     const { starCount, content } = reviews[0];
     
     return (
@@ -39,4 +40,4 @@ export const ReviewsCard = ({name, avatar, reviews, date, verified}) => {
             </div>
         </Link>
     )
-}
+});

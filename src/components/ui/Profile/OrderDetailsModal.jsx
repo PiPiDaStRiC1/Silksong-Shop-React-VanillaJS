@@ -5,17 +5,17 @@ import frameTop from '@/assets/images/frameTop.png';
 
 export const OrderDetailsModal = ({onClose, order, items}) => {
     return (
-        <div className="fixed inset-0 bg-gradient-to-br from-black via-transparent to-black backdrop-blur-md z-50 flex justify-center items-center animate-fadeIn">
+        <div className="fixed inset-0 bg-gradient-to-br from-black via-transparent to-black backdrop-blur-md z-50 flex justify-center items-center animate-fadeIn px-4">
             <div 
                 className="absolute inset-0 bg-black/60" 
                 onClick={onClose} 
             />
-            <div className="relative max-w-md w-full bg-zinc-900 rounded-xl border border-white/10 p-6 z-10">
+            <div className="relative max-w-sm md:max-w-md w-full bg-zinc-900 rounded-xl border border-white/10 p-4 md:p-6 z-10">
                 <div className='relative w-full'>
                     <img 
                         src={frameTop} 
                         alt="frameTop" 
-                        className='top-[-3rem] w-[25rem] absolute left-[50%] translate-x-[-50%]' 
+                        className='top-[-3rem] w-[20rem] md:w-[25rem] absolute left-[50%] translate-x-[-50%]' 
                     />
                 </div>
 
@@ -80,7 +80,7 @@ export const OrderDetailsModal = ({onClose, order, items}) => {
                     <img 
                         src={frameBottom} 
                         alt="frameBottom" 
-                        className='top-[1rem] w-[25rem] absolute left-[50%] translate-x-[-50%] z-10' 
+                        className='top-[1rem] w-[20rem] md:w-[25rem] absolute left-[50%] translate-x-[-50%] z-10' 
                     />
                 </div>
             </div>

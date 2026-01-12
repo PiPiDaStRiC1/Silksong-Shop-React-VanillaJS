@@ -43,7 +43,7 @@ const initOrderId = () => {
     }
 }
 
-export const Delivery = () => {
+export default function Delivery () {
     const controllerRef = useRef(null);
     const orderIdRef = useRef(initOrderId());
     const [currentStep, setCurrentStep] = useState(initStep);
@@ -135,7 +135,6 @@ export const Delivery = () => {
                 {
                     loading: 'Placing your order...',
                     success: 'Order placed successfully!',
-                    error: 'Failed to place order. Please try again.'
                 }
             )
             
@@ -246,7 +245,7 @@ export const Delivery = () => {
     }, [abortOrder]);
 
     return (
-        <section className="container w-full text-white px-6">
+        <section className="container w-full text-white sm:px-6">
             <div className="flex flex-col mt-[2rem]">
                 <BreadCrumbs />
 

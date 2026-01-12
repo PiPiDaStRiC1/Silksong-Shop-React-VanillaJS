@@ -5,7 +5,7 @@ import App from './App/App';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename="Silksong-Shop-React-VanillaJS/">
       <App />
     </BrowserRouter>
   </StrictMode>

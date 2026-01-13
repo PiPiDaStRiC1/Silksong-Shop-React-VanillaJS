@@ -1,5 +1,6 @@
 import { UserContext } from "@/contexts/UserContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import {useCart, useWishList} from '@/hooks/index'
 import toast from 'react-hot-toast';
 
 const initUser = () => {
@@ -59,6 +60,8 @@ const loginUser = async (email, fullName) => {
 }
 
 export const UserProvider = ({children}) => {
+    const {resetCart} = useCart();
+    const {resetWL} = useWishList(); 
     const [saveUser, setSaveUser] = useState(initUser);
     const [currentUserId, setCurrentUserId] = useState(() => localStorage.getItem('currentUserId'))
 
@@ -131,11 +134,13 @@ export const UserProvider = ({children}) => {
         if (orderTimers) {
             Object.values(orderTimers).forEach(timerId => clearTimeout(timerId));
         }
+        resetCart();
+        resetWL();
 
         localStorage.setItem('currentUserId', '');
         setSaveUser(null);
         setCurrentUserId(null);
-    }, [currentUserId]);
+    }, [resetCart, resetWL, currentUserId]);
 
     const deleteAccount = useCallback(() => {
         const users = JSON.parse(localStorage.getItem('users')) || {};

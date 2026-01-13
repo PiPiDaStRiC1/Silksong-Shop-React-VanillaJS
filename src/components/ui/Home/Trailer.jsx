@@ -17,6 +17,7 @@ export const Trailer = () => {
                                         src={TrailerPoster} 
                                         alt="Trailer poster" 
                                         className="absolute inset-0 w-full h-full object-cover"
+                                        loading='lazy'
                                     />
                                     <div className="relative z-20 flex items-center justify-center w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors cursor-pointer group/play">
                                         <Play className="w-7 h-7 fill-white text-white ml-1 group-hover/play:scale-110 transition-transform" />
@@ -25,6 +26,7 @@ export const Trailer = () => {
                             )}
                             <iframe 
                                 className="w-full aspect-video"
+                                loading='lazy'
                                 src="https://www.youtube.com/embed/6XGeJwsUP9c?controls=1&modestbranding=1" 
                                 title="Hollow Knight: Silksong - Release Trailer" 
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; web-share" 

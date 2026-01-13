@@ -24,16 +24,22 @@ export const WishListProvider = ({children}) => {
     // SAVED FROM LS IF USER LOGGED IN
     useEffect(() => {
         if (currentUserId) {
-            const saved = JSON.parse(localStorage.getItem(`wishList_${currentUserId}`)) || {};
-            dispatchWishList({type: INIT_WISHLIST, payload: saved});
-        } else {
-            dispatchWishList({type: INIT_WISHLIST, payload: {}});
-        }
+            const savedFromLSUser = JSON.parse(localStorage.getItem(`wishList_${currentUserId}`)) || {};
+            if (Object.values(savedFromLSUser).length !== 0) {
+                dispatchWishList({type: INIT_WISHLIST, payload: savedFromLSUser});
+            } else {
+                const savedFromLSGuest = JSON.parse(localStorage.getItem('wishList_guest')) || {};
+                dispatchWishList({type: INIT_WISHLIST, payload: savedFromLSGuest});
+            }
+            localStorage.removeItem('wishList_guest')
+        } 
     }, [currentUserId])
 
     useEffect(() => {
         if (currentUserId) {
             localStorage.setItem(`wishList_${currentUserId}`, JSON.stringify(wishList));
+        } else {
+            localStorage.setItem('wishList_guest', JSON.stringify(wishList))
         }
     }, [wishList, currentUserId])
 

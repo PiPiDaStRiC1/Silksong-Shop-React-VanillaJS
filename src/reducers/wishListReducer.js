@@ -8,8 +8,8 @@ export const initWishList = () => {
         const currentUserId = localStorage.getItem('currentUserId') || null;
         if (currentUserId) {
             return JSON.parse(localStorage.getItem(`wishList_${currentUserId}`)) || {};
-        }
-        return {};
+        } 
+        return JSON.parse(localStorage.getItem('wishList_guest')) || {};
     } catch (error) {
         console.log(error.message);
         return {};

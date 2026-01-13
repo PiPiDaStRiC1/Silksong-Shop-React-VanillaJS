@@ -7,7 +7,7 @@ export const Footer = React.memo(() => {
         <footer className="flex justify-center items-center w-full bg-gradient-to-b from-black via-neutral-900 to-black text-white overflow-hidden">
             <div className="relative flex flex-col items-center container px-4 sm:px-6 py-8 sm:py-12">
                 <div className='flex flex-col items-center gap-4 sm:gap-6 pb-8 sm:pb-12'>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-center gap-3">
                         <img src={logoImage} alt="logoImage" className='w-12 sm:w-16'/>
                         <h2 className='text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent'>
                             Dive to Hollownest

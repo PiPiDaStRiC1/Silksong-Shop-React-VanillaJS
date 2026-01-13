@@ -1,8 +1,9 @@
 import { BadgeCheck, ThumbsUp, ThumbsDown, Share2, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import {ImgLoadingPlaceholder} from '@/features/index'
 
-export const ReviewsCardFull = ({ userInfo, reviewInfo }) => {
+export const ReviewsCardFull = ({ userInfo, reviewInfo, loading }) => {
   const { id, name, avatar, verified } = userInfo;
   const { starCount, helpfulCount, content: review, date } = reviewInfo;
   const [helpful, setHelpful] = useState(null); 
@@ -23,11 +24,7 @@ export const ReviewsCardFull = ({ userInfo, reviewInfo }) => {
     <div className='flex flex-col gap-4 bg-neutral-900 border border-neutral-800 p-6 rounded-2xl hover:border-neutral-600 transition-colors'>
       <div className='flex items-start gap-4'>
         <Link to={`/reviews/${id}`} className="flex-shrink-0 group">
-          <img 
-            src={avatar} 
-            alt={name} 
-            className='w-16 h-16 rounded-full object-cover ring-2 ring-neutral-800 transition-all group-hover:ring-white/50' 
-          />
+          <ImgLoadingPlaceholder src={avatar} loading={loading} alt={name} className='w-16 h-16 rounded-full object-cover ring-2 ring-neutral-800 transition-all group-hover:ring-white/50' />
         </Link>
         <div className='flex-grow'>
           <div className='flex items-center gap-2 flex-wrap mb-1'>

@@ -199,12 +199,13 @@ export const Catalog = () => {
                             </div> : 
                                 <>
                                     <div className={`grid grid-cols-2 lg:${gridLayout} gap-4`}>
-                                        {displayedProducts.map((p) => (
+                                        {displayedProducts.map((p, idx) => (
                                             <CatalogCard 
                                                 key={p.id} 
                                                 {...p} 
                                                 onClick={() => learnProductDetails(p)} 
                                                 onAdd={() => addItem(p)}
+                                                loading={idx < 8 ? 'eager' : 'lazy'}
                                             />
                                         ))}
                                         {!displayedProducts.length && 

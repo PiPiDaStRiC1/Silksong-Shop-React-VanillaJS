@@ -11,17 +11,23 @@ const initialState = {
 
 const initCart = () => {
     const currentUserId = localStorage.getItem('currentUserId') || null;
-    const savedFromLS = JSON.parse(localStorage.getItem(`cart_${currentUserId}`)) || {cart: {}, tariff: 'Eco'};
-    const savedCart = savedFromLS?.cart || {};
-    const savedTariffFromLS = savedFromLS?.tariff || 'Eco';
-    return {cart: savedCart, selectedDeliveryTariff: savedTariffFromLS};
+    if (currentUserId) {
+        const savedFromLSUser = JSON.parse(localStorage.getItem(`cart_${currentUserId}`)) || {cart: {}, tariff: 'Eco'};
+        const savedCart = savedFromLSUser?.cart || {};
+        const savedTariffFromLS = savedFromLSUser?.tariff || 'Eco';
+        return {cart: savedCart, selectedDeliveryTariff: savedTariffFromLS};
+    } else {
+        const savedFromLSGuest = JSON.parse(localStorage.getItem('cart_guest'));
+        const savedCart = savedFromLSGuest?.cart || {};
+        return {cart: savedCart, selectedDeliveryTariff : 'Eco'}
+    }
 }
 
 
 export const CartProvider = ({children}) => {
     const currentUserId = localStorage.getItem('currentUserId') || null;
     const [{cart, selectedDeliveryTariff}, dispatch] = useReducer(cartReducer, initialState, initCart);
-    
+
     const addItem = useCallback((item) => {
         const existingQty = cart[item.id]?.quantity ?? 0;
 
@@ -30,7 +36,7 @@ export const CartProvider = ({children}) => {
             return;
         }
 
-        toast.success(`${item.name} added to cart`);
+        toast.success(`${item.name} ${item.quantity > 1 ? `x${item.quantity}` : ''} added to cart`);
         dispatch({type: cartActions.ADD_TO_CART, payload: item});
     }, [cart]);
 
@@ -78,16 +84,22 @@ export const CartProvider = ({children}) => {
     // SAVED FROM LS IF USER LOGGED IN
     useEffect(() => {
         if (currentUserId) {
-            const saved = JSON.parse(localStorage.getItem(`cart_${currentUserId}`)) || {};
-            dispatch({type: cartActions.INIT_CART, payload: {cart: saved?.cart || {}, tariff: saved?.tariff || 'Eco'}});
-        } else {
-            dispatch({type: cartActions.INIT_CART, payload: {cart: {}, tariff: 'Eco'}});
+            const savedFromLSUser = JSON.parse(localStorage.getItem(`cart_${currentUserId}`)) || {cart: {}, tariff: 'Eco'};
+            if (Object.values(savedFromLSUser.cart).length !== 0 || savedFromLSUser.tariff !== 'Eco') {
+                dispatch({type: cartActions.INIT_CART, payload: {cart: savedFromLSUser?.cart || {}, tariff: savedFromLSUser?.tariff || 'Eco'}});
+            } else {
+                const savedFromLSGuest = JSON.parse(localStorage.getItem('cart_guest')) || {cart: {}, tariff: 'Eco'};
+                dispatch({type: cartActions.INIT_CART, payload: {cart: savedFromLSGuest.cart, tariff: 'Eco'}});
+            }
+            localStorage.removeItem('cart_guest');
         }
     }, [currentUserId]);
 
     useEffect(() => {
         if (currentUserId) {
             localStorage.setItem(`cart_${currentUserId}`, JSON.stringify({cart, tariff: selectedDeliveryTariff}));
+        } else {
+            localStorage.setItem('cart_guest', JSON.stringify({cart, tariff: 'Eco'}))
         }
     }, [cart, selectedDeliveryTariff, currentUserId]);
 

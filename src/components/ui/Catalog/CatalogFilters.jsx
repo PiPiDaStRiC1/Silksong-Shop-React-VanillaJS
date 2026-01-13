@@ -52,7 +52,7 @@ export const CatalogFilters = ({maxValue, priceData, handlers, activeCategory}) 
                         min="50" 
                         max={maxValue} 
                         value={uiPrice}
-                        className="w-full"
+                        className="w-full price-range"
                         onChange={(e) => {
                             const value = Number(e.target.value);
                             setUiPrice(value);

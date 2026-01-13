@@ -150,7 +150,7 @@ export const Reviews = () => {
                     </div> : (
                         <>
                           <div className="grid grid-cols-1 gap-4 max-h-[42.5rem] overflow-y-auto scrollbar-reviews custom-scroll">
-                              {sortedReviews.map(({review, userId, userName, userAvatar, userVerified}) => (
+                              {sortedReviews.map(({review, userId, userName, userAvatar, userVerified}, idx) => (
                                 <ReviewsCardFull 
                                   key={review.id} 
                                   userInfo={{
@@ -160,6 +160,7 @@ export const Reviews = () => {
                                               verified: userVerified
                                             }} 
                                   reviewInfo={{...review}} 
+                                  loading={idx < 6 ? 'eager' : 'lazy'}
                                 /> 
                               ))}
                               {filteredReviewUsers.length === 0 && (

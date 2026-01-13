@@ -1,8 +1,9 @@
 import valueIcon from '@/assets/images/value.png';
 import {Heart} from 'lucide-react';
 import { useWishList } from '@/hooks/index'
+import {ImgLoadingPlaceholder} from '@/features/index';
 
-export const CatalogCard = ({ id, name, price, category, imgSrc, onClick, sale, stock, onAdd }) => {
+export const CatalogCard = ({ id, name, price, category, imgSrc, onClick, sale, stock, onAdd, loading }) => {
   const {wishList, addToWL, removeFromWL} = useWishList();
   const isFavorite = wishList[id] !== undefined;
 
@@ -12,7 +13,7 @@ export const CatalogCard = ({ id, name, price, category, imgSrc, onClick, sale, 
       onClick={onClick} 
     >
       <div className="w-full aspect-square bg-black/30 rounded-xl flex items-center justify-center overflow-hidden relative">
-        <img src={imgSrc} alt={name} className="max-h-full object-contain transition-transform duration-300 group-hover:scale-105" />
+      <ImgLoadingPlaceholder src={imgSrc} loading={loading} alt={name} className="max-h-full object-contain transition-transform duration-300 group-hover:scale-105"/>
         {sale && (
           <span className="absolute top-2 right-2 px-2 py-1 rounded-lg bg-red-600 text-white text-xs font-semibold">
             -{sale}%

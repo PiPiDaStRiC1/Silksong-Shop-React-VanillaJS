@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
-import {BreadCrumbs} from '@/features/index'
+import {BreadCrumbs, ImgLoadingPlaceholder} from '@/features/index'
 import { useMemo, useState } from 'react';
 import valueIcon from '@/assets/images/value.png';
 import { ReviewsCardFull } from '@/components/ui/Reviews/ReviewsCardFull';
@@ -41,7 +41,7 @@ export const CatalogItemDetails = () => {
         
             <div className="container w-full grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
                 <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6 flex items-center justify-center">
-                    <img src={product.imgSrc} alt={product.name} className="max-h-[28rem] object-contain" />
+                    <ImgLoadingPlaceholder src={product.imgSrc} alt={product.name} className="max-h-[28rem] object-contain"/>
                 </div>
 
                 <div className="flex flex-col gap-4">
@@ -88,14 +88,16 @@ export const CatalogItemDetails = () => {
                         <div className="flex items-center rounded-lg border border-neutral-700 overflow-hidden">
                             <button 
                                 onClick={() => setQty(q => Math.max(1, q - 1))} 
-                                className="px-3 py-2 cursor-pointer hover:bg-neutral-800"
+                                className="px-3 py-2 cursor-pointer hover:bg-neutral-800 disabled:opacity-50"
+                                disabled={product.stock === 0}
                             >
                                 -
                             </button>
                                 <span className="px-4 py-2">{qty}</span>
                             <button 
                                 onClick={() => setQty(q => Math.min(product.stock || 1, q + 1))} 
-                                className="px-3 py-2 cursor-pointer hover:bg-neutral-800"
+                                className="px-3 py-2 cursor-pointer hover:bg-neutral-800 disabled:opacity-50"
+                                disabled={product.stock === 0}
                             >
                                 +
                             </button>
@@ -147,11 +149,12 @@ export const CatalogItemDetails = () => {
                                 {isLoading && <p className="text-gray-400">Loading reviews...</p>}
                                 {error.length !== 0 && <p className="text-red-500">Failed to load reviews</p>}
                                 {!isLoading && !reviews && <p className="text-gray-400 text-center py-1">No reviews yet.</p>}
-                                {!isLoading && sortedReviews.map(r => (
+                                {!isLoading && sortedReviews.map((r, idx) => (
                                     <ReviewsCardFull 
                                         key={r.id} 
                                         userInfo={r.userInfo}
                                         reviewInfo={{...r}} 
+                                        loading={idx < 8 ? 'eager' : 'lazy'}
                                     />
                                 ))}
                                 <div>

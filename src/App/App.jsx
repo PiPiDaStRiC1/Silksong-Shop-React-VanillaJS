@@ -1,6 +1,6 @@
 import '@/styles/style.css';
 import {Footer, Header, Main} from '@/components/layouts/index';
-import {Home, Catalog, Reviews, CatalogItemDetails} from '@/pages/index';
+import {Home, Catalog, Reviews, CatalogItemDetails, Error} from '@/pages/index';
 import {Routes, Route, useLocation} from 'react-router-dom';
 import {Toaster} from 'react-hot-toast';
 import {ScrollToTop} from '@/libs/utils/ScroollToTop';
@@ -14,14 +14,13 @@ import { lazy, Suspense } from 'react';
 // 
 // ОПТИМИЗАЦИЯ ВСЕГО, ЧТО МОЖНО
 // 
-// СДЕЛАТЬ БОЛЕЕ ДЕТАЛЬНУЮ ОПТИМИЗАЦИЮ КАРТИНОК (СКЕЛЕТОН) И БЕСКОНЕЧНОГО СКРОЛЛА
-// УЛУЧШИТЬ LAZY ЗАГРУЗКУ СТРАНИЦ И КОМПОНЕНТОВ (ВОЗМОЖНО)
+// СДЕЛАТЬ БОЛЕЕ ДЕТАЛЬНУЮ ОПТИМИЗАЦИЮ КАРТИНОК (СКЕЛЕТОН) И БЕСКОНЕЧНОГО СКРОЛЛА (В ЦЕЛОМ СДЕЛАНО)
+// УЛУЧШИТЬ LAZY ЗАГРУЗКУ СТРАНИЦ И КОМПОНЕНТОВ (В ЦЕЛОМ СДЕЛАНО)
 
 const Profile = lazy(() => import('@/pages/Profile'));
 const Delivery = lazy(() => import('@/pages/Delivery'));
 const FAQ = lazy(() => import('@/pages/FAQ'));
 const About = lazy(() => import('@/pages/About'));
-const Error = lazy(() => import('@/pages/Error'));
 const AuthModal = lazy(() => import('@/pages/AuthModal'));
 const UserProfileDetails = lazy(() => import('@/pages/UserProfileDetails'));
 
@@ -91,11 +90,7 @@ function App() {
                 <GuestOnlyRoute><AuthModal /></GuestOnlyRoute>
               </Suspense>
             } />
-            <Route path='*' element={
-              <Suspense fallback={<Preloader />}>
-                <Error />
-              </Suspense>
-            } />
+            <Route path='*' element={<Error />} />
           </Route>
         </Routes>
         {locationState?.background &&

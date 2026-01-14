@@ -5,7 +5,7 @@ export const ImgLoadingPlaceholder = ({ src, alt, className, loading = "lazy" })
   const [isLoaded, setIsLoaded] = useState(false);
 
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative">
       {!isLoaded && (
         <div className="absolute inset-0 bg-transparent flex items-center justify-center">
           <Loader2 className="w-8 h-8 text-neutral-600 animate-spin" />

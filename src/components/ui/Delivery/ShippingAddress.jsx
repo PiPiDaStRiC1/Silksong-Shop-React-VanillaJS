@@ -1,23 +1,59 @@
 import { SET_FIELD, GET_INFO_FROM_LS } from '@/reducers/shippingAddressReducer';
 import { useEffect, memo, useRef } from 'react';
 import { useUser } from '@/hooks/useUser';
+import { X } from 'lucide-react';
 
 export const ShippingAddress = memo(({ formData, dispatch, validation }) => {
     const { name, lastName, address, city, state, zip, phone } = formData;
     const {user} = useUser();
     const isTouched = useRef(false); 
-    
+
     const handleChange = (field, value) => {
         dispatch({ type: SET_FIELD, payload: { field, value } });
     };
 
+    const autoFillTel = (input) => {
+        const digits = input.replace(/\D/g, '');
+
+        if (!digits.length) {
+            dispatch({ type: SET_FIELD, payload: { field: 'phone', value: '' } });
+            return;
+        }
+
+        let formatted = '';
+        let i = 0;
+
+        formatted += '+' + digits[i];
+        i += 1;
+
+        if (digits.length > i) {
+            const area = digits.slice(i, i + 3);
+            formatted += '(' + area + ')';
+            i += area.length;
+        }
+
+        if (digits.length > i) {
+            const part1 = digits.slice(i, i + 3);
+            formatted += part1;
+            i += part1.length;
+        }
+
+        if (digits.length > i) {
+            const part2 = digits.slice(i, i + 4);
+            formatted += '-' + part2;
+        }
+
+        dispatch({ type: SET_FIELD, payload: { field: 'phone', value: formatted } });
+    };
+
+
     useEffect(() => {
         if (isTouched.current) return;
-        if (!user) return;
+        if (!user?.name || !user?.lastName) return;
 
         dispatch({ type: GET_INFO_FROM_LS, payload: {
             name: user.name,
-            lastName:  user.lastName
+            lastName: user.lastName
         }});
         isTouched.current = true;
     }, [dispatch, user]);
@@ -172,22 +208,32 @@ export const ShippingAddress = memo(({ formData, dispatch, validation }) => {
 
             <div>
                 <label className="block text-sm text-gray-300 mb-2">Phone Number</label>
-                <input 
-                    value={phone}
-                    type="tel" 
-                    className={`w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20  
-                        ${validation.phone || !phone
-                            ? 'border-neutral-700 focus:border-violet-500/50' 
-                            : 'border-red-500/50 focus:border-red-500'
-                    }`}
-                    placeholder="+7 (920) 000-00-00"
-                    onChange={(e) => handleChange('phone', e.target.value)}
-                />
+                <div className='relative'>
+                    <input 
+                        value={phone}
+                        type="tel" 
+                        className={`w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20  
+                            ${validation.phone || !phone
+                                ? 'border-neutral-700 focus:border-violet-500/50' 
+                                : 'border-red-500/50 focus:border-red-500'
+                        }`}
+                        placeholder="+7 (920) 000-00-00"
+                        onChange={(e) => autoFillTel(e.target.value)}
+                    />
+                    {phone && (
+                        <button
+                            onClick={() => handleChange('phone', '')}
+                            className='absolute top-1/2 right-[0.5rem] -translate-1/2 hover:bg-white/10 rounded-lg transition-colors'
+                        >
+                            <X className='w-5 h-5 text-gray-400 hover:text-white' />
+                        </button>
+                    )}
+                </div>
                 {!validation.phone && phone && (
                     <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1 animate-fadeIn">
                         <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
                         <span className='inline-flex flex-col'>
-                            Only digits and + sign allowed. Total 12 characters.
+                            Only digits and "+", "(", ")" signs allowed. Total 12 characters.
                         </span>
                     </p>
                 )}

@@ -11,6 +11,33 @@ export const PaymentInfo = memo(({formData, dispatch, validation}) => {
         dispatch({type: SET_VALUE, payload: {field, value}});
     }
 
+    const formatCardNumber = (value) => {
+        const digits = value.replace(/\D/g, '').slice(0, 16);
+        let result = '';
+
+        for (let i = 0; i < digits.length; i++) {
+            if (i > 0 && i % 4 === 0) {
+                result += ' ';
+            }
+            result += digits[i];
+        }
+
+        return result;
+    };
+
+    const formatExpiryDate = (value) => {
+        const digits = value.replace(/\D/g, '').slice(0, 4);
+
+        if (digits.length === 0) return '';
+
+        if (digits.length <= 2) {
+            return digits;
+        }
+
+        return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    };
+
+
     useEffect(() => {
         if (isTouched.current) return;
         if (!user) return;
@@ -19,7 +46,7 @@ export const PaymentInfo = memo(({formData, dispatch, validation}) => {
             cardHolder: user.fullName 
         }});
         isTouched.current = true;
-    })
+    }, [dispatch, user]);
 
     return (
         <div className="space-y-6">
@@ -39,7 +66,7 @@ export const PaymentInfo = memo(({formData, dispatch, validation}) => {
                             : 'border-red-500/50 focus:border-red-500'
                     }`}
                     placeholder="1234 5678 9012 3456"
-                    onChange={(e) => handleChange('cardNumber', e.target.value)}
+                    onChange={(e) => handleChange('cardNumber', formatCardNumber(e.target.value))}
                 />
                 {!validation.cardNumber && cardNumber && (
                     <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1 animate-fadeIn">
@@ -63,7 +90,7 @@ export const PaymentInfo = memo(({formData, dispatch, validation}) => {
                                 : 'border-red-500/50 focus:border-red-500'
                         }`}
                         placeholder="MM / YY"
-                        onChange={(e) => handleChange('expiryDate', e.target.value)}
+                        onChange={(e) => handleChange('expiryDate', formatExpiryDate(e.target.value))}
                     />
                     {!validation.expiryDate && expiryDate && (
                         <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1 animate-fadeIn">

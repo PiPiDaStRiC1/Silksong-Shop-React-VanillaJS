@@ -1,3 +1,4 @@
+import { Error } from './Error';
 import { Link, useParams } from 'react-router-dom';
 import {BreadCrumbs, ImgLoadingPlaceholder} from '@/features/index'
 import { useMemo, useState } from 'react';
@@ -24,15 +25,7 @@ export const CatalogItemDetails = () => {
     })
 
     if (!product) {
-        return (
-            <section className="container w-full text-white">
-                <BreadCrumbs />
-                <div className='px-6'>
-                    <h1 className="text-3xl ">Item not found</h1>
-                    <p className="text-gray-400 mt-2">The requested item does not exist.</p>
-                </div>
-            </section>
-        );
+        return <Error type='product'/>
     }
 
     return (
@@ -148,7 +141,7 @@ export const CatalogItemDetails = () => {
                             <div className="py-4 flex flex-col gap-4 max-h-[32rem] overflow-y-auto scrollbar-reviews custom-scroll">
                                 {isLoading && <p className="text-gray-400">Loading reviews...</p>}
                                 {error.length !== 0 && <p className="text-red-500">Failed to load reviews</p>}
-                                {!isLoading && !reviews && <p className="text-gray-400 text-center py-1">No reviews yet.</p>}
+                                {!isLoading && !sortedReviews.length && <p className="text-gray-400 text-center py-1">No reviews yet.</p>}
                                 {!isLoading && sortedReviews.map((r, idx) => (
                                     <ReviewsCardFull 
                                         key={r.id} 

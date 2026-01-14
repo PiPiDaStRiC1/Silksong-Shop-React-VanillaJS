@@ -68,7 +68,7 @@ export default function FAQ() {
             />
             <button
               type="submit"
-              className="px-6 py-3 cursor-pointer rounded-lg border border-white text-white hover:bg-white hover:text-black transition-all font-semibold"
+              className="cursor-pointer p-3 inline-flex justify-center items-center gap-2 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors"
               onClick={(e) => e.preventDefault()}
             >
               Send Message

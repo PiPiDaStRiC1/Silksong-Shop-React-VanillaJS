@@ -1,5 +1,5 @@
 import {BreadCrumbs} from '@/features/index'
-import { useState, useReducer, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useReducer, useEffect, useRef, useCallback } from "react";
 import toast from 'react-hot-toast';
 import { MapPin, CreditCard, Package, CheckCircle2, ChevronRight, X } from "lucide-react";
 import {useCart, useOrder, useUser} from '@/hooks/index';
@@ -57,30 +57,27 @@ export default function Delivery () {
     const isShippingFree = freeShippingValue <= totalValue;
     const deliveryCost = isShippingFree ? 0 : deliveryTariffs[selectedDeliveryTariff ?? 'Eco'].price;
     
-    const shippingValidation = useMemo(() => ({
+    const shippingValidation = {
         name: /^[A-ZА-ЯЁ][a-zа-яё]+$/.test(shippingData.name),
         lastName: /^[A-ZА-ЯЁ][a-zа-яё]+$/.test(shippingData.lastName),
         address: shippingData.address.length >= 10,
         city: /^[A-ZА-ЯЁ][a-zа-яё]+(?:[\s-][A-ZА-ЯЁ][a-zа-яё]+)*$/.test(shippingData.city),
         state: /^[A-ZА-ЯЁ][a-zа-яё]+(?:[\s-][A-ZА-ЯЁ][a-zа-яё]+)*$/.test(shippingData.state),
         zip: /^\d{5}(-\d{4})?$/.test(shippingData.zip),
-        phone: /^\+[1-9]\d{10}$/.test(shippingData.phone),
-    }), [shippingData]);
+        phone: /^\+[1-9]\(\d{3}\)\d{3}-\d{4}$/.test(shippingData.phone),
+    };
     const isShippingValid = Object.values(shippingValidation).every(value => value === true);   
     
-    const paymentValidation = useMemo(() => ({
-        cardNumber: /^\d{16}$/.test(paymentInfoData.cardNumber),
+    const paymentValidation = {
+        cardNumber: /^\d{4} \d{4} \d{4} \d{4}$/.test(paymentInfoData.cardNumber),
         expiryDate: /^(0[1-9]|1[0-2])\/\d{2}$/.test(paymentInfoData.expiryDate),
         cvv: /^\d{3}$/.test(paymentInfoData.cvv),
         cardHolder: /^[A-ZА-ЯЁ][a-zа-яё]+ [A-ZА-ЯЁ][a-zа-яё]+$/.test(paymentInfoData.cardHolder),
-    }), [paymentInfoData]);
+    };
     const isPaymentValid = Object.values(paymentValidation).every(value => value === true);
-    
     const canGoToStep = (step) => {
         if (step <= currentStep) return true;
-
-        if (Object.values(cart).length === 0) return false;
-
+        
         if (step === 2 && !isShippingValid) return false;
         if (step === 3 && !isShippingValid) return false;
         if (step === 4 && (!isShippingValid || !isPaymentValid)) return false;
@@ -91,6 +88,10 @@ export default function Delivery () {
     const handleContinueButton = (newStep) => {
         if (!canGoToStep(newStep)) {
             toast.error('Please fill in fields correctly!');
+            return;
+        }
+        if (Object.values(cart).length === 0) {
+            toast.error('Please add items to cart!');
             return;
         }
 

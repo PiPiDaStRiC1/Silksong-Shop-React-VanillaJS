@@ -11,16 +11,20 @@ export const Catalog = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const { products, error, isLoading } = useData();
     const { addItem } = useCart();
+    const maxValue = useMemo(() => {
+        if (isLoading || !products.length) return 0;
+
+        return Math.max(...products.map(p => p.price))
+    }, [products, isLoading]);
 
     const activeCategory = categoryFromURL || 'all';
     const toggleSale = searchParams.get('sale') === 'true';
     const toggleInStock = searchParams.get('stock') === 'true';
     const sortBy = searchParams.get('sort') || 'popular';
     const priceFromUrl = searchParams.get('price');
-    const price = priceFromUrl ? Number(priceFromUrl.split('-')[1]) : 1500;
+    const priceRange = priceFromUrl ? priceFromUrl.split('-') : ['0', maxValue.toString()];
     
-    const [gridLayout, setGridLayout] = useState('grid-cols-4');
-    const [uiPrice, setUiPrice] = useState(price); 
+    const [gridLayout, setGridLayout] = useState('grid-cols-4'); 
     const [isFiltersOpen, setIsFiltersOpen] = useState(false); 
 
     const learnProductDetails = (p) => {
@@ -29,13 +33,9 @@ export const Catalog = () => {
     
     const totalQuantity = products.length;
 
-    const maxValue = useMemo(() => {
-        return Math.max(...products.map(p => p.price))
-    }, [products]);
-
     const debounceTimerRef = useRef(null);
     
-    const debouncedSetPrice = useCallback((value) => {
+    const debouncedSetPrice = useCallback((minPrice, maxPrice) => {
         if (debounceTimerRef.current) {
             clearTimeout(debounceTimerRef.current);
         }
@@ -43,8 +43,8 @@ export const Catalog = () => {
         debounceTimerRef.current = setTimeout(() => {
             setSearchParams(prev => {
                 const params = new URLSearchParams(prev);
-                if (value !== maxValue) {
-                    params.set('price', `0-${value}`);
+                if (minPrice !== 0 || maxPrice !== maxValue) {
+                    params.set('price', `${minPrice}-${maxPrice}`);
                 } else {
                     params.delete('price');
                 }
@@ -54,12 +54,16 @@ export const Catalog = () => {
     }, [maxValue, setSearchParams]);
 
     const displayedProducts = useMemo(() => {
+        const priceRange = priceFromUrl ? priceFromUrl.split('-') : null;
+        const minPrice = priceRange ? Number(priceRange[0]) : 50;
+        const maxPrice = priceRange ? Number(priceRange[1]) : maxValue;
+        
         return products
             .filter(p =>
                 (activeCategory === 'all' || p.category === activeCategory) &&
                 (!toggleSale || p.sale) &&
                 (!toggleInStock || p.stock > 0) &&
-                (p.price <= price)
+                (p.price >= minPrice && p.price <= maxPrice)
             )
             .sort((a, b) => {
                 switch(sortBy) {
@@ -69,7 +73,7 @@ export const Catalog = () => {
                     default: return 0;
                 }
             });
-    }, [products, activeCategory, toggleSale, toggleInStock, price, sortBy]);
+    }, [products, activeCategory, toggleSale, toggleInStock, priceFromUrl, sortBy, maxValue]);
 
 
     const updateFilter = (key, value, defaultValue) => {
@@ -97,10 +101,6 @@ export const Catalog = () => {
     };
 
     useEffect(() => {
-        setUiPrice(price);
-    }, [price]);
-
-    useEffect(() => {
         if (isFiltersOpen) {
             document.body.style.overflow = 'hidden';
         } else {
@@ -126,8 +126,9 @@ export const Catalog = () => {
         <div className="w-full grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6">
             <aside className="hidden md:block md:sticky md:top-24 h-fit rounded-2xl border border-neutral-800 bg-neutral-900 p-4 flex-col gap-6">
                 <CatalogFilters 
+                    key={maxValue}
                     maxValue={maxValue} 
-                    priceData={{price, uiPrice, setUiPrice, debouncedSetPrice}}
+                    priceData={{priceRange, debouncedSetPrice}}
                     handlers={{toggleInStock, handleSaleToggle, handleStockToggle, toggleSale}}
                     activeCategory={activeCategory}
                 />
@@ -237,8 +238,9 @@ export const Catalog = () => {
                     
                     <div className="flex flex-col gap-6">
                         <CatalogFilters 
+                            key={maxValue}
                             maxValue={maxValue} 
-                            priceData={{price, uiPrice, setUiPrice, debouncedSetPrice}}
+                            priceData={{priceRange, debouncedSetPrice}}
                             handlers={{toggleInStock, handleSaleToggle, handleStockToggle, toggleSale}}
                             activeCategory={activeCategory}
                         />

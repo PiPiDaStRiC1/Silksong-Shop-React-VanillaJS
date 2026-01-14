@@ -67,20 +67,22 @@ export const SearchInput = ({onClose}) => {
                             autoFocus
                             className='flex-1 bg-transparent text-white placeholder-gray-500 px-4 py-4 outline-none text-lg'
                         />
-                        {searchQuery && (
+                        <div className='flex gap-2'>
+                            {searchQuery && (
+                                <button
+                                    onClick={() => setSearchQuery('')}
+                                    className='hover:bg-white/10 rounded-lg transition-colors'
+                                >
+                                    <X className='w-5 h-5 text-gray-400 hover:text-white' />
+                                </button>
+                            )}
                             <button
-                                onClick={() => setSearchQuery('')}
-                                className='mr-4 p-1 hover:bg-white/10 rounded-lg transition-colors'
+                                onClick={onClose}
+                                className='cursor-pointer px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors'
                             >
-                                <X className='w-5 h-5 text-gray-400 hover:text-white' />
+                                ESC
                             </button>
-                        )}
-                        <button
-                            onClick={onClose}
-                            className='cursor-pointer mr-3 px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors'
-                        >
-                            ESC
-                        </button>
+                        </div>
                     </div>
                 </div>
 

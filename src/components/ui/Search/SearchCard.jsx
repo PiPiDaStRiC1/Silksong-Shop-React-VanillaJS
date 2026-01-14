@@ -16,7 +16,7 @@ export const SearchCard = ({product, handleResultClick}) => {
                     <div className='absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300' />
                 </div>
 
-                <h3 className='flex-grow text-center text-white font-medium text-sm line-clamp-2 mb-2 group-hover:text-gray-200 transition-colors'>
+                <h3 className='self-center text-center text-white font-medium text-sm line-clamp-2 mb-2 group-hover:text-gray-200 transition-colors'>
                     {product.name}
                 </h3>
                 <p className='text-gray-500 text-xs text-center mb-3'>

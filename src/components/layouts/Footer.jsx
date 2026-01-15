@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import logoImage from '@/assets/images/logo/logoImage.png';
 import React from 'react';
 
-export const Footer = React.memo(() => {
+export const Footer = () => {
     return (
         <footer className="flex justify-center items-center w-full bg-gradient-to-b from-black via-neutral-900 to-black text-white overflow-hidden">
             <div className="relative flex flex-col items-center container px-4 sm:px-6 py-8 sm:py-12">
@@ -99,4 +99,4 @@ export const Footer = React.memo(() => {
             </div>
         </footer>
     );
-});
+};

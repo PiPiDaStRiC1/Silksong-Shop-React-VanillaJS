@@ -1,3 +1,6 @@
+## Demo
+https://pipidastric1.github.io/Silksong-Shop-React-VanillaJS/
+
 ## Architecture
 
 ### Data Management

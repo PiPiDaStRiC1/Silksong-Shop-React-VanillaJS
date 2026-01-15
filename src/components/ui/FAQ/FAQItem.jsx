@@ -3,7 +3,6 @@ import { ChevronDown } from "lucide-react";
 export const FAQItem = ({ item, isOpen, onToggle }) => {
   const { question, answer } = item;
 
-  console.log('Rendering FAQItem:', question);
   return (
     <div className="rounded-2xl border border-neutral-800 bg-neutral-900 overflow-hidden transition-colors hover:border-neutral-600">
       <button

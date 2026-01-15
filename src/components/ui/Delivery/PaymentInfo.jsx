@@ -96,7 +96,7 @@ export const PaymentInfo = memo(({formData, dispatch, validation}) => {
                         <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1 animate-fadeIn">
                             <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
                             <span className='inline-flex flex-col'>
-                                Only digits and '/' allowed.
+                                Only digits and '/' allowed. Enter valid data
                             </span>
                         </p>
                     )}

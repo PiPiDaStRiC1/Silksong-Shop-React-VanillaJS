@@ -6,10 +6,27 @@ import toast from 'react-hot-toast';
 export const LoginTab = ({validation, email, password, authDispatch, showPassword, setShowPassword, isRememberMe, setIsRememberMe, loginFormSuccessConditions, onSuccess}) => {
     const {verificationLogin} = useUser();
 
+    const submitHandler = async (e) => {
+        e.preventDefault();
+
+        if (loginFormSuccessConditions) {
+            try {
+                await verificationLogin(email);
+                
+                onSuccess();
+            } catch (error) {
+                if (error.message !== 'User not found') {
+                    console.log(error.message);  
+                    toast.error('Something went wrong. Please try again.');
+                }
+            }
+        }
+    }
+
     return (
         <form 
             className="space-y-4" 
-            onSubmit={(e) => e.preventDefault()}
+            onSubmit={submitHandler}
             autoComplete="off"
         >
             <div>
@@ -91,22 +108,9 @@ export const LoginTab = ({validation, email, password, authDispatch, showPasswor
             </div>
 
             <button
+                type='submit'
                 disabled={!loginFormSuccessConditions}
                 className={`${loginFormSuccessConditions ? '' : 'opacity-50 cursor-not-allowed'} w-full py-3 bg-white text-black rounded-lg font-semibold hover:scale-[1.02] transition cursor-pointer`}
-                onClick={async () => {
-                    if (loginFormSuccessConditions) {
-                        try {
-                            await verificationLogin(email);
-                            
-                            onSuccess();
-                        } catch (error) {
-                            if (error.message !== 'User not found') {
-                                console.log(error.message);  
-                                toast.error('Something went wrong. Please try again.');
-                            }
-                        }
-                    }
-                }}
             >   
                 Sign In
             </button>

@@ -9,11 +9,15 @@ export const NewsPosting = () => {
     const submitHandler = async (e) => {
         e.preventDefault();
 
-        if (!isEmailValid || isSubmitting) return;
-    
-        try {
-            setIsSubmitting(true);
+        if (!isEmailValid) return;
+        if (!isSubmitting) {
+            toast.error('You have already subscribed');
+            return;
+        }
+        
+        setIsSubmitting(true);
 
+        try {
             await toast.promise(
                 new Promise((resolve) => {
                     setTimeout(() => resolve(true), 500);
@@ -27,7 +31,6 @@ export const NewsPosting = () => {
             setEmail('');
         } catch (error) {
             console.log(error.message);
-            toast.error('Something go wrong. Try again')
         } finally {
             setIsSubmitting(false);
         }

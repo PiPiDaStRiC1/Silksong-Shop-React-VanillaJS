@@ -8,7 +8,7 @@ export const ReviewsCard = memo(({name, avatar, reviews, date, verified}) => {
     
     return (
         <Link to="/reviews" className='block'>
-            <div className='flex flex-col gap-3 bg-neutral-900 border border-neutral-800 p-5 rounded-xl shadow-md transition hover:-translate-y-1 hover:border-white/50'>
+            <div className='flex h-full flex-col gap-3 bg-neutral-900 border border-neutral-800 p-5 rounded-xl shadow-md transition hover:-translate-y-1 hover:border-white/50'>
                 <div className='flex items-start gap-3'>
                     <ImgLoadingPlaceholder src={avatar} alt={name} className='w-12 h-12 rounded-full object-cover flex-shrink-0 ring-2 ring-neutral-800' />
                     <div className='flex flex-col gap-1 flex-grow min-w-0'>

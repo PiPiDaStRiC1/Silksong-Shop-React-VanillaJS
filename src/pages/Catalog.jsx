@@ -203,7 +203,7 @@ export const Catalog = () => {
                                         {displayedProducts.map((p, idx) => (
                                             <CatalogCard 
                                                 key={p.id} 
-                                                {...p} 
+                                                product={p}
                                                 onClick={() => learnProductDetails(p)} 
                                                 onAdd={() => addItem(p)}
                                                 loading={idx < 8 ? 'eager' : 'lazy'}

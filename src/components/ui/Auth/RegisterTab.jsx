@@ -6,10 +6,27 @@ import toast from 'react-hot-toast';
 export const RegisterTab = ({validation, fullName, email, password, confirmPassword, authDispatch, showPassword, setShowPassword, isAgreedPrivacy, setIsAgreedPrivacy, registerFormSuccessConditions, onSuccess}) => {
     const {register} = useUser();
 
+    const submitHandler = async (e) => {
+        e.preventDefault();
+
+        if (registerFormSuccessConditions) {
+            try {
+                await register({email, fullName});
+                
+                onSuccess();
+            } catch (error) {
+                if (error.message !== 'User already logged!') {
+                    console.log(error.message);
+                    toast.error('Something went wrong. Please try again.');
+                }
+            }
+        }
+    }
+
     return (
         <form 
             className="space-y-4"
-            onSubmit={(e) => e.preventDefault()}
+            onSubmit={submitHandler}
             autoComplete="off"
         >
             <div>
@@ -162,20 +179,6 @@ export const RegisterTab = ({validation, fullName, email, password, confirmPassw
                 type="submit"
                 disabled={!registerFormSuccessConditions}
                 className={`${registerFormSuccessConditions ? '' : 'opacity-50 cursor-not-allowed'} w-full py-3 bg-white text-black rounded-lg font-semibold hover:scale-[1.02] transition cursor-pointer`}
-                onClick={async () => {
-                    if (registerFormSuccessConditions) {
-                        try {
-                            await register({email, fullName});
-                            
-                            onSuccess();
-                        } catch (error) {
-                            if (error.message !== 'User already logged!') {
-                                console.log(error.message);
-                                toast.error('Something went wrong. Please try again.');
-                            }
-                        }
-                    }
-                }}
             >
                 Create Account
             </button>

@@ -1,9 +1,9 @@
 import { SET_FIELD, GET_INFO_FROM_LS } from '@/reducers/shippingAddressReducer';
-import { useEffect, memo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useUser } from '@/hooks/useUser';
 import { X } from 'lucide-react';
 
-export const ShippingAddress = memo(({ formData, dispatch, validation }) => {
+export const ShippingAddress = ({ formData, dispatch, validation }) => {
     const { name, lastName, address, city, state, zip, phone } = formData;
     const {user} = useUser();
     const isTouched = useRef(false); 
@@ -240,4 +240,4 @@ export const ShippingAddress = memo(({ formData, dispatch, validation }) => {
             </div>
         </div>
     )
-});
+};

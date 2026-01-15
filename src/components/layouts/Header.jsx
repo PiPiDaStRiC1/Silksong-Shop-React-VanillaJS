@@ -38,6 +38,7 @@ export const Header = () => {
                 setShowMobileMenu(false);
             }
         }
+
         window.addEventListener('keydown', handleEsc);
         return () => window.removeEventListener('keydown', handleEsc)
     }, [showCart, showWishListModal, showSearch, showMobileMenu]);
@@ -57,7 +58,12 @@ export const Header = () => {
                         <li>
                             <NavLink 
                                 to="/" 
-                                className={({isActive}) => isActive ? 'text-sm lg:text-lg text-gray-400' : 'text-sm lg:text-lg hover:text-gray-400 transition'}
+                                end
+                                className={({isActive}) => 
+                                    isActive 
+                                        ? 'text-sm lg:text-lg text-gray-400' 
+                                        : 'text-sm lg:text-lg hover:text-gray-400 transition'
+                                }
                             >
                                 Home
                             </NavLink>
@@ -65,24 +71,51 @@ export const Header = () => {
                         <li>
                             <NavLink 
                                 to="/catalog" 
-                                className={({isActive}) => isActive ? 'text-sm lg:text-lg text-gray-400' : 'text-sm lg:text-lg hover:text-gray-400 transition'}
+                                className={({isActive}) => 
+                                    isActive 
+                                        ? 'text-sm lg:text-lg text-gray-400' 
+                                        : 'text-sm lg:text-lg hover:text-gray-400 transition'
+                                }
                             >
                                 Catalog
                             </NavLink>
                         </li>
-                        <li><NavLink to="/reviews" className={({isActive}) => isActive ? 'text-sm lg:text-lg text-gray-400' : 'text-sm lg:text-lg hover:text-gray-400 transition'}>Reviews</NavLink></li>
                         <li>
-                            <button
-                                className='cursor-pointer text-sm lg:text-lg hover:text-gray-400 transition'
-                                onClick={() => authNavigate('/delivery')}
+                            <NavLink 
+                                to="/reviews" 
+                                className={({isActive}) => 
+                                    isActive 
+                                        ? 'text-sm lg:text-lg text-gray-400' 
+                                        : 'text-sm lg:text-lg hover:text-gray-400 transition'
+                                }
+                            >
+                                Reviews
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink
+                                to="/delivery"
+                                className={({isActive}) => 
+                                    isActive 
+                                        ? 'text-sm lg:text-lg text-gray-400' 
+                                        : 'text-sm lg:text-lg hover:text-gray-400 transition'
+                                }
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    authNavigate('/delivery');
+                                }}
                             >
                                 Delivery
-                            </button>
+                            </NavLink>
                         </li>
                         <li>
                             <NavLink 
                                 to="/faq" 
-                                className={({isActive}) => isActive ? 'text-sm lg:text-lg text-gray-400' : 'text-sm lg:text-lg hover:text-gray-400 transition'}
+                                className={({isActive}) => 
+                                    isActive 
+                                        ? 'text-sm lg:text-lg text-gray-400' 
+                                        : 'text-sm lg:text-lg hover:text-gray-400 transition'
+                                }
                             >
                                 FAQ
                             </NavLink>
@@ -90,7 +123,11 @@ export const Header = () => {
                         <li>
                             <NavLink 
                                 to="/about" 
-                                className={({isActive}) => isActive ? 'text-sm lg:text-lg text-gray-400' : 'text-sm lg:text-lg hover:text-gray-400 transition'}
+                                className={({isActive}) => 
+                                    isActive 
+                                        ? 'text-sm lg:text-lg text-gray-400' 
+                                        : 'text-sm lg:text-lg hover:text-gray-400 transition'
+                                }
                             >
                                 About
                             </NavLink>

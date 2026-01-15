@@ -3,13 +3,16 @@ import {Heart} from 'lucide-react';
 import { useWishList } from '@/hooks/index'
 import {ImgLoadingPlaceholder} from '@/features/index';
 
-export const CatalogCard = ({ id, name, price, category, imgSrc, onClick, sale, stock, onAdd, loading }) => {
+export const CatalogCard = ({ product, onClick, onAdd, loading }) => {
+  const {id, name, price, category, imgSrc, sale, stock} = product;
+  // Since there are few cards, we can ignore the optimization related to wishlist. 
+  // Currently, ~20 cards will change every time you click on a like
   const {wishList, addToWL, removeFromWL} = useWishList();
   const isFavorite = wishList[id] !== undefined;
 
   return (
     <div 
-      className="group rounded-2xl border border-neutral-800 bg-neutral-900 p-4 hover:border-neutral-600 transition-colors cursor-pointer"
+      className="group animate-fadeIn rounded-2xl border border-neutral-800 bg-neutral-900 p-4 hover:border-neutral-600 transition-colors cursor-pointer"
       onClick={onClick} 
     >
       <div className="w-full aspect-square bg-black/30 rounded-xl flex items-center justify-center overflow-hidden relative">

@@ -3,7 +3,7 @@ import {useCallback, useEffect, useMemo, useReducer, useRef} from 'react';
 import orderActions from '@/libs/constants/orderActionTypes';
 import {orderReducer, initOrderState, initialOrderState} from '@/reducers/orderReducer'
 import {getRandomInt} from '@/libs/utils/randomNumber'
-import { toast } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 
 export const OrderProvider = ({children}) => {

@@ -9,7 +9,7 @@ export const Catalog = () => {
     const navigate = useNavigate(); 
     const {category: categoryFromURL} = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
-    const { products, error, isLoading } = useData();
+    const { products, isLoading } = useData();
     const { addItem } = useCart();
     const maxValue = useMemo(() => {
         if (isLoading || !products.length) return 0;
@@ -194,28 +194,24 @@ export const Catalog = () => {
                     <div className="text-center py-12 text-gray-400">
                         <p>Loading catalog...</p>
                     </div> : 
-                        error.length ? 
-                            <div className="text-center py-12 text-red-500">
-                                <p>Failed to load catalog</p>
-                            </div> : 
-                                <>
-                                    <div className={`grid grid-cols-2 lg:${gridLayout} gap-4`}>
-                                        {displayedProducts.map((p, idx) => (
-                                            <CatalogCard 
-                                                key={p.id} 
-                                                product={p}
-                                                onClick={() => learnProductDetails(p)} 
-                                                onAdd={() => addItem(p)}
-                                                loading={idx < 8 ? 'eager' : 'lazy'}
-                                            />
-                                        ))}
-                                        {!displayedProducts.length && 
-                                            <div className="text-center py-12 justify-center col-span-full">
-                                                <p className='text-lg lg:text-xl text-gray-400'>No suitable products found</p>
-                                            </div>
-                                        }
-                                    </div>
-                                </>
+                            <>
+                                <div className={`grid grid-cols-2 lg:${gridLayout} gap-4`}>
+                                    {displayedProducts.map((p, idx) => (
+                                        <CatalogCard 
+                                            key={p.id} 
+                                            product={p}
+                                            onClick={() => learnProductDetails(p)} 
+                                            onAdd={() => addItem(p)}
+                                            loading={idx < 8 ? 'eager' : 'lazy'}
+                                        />
+                                    ))}
+                                    {!displayedProducts.length && 
+                                        <div className="text-center py-12 justify-center col-span-full">
+                                            <p className='text-lg lg:text-xl text-gray-400'>No suitable products found</p>
+                                        </div>
+                                    }
+                                </div>
+                            </>
                 }
             </div>
         </div>

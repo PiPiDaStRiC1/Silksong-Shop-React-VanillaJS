@@ -8,15 +8,6 @@ import {AppProviders} from '@/contexts/index';
 import {ProtectedRoute, GuestOnlyRoute, Preloader} from '@/features/index'
 import { lazy, Suspense } from 'react';
 
-// ToDo: 
-// КАК-ТО СДЕЛАТЬ ВОССТАНОВЛЕНИЕ ТАЙМЕРОВ, ДАЖЕ ПОСЛЕ РЕЛОГА ПОЛЬЗОВАТЕЛЯ
-// (ПОКА ЧТО ПРОСТО БУДУ ОЧИЩАТЬ ТАЙМЕРЫ ПРИ РАЗЛОГЕ)
-// 
-// ОПТИМИЗАЦИЯ ВСЕГО, ЧТО МОЖНО
-// 
-// СДЕЛАТЬ БОЛЕЕ ДЕТАЛЬНУЮ ОПТИМИЗАЦИЮ КАРТИНОК (СКЕЛЕТОН) И БЕСКОНЕЧНОГО СКРОЛЛА (В ЦЕЛОМ СДЕЛАНО)
-// УЛУЧШИТЬ LAZY ЗАГРУЗКУ СТРАНИЦ И КОМПОНЕНТОВ (В ЦЕЛОМ СДЕЛАНО)
-
 const Profile = lazy(() => import('@/pages/Profile'));
 const Delivery = lazy(() => import('@/pages/Delivery'));
 const FAQ = lazy(() => import('@/pages/FAQ'));

@@ -9,7 +9,7 @@ import {Heart, HeartCrack} from 'lucide-react'
 
 export const CatalogItemDetails = () => {
     const { category, id } = useParams();
-    const { products, reviews, isLoading, error } = useData();
+    const { products, reviews, isLoading } = useData();
     const { addItem } = useCart();
     const { wishList, removeFromWL, addToWL } = useWishList();
     const product = useMemo(() => products.find(p => String(p.id) === String(id)), [products, id]);
@@ -140,7 +140,6 @@ export const CatalogItemDetails = () => {
                         {tab === 'reviews' && (
                             <div className="py-4 flex flex-col gap-4 max-h-[32rem] overflow-y-auto scrollbar-reviews custom-scroll">
                                 {isLoading && <p className="text-gray-400">Loading reviews...</p>}
-                                {error.length !== 0 && <p className="text-red-500">Failed to load reviews</p>}
                                 {!isLoading && !sortedReviews.length && <p className="text-gray-400 text-center py-1">No reviews yet.</p>}
                                 {!isLoading && sortedReviews.map((r, idx) => (
                                     <ReviewsCardFull 

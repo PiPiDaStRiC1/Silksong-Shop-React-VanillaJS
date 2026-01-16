@@ -7,9 +7,8 @@ import { useSearchParams } from 'react-router-dom';
 import { SlidersHorizontal, X } from 'lucide-react';
 
 export const Reviews = () => {
-  const { reviews, isLoading, error } = useData();
+  const { reviews, isLoading } = useData();
   const [searchParams, setSearchParams] = useSearchParams();
-  
   const selectedRating = searchParams.get('rating') || '5';
   const selectedTimePeriod = searchParams.get('time') || 'allTime';
   const selectedVerified = searchParams.get('verified') !== 'false';
@@ -143,11 +142,7 @@ export const Reviews = () => {
           {isLoading ? 
             <div className="text-center py-12 text-gray-400">
               <p>Loading reviews...</p>
-            </div> : 
-                error.length ? 
-                    <div className="text-center py-12 text-red-500">
-                        <p>Failed to load reviews</p>
-                    </div> : (
+            </div> : (
                         <>
                           <div className="grid grid-cols-1 gap-4 max-h-[42.5rem] overflow-y-auto scrollbar-reviews custom-scroll">
                               {sortedReviews.map(({review, userId, userName, userAvatar, userVerified}, idx) => (

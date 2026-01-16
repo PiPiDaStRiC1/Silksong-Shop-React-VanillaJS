@@ -5,7 +5,6 @@ export const useRequests = () => {
     const [reviews, setReviews] = useState([]);
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState([]);
 
 
     useEffect(() => {
@@ -19,7 +18,7 @@ export const useRequests = () => {
                 }
             })
             .catch((error) => {
-                setError(prev => [...prev, `Failed to fetch data: ${error.message}`]);
+                console.error(`Failed to fetch data: ${error.message}`);
             })
             .finally(() => {
                 setIsLoading(false);
@@ -30,5 +29,5 @@ export const useRequests = () => {
         };
     }, []);
 
-    return {reviews, products, error, isLoading};
+    return {reviews, products, isLoading};
 }
